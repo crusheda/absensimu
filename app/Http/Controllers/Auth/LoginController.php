@@ -2,6 +2,7 @@
 
 namespace App\Http\Controllers\Auth;
 
+use Illuminate\Http\Request;
 use App\Http\Controllers\Controller;
 use App\Providers\RouteServiceProvider;
 use Illuminate\Foundation\Auth\AuthenticatesUsers;
@@ -21,6 +22,13 @@ class LoginController extends Controller
 
     use AuthenticatesUsers;
 
+    public function showLoginForm()
+    {
+        // return view('pages.auth.login');
+        return redirect()->route('auth.signin');
+        // return redirect()->route('login');
+    }
+
     /**
      * Where to redirect users after login.
      *
@@ -33,8 +41,22 @@ class LoginController extends Controller
      *
      * @return void
      */
+    protected function validateLogin(Request $request)
+    {
+        $request->validate([
+            $this->username() => 'required|string',
+            'password' => 'required|string',
+            // 'captcha' => 'required|captcha',
+        ]);
+    }
+
     public function __construct()
     {
         $this->middleware('guest')->except('logout');
+    }
+
+    public function username()
+    {
+        return 'name';
     }
 }
