@@ -3,6 +3,7 @@
 namespace App\Http\Controllers;
 
 use Illuminate\Http\Request;
+use Jenssegers\Agent\Agent;
 
 class HomeController extends Controller
 {
@@ -23,6 +24,12 @@ class HomeController extends Controller
      */
     public function index()
     {
-        return view('pages.index');
+        $agent = new Agent();
+
+        $data = [
+            'agent' => $agent,
+        ];
+
+        return view('pages.index')->with('list',$data);
     }
 }

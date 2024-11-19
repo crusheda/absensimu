@@ -16,7 +16,7 @@
 	<meta name="format-detection" content="telephone=no">
 
     <!-- Favicons Icon -->
-	<link rel="shortcut icon" type="image/x-icon" href="assets/images/favicon.png" />
+	<link rel="shortcut icon" type="image/x-icon" href="{{ asset('assets/images/favicon.png') }}" />
 
     <!-- Title -->
 	<title>Dashboard | E-Absensi</title>
@@ -25,13 +25,19 @@
 	<link rel="manifest" href="manifest.json">
 
     <!-- Stylesheets -->
-    <link rel="stylesheet" type="text/css" href="assets/css/style.css">
-    <link rel="stylesheet" href="assets/vendor/swiper/swiper-bundle.min.css">
+    <link rel="stylesheet" type="text/css" href="{{ asset('assets/css/style.css') }}">
+    <link rel="stylesheet" href="{{ asset('assets/vendor/swiper/swiper-bundle.min.css') }}">
+
+    <!-- Tabler Icons -->
+    <link rel="stylesheet" href="{{ asset('fonts/tabler-icons.min.css') }}"><!-- [Feather Icons] https://feathericons.com -->
+    <link rel="stylesheet" href="{{ asset('fonts/feather.css') }}">
 
     <!-- Google Fonts -->
     <link rel="preconnect" href="https://fonts.googleapis.com/">
     <link rel="preconnect" href="https://fonts.gstatic.com/" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@100;200;300;400;500;600;700;800;900&amp;display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css">
+    <script src="{{ asset('js/jquery.min.js') }}"></script>
 
 </head>
 <body>
@@ -102,13 +108,13 @@
 				<span>Selamat {{ $waktu }}</span>
 				<h2 class="name mb-0">{{ Auth::user()->nick?Auth::user()->nick:Auth::user()->name }}</h2>
 			</div>
-			<div class="dz-media media-45 rounded-circle">
+			{{-- <div class="dz-media media-45 rounded-circle">
                 @if (empty($foto_profil->filename))
                     <a href="javascrpit:void(0);"><img src="{{ asset('images/pku/user.png') }}" class="rounded-circle" alt="author-image"></a>
                 @else
                     <a href="javascrpit:void(0);"><img src="{{ url('storage/'.substr($foto_profil->filename,7,1000)) }}" class="rounded-circle" alt="author-image"></a>
                 @endif
-			</div>
+			</div> --}}
 		</div>
 	</div>
     <!-- Banner End -->
@@ -143,12 +149,13 @@
 <!--**********************************
     Scripts
 ***********************************-->
-<script src="index.js" defer></script>
-<script src="assets/js/jquery.js"></script>
-<script src="assets/vendor/bootstrap/js/bootstrap.bundle.min.js"></script>
-<script src="assets/js/settings.js"></script>
-<script src="assets/js/custom.js"></script>
-<script src="assets/js/dz.carousel.js"></script><!-- Swiper -->
-<script src="assets/vendor/swiper/swiper-bundle.min.js"></script><!-- Swiper -->
+{{-- <script src="index.js" defer></script> --}}
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
+{{-- <script src="assets/js/jquery.js"></script> --}}
+{{-- <script src="{{ asset('assets/vendor/bootstrap/js/bootstrap.bundle.min.js') }}"></script> --}}
+<script src="{{ asset('assets/js/settings.js') }}"></script>
+<script src="{{ asset('assets/js/custom.js') }}"></script>
+<script src="{{ asset('assets/js/dz.carousel.js') }}"></script><!-- Swiper -->
+<script src="{{ asset('assets/vendor/swiper/swiper-bundle.min.js') }}"></script><!-- Swiper -->
 </body>
 </html>

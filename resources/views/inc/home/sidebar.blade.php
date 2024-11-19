@@ -1,9 +1,9 @@
 <!-- Sidebar -->
 <div class="sidebar">
     <div class="author-box">
-        <div class="dz-media">
+        {{-- <div class="dz-media">
             <img src="assets/images/author/pic1.png" class="rounded-circle" alt="author-image">
-        </div>
+        </div> --}}
         <div class="dz-info">
             <span>Good Morning</span>
             <h5 class="name">Henry Kanwil</h5>

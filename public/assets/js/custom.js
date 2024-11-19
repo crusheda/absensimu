@@ -1,10 +1,10 @@
 var Jobie = function(){
-	
+
 	"use strict"
 	/* Search Bar ============ */
 	var screenWidth = $( window ).width();
 	var screenHeight = $( window ).height();
-	
+
 	// Preloader
 	var handlePreloader = function(){
 		setTimeout(function() {
@@ -21,7 +21,7 @@ var Jobie = function(){
 			jQuery('.menu-toggler').toggleClass('show');
 		});
 	}
-    
+
 	// Show Pass
     var handleShowPass = function(){
 		jQuery('.show-pass').on('click',function(){
@@ -33,10 +33,10 @@ var Jobie = function(){
 			}
 		});
 	}
-	
+
 	// Sticky Header
 	var handleIsFixed = function(){
-		$(window).scroll(function() {    
+		$(window).scroll(function() {
 			var scroll = $(window).scrollTop();
 			if (scroll >= 50) {
 				$(".main-bar").addClass("sticky-header");
@@ -45,7 +45,7 @@ var Jobie = function(){
 			}
 		});
 	}
-    
+
 	// Custom File Input
 	var handleCustomFileInput = function() {
 		$(".custom-file-input").on("change", function() {
@@ -53,14 +53,14 @@ var Jobie = function(){
 			$(this).siblings(".custom-file-label").addClass("selected").html(fileName);
 		});
 	}
-    
+
 	// Default Select
   	var handleSelectpicker = function(){
 		if(jQuery('.default-select').length > 0 ){
 			jQuery('.default-select').selectpicker();
 		}
 	}
-    
+
 	// Menubar Nav Active
     var handleMenubarNav = function() {
         $(".menubar-nav .nav-link").on("click",function(){
@@ -68,31 +68,31 @@ var Jobie = function(){
             $(this).addClass("active");
         });
 	}
-    
+
 	// Message Sheet
 	var handleMessageHandle = function() {
         $(".message-area .icon-popup").on("click",function(){
             $(".message-icon").slideToggle('slow');
         });
         $(".messagebar-sheet-image").on("change",function(){
-            var iconsrc = $(this).attr('data-icon'); 
-			
+            var iconsrc = $(this).attr('data-icon');
+
 		if($(this).find('input[type="checkbox"]').is(':checked')) {
-				$(".append-media").append("<div class='emoji-icon' data-icon="+iconsrc+"><img src="+iconsrc+ "></div>");				
+				$(".append-media").append("<div class='emoji-icon' data-icon="+iconsrc+"><img src="+iconsrc+ "></div>");
 			}else{
 			    var mediaicon = $('.message-area .emoji-icon[data-icon="'+iconsrc+'"]');
 				mediaicon.remove();
 			}
         });
-        
+
 	}
-    
+
 	// Scroll Top
 	var handleScrollTop = function (){
 		'use strict';
 		jQuery(window).bind("scroll", function() {
 			var scroll = jQuery(window).scrollTop();
-			if (scroll > 100) { 
+			if (scroll > 100) {
 				jQuery(".btn.scrollTop").fadeIn(500);
 			} else {
 				jQuery(".btn.scrollTop").fadeOut(500);
@@ -100,56 +100,56 @@ var Jobie = function(){
 		});
 		/* page scroll top on click function end*/
 	}
-	
+
 	// Chat button
     var handleChatBox = function (){
         $('.btn-chat').on('click', function() {
-			
+
 			var chatInput = $('.message-area .form-control');
 			var chatMessageValue = chatInput.val();
-			
+
 			var chatEmojiArea = $('.append-media').html();
-            
+
             var current = new Date();
             var ampm = current.getHours() >= 12 ? 'pm' : 'am';
             //alert(current.getMinutes());
             var actualTime = (current.getHours()% 12 +':'+current.getMinutes() +' '+ ampm);
-			
+
 			var messageEmojiHtml = '<div class="chat-content user">'+
 					'<div class="message-item">'+
 						'<div class="bubble">'+chatEmojiArea+'</div>'+
 						'<div class="message-time">'+actualTime+'</div>'+
 					'</div>'+
 				'</div>';
-				
-			if(chatEmojiArea.length > 0){   
+
+			if(chatEmojiArea.length > 0){
 				$('.chat-box-area').append(messageEmojiHtml);
 			}
-			
+
 			var messageHtml = '<div class="chat-content user">'+
 				'<div class="message-item">'+
 					'<div class="bubble">'+chatMessageValue+'</div>'+
 					'<div class="message-time">'+actualTime+'</div>'+
 				'</div>'+
 			'</div>';
-			
+
 			if(chatMessageValue.length > 0){
 				var appendMessage = $('.chat-box-area').append(messageHtml);
 			}
-			
+
 			window.scrollTo(0, document.body.scrollHeight);
-			var clearChatInput = chatInput.val('');    
-			var clearChatInputE = $('.append-media').empty();     
+			var clearChatInput = chatInput.val('');
+			var clearChatInputE = $('.append-media').empty();
         });
     }
-    
+
     // Page back btn
 	var handleGoBack = function(){
 		$('.back-btn').on('click',function(){
 			window.history.go(-1); return false
-		})        
+		})
     }
-    
+
 	// PWA Modal
 	var handlePWAModal = function (){
 		if (!window.matchMedia('(display-mode: standalone)').matches) {
@@ -164,10 +164,10 @@ var Jobie = function(){
     			setTimeout(function(){
     				jQuery('.pwa-backdrop').removeClass('show');
     			}, 500);
-    		}); 
+    		});
 		}
 	}
-    
+
 	// Recent Search
 	var handleSearch = function(){
         $('.search-input .form-control').on('change paste keyup',function(){
@@ -182,7 +182,7 @@ var Jobie = function(){
             $(this).fadeOut(0);
         })
     }
-	
+
 	// Theme Version
 	var handleThemeVersion = function() {
 		jQuery('.theme-btn').on('click',function(){
@@ -190,20 +190,20 @@ var Jobie = function(){
 			jQuery('.theme-btn').toggleClass('active');
 		});
 	}
-    
+
     var handleRemoveClass = function() {
 		jQuery('.nav-color').on('click',function(){
 			jQuery('.sidebar, .menu-toggler').removeClass('show');
 		});
 	}
-    
+
     var handleToggleButton = function() {
 		jQuery('.dz-treeview-item').on('click',function(){
 			jQuery(this).toggleClass('open');
 		});
 	}
-    
-    //Light Gallery ============ 
+
+    //Light Gallery ============
 	var handleLightgallery = function() {
 		if(jQuery('#lightgallery').length > 0)
 		{
@@ -212,8 +212,8 @@ var Jobie = function(){
             });
 		}
 	}
-    
-    //Tab Slide ============ 
+
+    //Tab Slide ============
 	var handleTabSlide = function() {
 		if(jQuery('.tab-slide-effect').length > 0)
 		{
@@ -231,8 +231,8 @@ var Jobie = function(){
 			})
 		}
 	}
-	
-    //Nav Menu ============ 
+
+    //Nav Menu ============
 	var handleNavMenu = function() {
 		jQuery('.navbar-nav > li > a, .sub-menu > li > a').unbind().on('click', function(e){
 			if(jQuery(this).parent().hasClass('open'))
@@ -246,9 +246,9 @@ var Jobie = function(){
 				jQuery(this).parent().parent().find('li').removeClass('open');
 				jQuery(this).parent().addClass('open');
 			}
-		});	
-	}	
-	
+		});
+	}
+
     var handleOtp = function() {
 		if(jQuery('#otp').length > 0)
 		$('.digit-group').find('input').each(function() {
@@ -256,16 +256,16 @@ var Jobie = function(){
             $(this).on('keyup', function(e) {
                 var thisVal = $(this).val();
                 var parent = $($(this).parent());
-                
+
                 if(e.keyCode === 8 || e.keyCode === 37) {
                     var prev = parent.find('input#' + $(this).data('previous'));
-                    
+
                     if(prev.length) {
                         $(prev).select();
                     }
                 } else {
                     var next = parent.find('input#' + $(this).data('next'));
-                    
+
                     if(!$.isNumeric(thisVal))
                     {
                         $(this).val('');
@@ -283,7 +283,7 @@ var Jobie = function(){
             });
         });
 	}
-    
+
     function getCodeBoxElement(index) {
         return document.getElementById('codeBox' + index);
     }
@@ -311,9 +311,9 @@ var Jobie = function(){
          }
       }
     }
-    
-    
-    
+
+
+
 	/* Function ============ */
 	return {
 		init:function(){
@@ -329,7 +329,7 @@ var Jobie = function(){
 			handleNavMenu();
             handleMessageHandle();
             handleGoBack();
-            handlePWAModal();
+            // handlePWAModal();
             handleSearch();
             //handleThemeVersion();
             handleRemoveClass();
@@ -341,44 +341,44 @@ var Jobie = function(){
 			handlePreloader();
 			handleSelectpicker();
 		},
-		
+
 		resize:function(){
 			screenWidth = $( window ).width();
 		},
 	}
-	
+
 }();
 
-/* Document.ready Start */	
+/* Document.ready Start */
 jQuery(document).ready(function() {
 	$('[data-bs-toggle="popover"]').popover();
     'use strict';
 	Jobie.init();
-    
+
     $('.theme-dark .custom-switch input').prop('checked', true);
-	
+
 });
 /* Document.ready END */
 
 /* Window Load START */
 jQuery(window).on('load',function () {
-	'use strict'; 
+	'use strict';
 	Jobie.load();
     setTimeout(function(){
 		jQuery('#splashscreen').addClass('active');
 		jQuery('#splashscreen').fadeOut(2000);
 	}, 2000);
-    
+
     $('.theme-dark .custom-switch input').prop('checked', true).addClass('active');
-    
-	
+
+
 });
 /*  Window Load END */
 
 /* Window Resize START */
 jQuery(window).on('resize',function () {
-	'use strict'; 
+	'use strict';
 	Jobie.resize();
-	
+
 });
 /*  Window Resize END */
