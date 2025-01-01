@@ -1,6 +1,18 @@
 @extends('layouts.home')
 
 @section('content')
+<style>
+    #map { height: 180px; },
+    .webcam-capture,
+    .webcam-capture video {
+        display: inline-block;
+        /* width: 100% !important; */
+        width: auto;
+        margin: auto;
+        height: auto !important;
+        border-radius: 15px;
+    }
+</style>
 <div class="content-inner pt-0">
     <div class="container fb">
         <!-- Search -->
@@ -20,10 +32,15 @@
         {{-- @if ($list['agent']->isMobile()) --}}
             <!-- Dashboard Area -->
             <div class="dashboard-area">
-                <div class="features-box mb-4">
+                <input type="text" class="form-control mb-4" id="lokasi">
+                <div class="mb-4">
+                    <div class="webcam-selfi"></div>
+                </div>
+                {{-- <div class="features-box mb-4">
                     <div id="reader" width="300px"></div>
                     <div id="result" hidden></div>
-                </div>
+                </div> --}}
+                <div id="map"></div>
 
                 <!-- Features -->
                 {{-- <div class="features-box">
@@ -292,11 +309,32 @@
 <script src="{{ asset('js/html5-qrcode.js') }}"></script>
 <script>
     $(document).ready(function() {
-        scan();
-        // Init OffCanvas
-        closeScan();
-        console.log('{{ Request::ip() }}');
+        // scan();
+        // closeScan();
+
+        // console.log('{{ Request::ip() }}');
+
+        Webcam.set({
+            height: 480,
+            width: 640,
+            image_format: 'jpeg',
+            jpeg_quality: 80
+        });
+        Webcam.attach('.webcam-selfi');
+
+        if (navigator.geoLocation) {
+            navigator.geoLocation.getCurrentPosition(successCallback, errorCallback);
+        }
+        // var map = L.map('map').setView([51.505, -0.09], 13);
     })
+
+    function successCallback(position) {
+        $("#lokasi").val(position.coords.latitude);
+    }
+
+    function errorCallback() {
+
+    }
 
     function showScan() {
         setTimeout(function(){
