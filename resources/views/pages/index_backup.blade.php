@@ -2,11 +2,13 @@
 
 @section('content')
 <style>
-    #map { height: 180px;},
-    /*.webcam-selfi,*/
-    .webcam-selfi video {
-        /*display: inline-block; */
+    #map { height: 180px; },
+    .webcam-capture,
+    .webcam-capture video {
+        display: inline-block;
+        /* width: 100% !important; */
         width: auto;
+        margin: auto;
         height: auto !important;
         border-radius: 15px;
     }
@@ -29,31 +31,17 @@
 
         {{-- @if ($list['agent']->isMobile()) --}}
             <!-- Dashboard Area -->
-            <div class="dashboard-area container">
+            <div class="dashboard-area">
                 <input type="text" class="form-control mb-4" id="lokasi">
-                <!--<div class="features-box mb-4 webcam-selfi"></div>-->
-                <div class="row">
-                    <div class="col-md-12 mb-4">
-                        <div class="webcam-selfi" style=""></div>
-                        <br/>
-                        <input type="button" class="form-control" value="Take Snapshot" onClick="take_snapshot()">
-                        <input type="hidden" name="image" class="image-tag">
-                    </div>
-                    <div class="col-md-12">
-                        <div id="results" style="height:auto;width:auto"></div>
-                    </div>
-                    <div class="col-md-12 text-center">
-                        <br/>
-                        <!--<button class="btn btn-success">Submit</button>-->
-                    </div>
+                <div class="mb-4">
+                    <div class="webcam-selfi"></div>
                 </div>
                 {{-- <div class="features-box mb-4">
                     <div id="reader" width="300px"></div>
                     <div id="result" hidden></div>
                 </div> --}}
                 <div id="map"></div>
-                {{-- <button class="form-control" onclick="getLocation()">Try It</button> --}}
-
+                <button class="form-control" onclick="getLocation()">Try It</button>
                 <!-- Features -->
                 {{-- <div class="features-box">
                     <div class="row m-b20 g-3">
@@ -320,51 +308,44 @@
 <div class="offcanvas-backdrop fade pwa-backdrop"></div>
 <script src="{{ asset('js/html5-qrcode.js') }}"></script>
 <script>
-    var map;
     $(document).ready(function() {
+        // scan();
+        // closeScan();
+
+        // console.log('{{ Request::ip() }}');
+
         Webcam.set({
             height: 480,
-            width: 0,
+            width: 640,
             image_format: 'jpeg',
             jpeg_quality: 80
         });
-        Webcam.attach('.webcam-selfi');
+        // Webcam.attach('.webcam-selfi');
 
-        const x = document.getElementById("lokasi");
-        if (navigator.geolocation) {
-            // navigator.geolocation.getCurrentPosition(showPosition);
-            navigator.geolocation.getCurrentPosition(position => {
-                const { latitude, longitude } = position.coords;
-                $("#lokasi").val("Latitude: " + position.coords.latitude + "----->  Longitude: " + position.coords.longitude);
-                // Show a map centered at latitude / longitude.
-                map = L.map('map').setView([position.coords.latitude, position.coords.longitude], 13);
-                L.tileLayer('https://tile.openstreetmap.org/{z}/{x}/{y}.png', {
-                    maxZoom: 19,
-                    attribution: '&copy; <a href="http://www.openstreetmap.org/copyright">OpenStreetMap</a>'
-                }).addTo(map);
-
-                var marker = new L.Marker([position.coords.latitude, position.coords.longitude]);
-                marker.addTo(map);
-            });
-        } else {
-            alert("Geolocation is not supported by this browser.");
+        if (navigator.geoLocation) {
+            navigator.geoLocation.getCurrentPosition(successCallback, errorCallback);
         }
+        // var map = L.map('map').setView([51.505, -0.09], 13);
     })
 
-    function take_snapshot() {
-        Webcam.snap( function(data_uri) {
-            $(".image-tag").val(data_uri);
-            document.getElementById('results').innerHTML = '<img src="'+data_uri+'"/>';
-        } );
-    }
+    const x = document.getElementById("lokasi");
 
     function getLocation() {
-
+      if (navigator.geolocation) {
+        // navigator.geolocation.getCurrentPosition(showPosition);
+        navigator.geolocation.getCurrentPosition(position => {
+          const { latitude, longitude } = position.coords;
+          $("#lokasi").val("Latitude: " + position.coords.latitude + "----->  Longitude: " + position.coords.longitude);
+          // Show a map centered at latitude / longitude.
+        });
+      } else {
+        x.innerHTML = "Geolocation is not supported by this browser.";
+      }
     }
 
     function showPosition(position) {
-        x.innerHTML = "Latitude: " + position.coords.latitude +
-        "----->  Longitude: " + position.coords.longitude;
+      x.innerHTML = "Latitude: " + position.coords.latitude +
+      "----->  Longitude: " + position.coords.longitude;
     }
 
     function successCallback(position) {
@@ -373,6 +354,91 @@
 
     function errorCallback() {
 
+    }
+
+    function showScan() {
+        setTimeout(function(){
+            $('.pwa-offcanvas').slideDown().addClass('show');
+            $('.pwa-backdrop').addClass('show');
+        }, 500);
+        // $('.pwa-offcanvas').slideDown(500, function() {
+        // });
+    }
+
+    function closeScan() {
+        $('.pwa-offcanvas').slideUp(500, function() {
+            $(this).removeClass('show');
+        });
+        setTimeout(function(){
+            $('.pwa-backdrop').removeClass('show');
+        }, 500);
+    }
+
+    function scan() {
+        // $("#reload-scan").prop('hidden', true);
+        $("#result").prop('hidden',true);
+        $("#reader").prop('hidden',false);
+        const formatsToSupport = [
+            Html5QrcodeSupportedFormats.QR_CODE,
+            // Html5QrcodeSupportedFormats.UPC_A,
+        ];
+        let config = {
+            fps: 10,
+            qrbox: {width: 630, height: 450},
+            rememberLastUsedCamera: true,
+            // Only support camera scan type.
+            supportedScanTypes: [
+                Html5QrcodeScanType.SCAN_TYPE_CAMERA,
+                Html5QrcodeScanType.SCAN_TYPE_FILE
+            ],
+            // formatsToSupport: formatsToSupport
+        };
+
+        let html5QrcodeScanner = new Html5QrcodeScanner("reader", config, /* verbose= */ false); // /* verbose= */ false
+        html5QrcodeScanner.render(onScanSuccess); //onScanFailure
+    }
+
+    var lastResult, countResults = 0;
+    function onScanSuccess(decodedText, decodedResult) {
+        if (decodedText !== lastResult) {
+            ++countResults;
+            lastResult = decodedText;
+            // $("#reload-scan").prop('hidden', false);
+            $("#html5-qrcode-button-camera-stop").trigger("click");
+            $("#reader").prop('hidden',true);
+            $("#result").prop('hidden',false);
+            alert(decodedText);
+            // iziToast.success({
+            //     title: 'QR-Code Valid!',
+            //     message: decodedText,
+            //     position: 'topRight'
+            // });
+            // $.ajax({
+            //     url: "/api/inventaris/aset/"+decodedText,
+            //     type: 'GET',
+            //     dataType: 'json', // added data type
+            //     success: function(res) {
+            //         console.log(res.show)
+            //         $('#result').append(res.show);
+            //         // res.show.forEach(item => {
+            //         //     console.log(res.show)
+            //         // })
+            //     },
+            //     error: function(res) {
+            //         iziToast.error({
+            //             title: 'Pesan Galat!',
+            //             message: 'Aset gagal ditampilkan',
+            //             position: 'topRight'
+            //         });
+            //     }
+            // });
+        }
+    }
+
+    function reloadScan() {
+        // $("#reload-scan").prop('hidden', true);
+        lastResult = null;
+        scan();
     }
 </script>
 @endsection
