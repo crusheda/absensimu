@@ -24,18 +24,18 @@ class HomeController extends Controller
     function manifest()
     {
         $ico = [
-            "src"=> "assets/images/pwa.png",
+            "src"=> "images/logo.png",
             "sizes"=> "200x200",
             "type"=> "image/png"
         ];
         $data = [
             "background_color" => "#40189d",
-            "description" => "Jobie - Job Portal Mobile App Template.",
+            "description" => "Aplikasi Absensi Terintegrasi Rumah Sakit PKU Muhammadiyah Sukoharjo",
             "display" => "fullscreen",
             "icons" => [$ico],
-            "name" => "Jobie - Job Portal",
-            "short_name" => "Jobie",
-            "start_url" => "/mobile-app/xhtml/index.html"
+            "name" => "E-Absensi | Simrsmu v.3",
+            "short_name" => "E-Absensi",
+            "start_url" => "/"
         ];
         return response()->json($data);
     }
