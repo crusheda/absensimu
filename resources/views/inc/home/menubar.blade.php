@@ -7,7 +7,7 @@
         <a href="{{ route('absensi.index') }}" class="nav-link {{ request()->routeIs('absensi.index') ? 'active' : '' }}">
             <i class="ti ti-map-2" style="font-size: 30px"></i>
         </a>
-        <a href="{{ route('absensi.index') }}" class="nav-link {{ request()->routeIs('absensi.index') ? 'active' : '' }}">
+        <a href="javascript:void(0);" class="nav-link">
             <i class="ti ti-list-check" style="font-size: 30px"></i>
         </a>
         <a href="javascript:void(0);" class="menu-toggler">

@@ -1,3 +1,21 @@
+<?php $foto_profil = \DB::table('users_foto')->where('user_id', Auth::user()->id)->first();
+$time = \Carbon\Carbon::now()->isoFormat('H');
+// PENGHITUNGAN WAKTU PAGI / SIANG / SORE / MALAM
+if ($time < "10") {
+    $waktu = "Pagi";
+} else {
+    if ($time >= "10" && $time < "15") {
+        $waktu = "Siang";
+    } else {
+        if ($time >= "15" && $time < "19") {
+            $waktu = "Sore";
+        } else {
+            if ($time >= "19") {
+                $waktu = "Malam";
+            }
+        }
+    }
+}?>
 <!-- Sidebar -->
 <div class="sidebar">
     <div class="author-box">
@@ -5,11 +23,11 @@
             <img src="assets/images/author/pic1.png" class="rounded-circle" alt="author-image">
         </div> --}}
         <div class="dz-info">
-            <span>Good Morning</span>
-            <h5 class="name">Henry Kanwil</h5>
+            <span>Selamat {{ $waktu }}</span>
+            <h5 class="name">{{ Auth::user()->nick?Auth::user()->nick:Auth::user()->name }}</h5>
         </div>
     </div>
-    <ul class="nav navbar-nav">
+    {{-- <ul class="nav navbar-nav">
         <li class="nav-label">Main Menu</li>
         <li><a class="nav-link" href="welcome.html">
                 <span class="dz-icon bg-red light">
@@ -214,10 +232,13 @@
                 </div>
             </div>
         </li>
-    </ul>
+    </ul> --}}
     <div class="sidebar-bottom">
-        <h6 class="name">Jobie - Job Portal</h6>
-        <p>App Version 1.0</p>
+        <h6 class="name">Elektronik Absensi</h6>
+        <p class="m-0"><script>document.write(new Date().getFullYear())</script> © Made with <a class="text-danger" href="{{ url('https://instagram.com/hiyussuf') }}"
+            target="_blank" data-bs-toggle="tooltip" data-bs-offset="0,4" data-bs-placement="top" data-bs-html="true"
+            title="Lihat Profil Developer">&#9829;</a></p>
+        {{-- <p>Made </p> --}}
     </div>
 </div>
 <!-- Sidebar End -->

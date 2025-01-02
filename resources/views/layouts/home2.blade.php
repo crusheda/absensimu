@@ -49,9 +49,9 @@
 <body>
 <div class="page-wraper">
 
-    {{-- <div id="preloader">
+    <div id="preloader">
         <div class="spinner"></div>
-    </div> --}}
+    </div>
 
 	<!-- Header -->
     <header class="header">

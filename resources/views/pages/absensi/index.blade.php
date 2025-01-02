@@ -15,10 +15,17 @@
     <div class="col-12">
         <div class="card">
             <div class="card-body">
-                <h6>Lokasi Anda Saat Ini</h6>
+                <div class="alert alert-secondary">
+                    <h6 class="text-center mb-3">Panduan Absensi</h6>
+                    <i class="ti ti-arrow-narrow-right me-1">Mohon untuk tidak melakukan Absensi lebih dari 3 Jam dihitung dari Jam Mulai Masuk Shift</i>
+                </div>
                 <input type="text" class="form-control" id="lokasi" hidden>
                 <div id="map" class="mb-3"></div>
-                <button type="button" class="btn btn-primary right-content" onclick="validation()"><i class="ti ti-map-pin me-1"></i> Absen Masuk</button>
+                <center>
+                    {{-- <button type="button" class="btn btn-secondary" onclick="" disabled><i class="ti ti-plane me-1"></i> Dinas Luar</button> --}}
+                    <button type="button" class="btn btn-danger" onclick="prosesPulang()" id="btn-pulang" hidden><i class="ti ti-plane-departure me-1"></i> Absen Pulang</button>
+                    <button type="button" class="btn btn-primary" onclick="prosesMasuk()" id="btn-masuk" hidden><i class="ti ti-plane-arrival me-1"></i> Absen Masuk</button>
+                </center>
             </div>
         </div>
     </div>
@@ -34,9 +41,29 @@
         //     jpeg_quality: 80
         // });
         // Webcam.attach('.webcam-selfi');
+
+        init();
         refreshMap();
         // validation();
     })
+
+    function init() {
+        $.ajax({
+            url: "/api/kepegawaian/absensi/{{ Auth::user()->id }}",
+            type: 'GET',
+            dataType: 'json',
+            success: function(res) {
+                console.log(res);
+                if (res) {
+                    $("#btn-pulang").prop('hidden',false)
+                    $("#btn-masuk").prop('hidden',true)
+                } else {
+                    $("#btn-pulang").prop('hidden',true)
+                    $("#btn-masuk").prop('hidden',false)
+                }
+            }
+        })
+    }
 
     function refreshMap() {
         const x = document.getElementById("lokasi");
@@ -58,7 +85,7 @@
                     scrollWheelZoom: false,
                     dragging: false,
                     doubleClickZoom: false,
-                }).setView([position.coords.latitude, position.coords.longitude], 18);
+                }).setView([position.coords.latitude, position.coords.longitude], 17);
                 L.tileLayer('https://tile.openstreetmap.org/{z}/{x}/{y}.png', {
                     maxZoom: 19,
                     // attribution: '&copy; <a href="http://www.openstreetmap.org/copyright">OpenStreetMap</a>'
@@ -69,7 +96,7 @@
                 marker.addTo(map);
 
                 // Radius
-                var circle = L.circle([-7.733248, 110.559232], { // RSPKUSKH COORD : -7.6378845, 110.868032
+                var circle = L.circle([-7.677851238136329, 110.83968584828327], { // RSPKUSKH COORD : -7.677851238136329, 110.83968584828327
                     color: 'red',
                     fillColor: '#f03',
                     fillOpacity: 0.5,
@@ -126,6 +153,70 @@
         } else {
             alert("Browser Anda Tidak Support.");
         }
+    }
+
+    function prosesMasuk() {
+        // VALIDATION
+        $.ajax({
+            url: "/api/kepegawaian/absensi/validate/jadwal/{{ Auth::user()->id }}",
+            type: 'GET',
+            dataType: 'json',
+            success: function(res) {
+                if (res.code == 200) { // JIKA SYARAT ABSEN TERPENUHI
+                    // INIT
+                    var save = new FormData();
+                    save.append('lokasi',$("#lokasi").val());
+                    save.append('kd_shift',res.kd_shift);
+                    save.append('nm_shift',res.nm_shift);
+                    save.append('berangkat',res.berangkat);
+                    save.append('pulang',res.pulang);
+                    save.append('pegawai',"{{ Auth::user()->id }}");
+                    // SAVING DATA
+                    $.ajax({
+                        headers: {
+                            'X-CSRF-TOKEN': $('meta[name="csrf-token"]').attr('content')
+                        },
+                        url: "{{route('kepegawaian.absensi.executeAbsensi')}}",
+                        method: 'POST',
+                        data: save,
+                        cache: false,
+                        contentType: false,
+                        processData: false,
+                        dataType: 'json',
+                        success: function(ex) {
+                            if (ex.code == 200) {
+                                Swal.fire({
+                                    title: `Pesan Berhasil!`,
+                                    text: ex.message,
+                                    icon: `success`,
+                                    showConfirmButton: false,
+                                    showCancelButton: false,
+                                    allowOutsideClick: false,
+                                    allowEscapeKey: false,
+                                    timer: 3000,
+                                    timerProgressBar: true,
+                                    backdrop: `rgba(26,27,41,0.8)`,
+                                });
+                            }
+                        }
+                    })
+                } else { // JIKA SYARAT ABSEN TIDAK TERPENUHI
+                    Swal.fire({
+                        title: `Pesan Error`,
+                        text: res.message,
+                        icon: `warning`,
+                        showConfirmButton: false,
+                        showCancelButton: false,
+                        allowOutsideClick: false,
+                        allowEscapeKey: false,
+                        timer: 3000,
+                        timerProgressBar: true,
+                        backdrop: `rgba(26,27,41,0.8)`,
+                    });
+                }
+            }
+        })
+
     }
 
     // function validation() {
