@@ -3,7 +3,6 @@
 namespace App\Http\Controllers;
 
 use Illuminate\Http\Request;
-use Jenssegers\Agent\Agent;
 
 class HomeController extends Controller
 {
@@ -22,17 +21,6 @@ class HomeController extends Controller
      *
      * @return \Illuminate\Contracts\Support\Renderable
      */
-    public function index()
-    {
-        $agent = new Agent();
-
-        $data = [
-            'agent' => $agent,
-        ];
-
-        return view('pages.index')->with('list',$data);
-    }
-
     function manifest()
     {
         $ico = [

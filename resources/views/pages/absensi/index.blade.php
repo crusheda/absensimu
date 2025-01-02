@@ -337,14 +337,23 @@
                 const { latitude, longitude } = position.coords;
                 $("#lokasi").val("Latitude: " + position.coords.latitude + "----->  Longitude: " + position.coords.longitude);
                 // Show a map centered at latitude / longitude.
-                map = L.map('map').setView([position.coords.latitude, position.coords.longitude], 13);
+                map = L.map('map').setView([position.coords.latitude, position.coords.longitude], 16);
                 L.tileLayer('https://tile.openstreetmap.org/{z}/{x}/{y}.png', {
                     maxZoom: 19,
                     attribution: '&copy; <a href="http://www.openstreetmap.org/copyright">OpenStreetMap</a>'
                 }).addTo(map);
 
+                // Titik Lokasi GPS
                 var marker = new L.Marker([position.coords.latitude, position.coords.longitude]);
                 marker.addTo(map);
+                
+                // Radius
+                var circle = L.circle([-7.6378845, 110.868032], {
+                    color: 'red',
+                    fillColor: '#f03',
+                    fillOpacity: 0.5,
+                    radius: 50
+                }).addTo(map);
             });
         } else {
             alert("Geolocation is not supported by this browser.");
@@ -356,6 +365,19 @@
             $(".image-tag").val(data_uri);
             document.getElementById('results').innerHTML = '<img src="'+data_uri+'"/>';
         } );
+        
+        Swal.fire({
+            title: `Absensi Berhasil`,
+            text: 'Selamat beraktivitas!',
+            icon: `success`,
+            showConfirmButton: false,
+            showCancelButton: false,
+            allowOutsideClick: false,
+            allowEscapeKey: false,
+            timer: 3000,
+            timerProgressBar: true,
+            backdrop: `rgba(26,27,41,0.8)`,
+        });
     }
 
     function getLocation() {
