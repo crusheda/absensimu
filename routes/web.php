@@ -23,7 +23,8 @@ Auth::routes(['register' => false]);
 Route::get('/signin', [App\Http\Controllers\Auth\AuthController::class, 'index'])->name('auth.signin');
 
 Route::group(['middleware' => ['auth']], function () {
-    Route::get('/', [App\Http\Controllers\HomeController::class, 'index'])->name('home');
+    Route::get('/', [App\Http\Controllers\DashboardController::class, 'index'])->name('dashboard');
+    Route::get('/absensi', [App\Http\Controllers\Absensi\AbsenController::class, 'index'])->name('absensi.index');
 
 });
 
