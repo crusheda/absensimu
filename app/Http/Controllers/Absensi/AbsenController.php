@@ -32,9 +32,17 @@ class AbsenController extends Controller
     function initAbsensi($user)
     {
         // $users  = users::where('nik','!=',null)->where('nama','!=',null)->orderBy('nama', 'asc')->get();
-        $datenow = Carbon::now()->isoFormat('YYYY-MM-DD');
+        $datenow = Carbon::now()->isoFormat('Y-m-d');
+        // $datenow = "2025-01-02";
 
-        $data = absensi::where('pegawai_id',$user)->where("tgl_in","LIKE",$datenow."%")->orderBy("tgl_in","DESC")->first();
+        $show = absensi::where('pegawai_id',$user)->whereDate("tgl_in","=",$datenow)->orderBy("tgl_in","DESC")->first();
+
+        $data = [
+            'show' => $show,
+        ];
+
+        // print_r($data);
+        // die();
 
         return response()->json($data, 200);
     }
@@ -117,7 +125,22 @@ class AbsenController extends Controller
         $data->save();
 
         return Response::json(array(
-            'message' => 'Anda berhasil masuk, selamat beraktifitas',
+            'message' => 'Absen masuk berhasil, selamat beraktifitas',
+            'code' => 200,
+        ));
+    }
+
+    function executePulang(Request $request, $id)
+    {
+        // $arrMap = explode(",",$request->lokasi);
+        $data = absensi::where('pegawai_id',$request->pegawai);
+        $data->tgl_out = Carbon::now();
+        $data->selisih_jam = Carbon::now() - Carbon::parse($data->tgl_in);
+        $data->lokasi_in = $request->lokasi;
+        $data->save();
+
+        return Response::json(array(
+            'message' => 'Absen pulang berhasil, hati-hati di jalan',
             'code' => 200,
         ));
     }
@@ -133,7 +156,7 @@ class AbsenController extends Controller
         // RS PKU Muhammadiyah Sukoharjo : -7.677851238136329, 110.83968584828327
         // $callDistance = $this->distance("-7.733137923668563", "110.55927671462696", $lat2, $lon2);
 
-        $callDistance = $this->distance("-7.677851238136329", "110.83968584828327", $lat2, $lon2);
+        $callDistance = $this->distance("-7.637518763021599", "110.86722103480558", $lat2, $lon2);
         $distance = round($callDistance["meters"]);
 
         return response()->json($distance, 200);

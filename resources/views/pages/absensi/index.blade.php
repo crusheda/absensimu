@@ -54,7 +54,7 @@
             dataType: 'json',
             success: function(res) {
                 console.log(res);
-                if (res) {
+                if (res.show == null) {
                     $("#btn-pulang").prop('hidden',false)
                     $("#btn-masuk").prop('hidden',true)
                 } else {
@@ -96,7 +96,7 @@
                 marker.addTo(map);
 
                 // Radius
-                var circle = L.circle([-7.677851238136329, 110.83968584828327], { // RSPKUSKH COORD : -7.677851238136329, 110.83968584828327
+                var circle = L.circle([-7.637518763021599, 110.86722103480558], { // RSPKUSKH COORD : -7.677851238136329, 110.83968584828327
                     color: 'red',
                     fillColor: '#f03',
                     fillOpacity: 0.5,
