@@ -55,11 +55,11 @@
             success: function(res) {
                 console.log(res);
                 if (res.show == null) {
-                    $("#btn-pulang").prop('hidden',false)
-                    $("#btn-masuk").prop('hidden',true)
-                } else {
                     $("#btn-pulang").prop('hidden',true)
                     $("#btn-masuk").prop('hidden',false)
+                } else {
+                    $("#btn-pulang").prop('hidden',false)
+                    $("#btn-masuk").prop('hidden',true)
                 }
             }
         })
@@ -96,7 +96,7 @@
                 marker.addTo(map);
 
                 // Radius
-                var circle = L.circle([-7.637518763021599, 110.86722103480558], { // RSPKUSKH COORD : -7.677851238136329, 110.83968584828327
+                var circle = L.circle(["{{ $list['profil_rs']->coord_lat }}","{{ $list['profil_rs']->coord_long }}"], { // RSPKUSKH COORD : -7.677851238136329, 110.83968584828327
                     color: 'red',
                     fillColor: '#f03',
                     fillOpacity: 0.5,
@@ -197,6 +197,7 @@
                                     timerProgressBar: true,
                                     backdrop: `rgba(26,27,41,0.8)`,
                                 });
+                                refreshMap();
                             }
                         }
                     })
@@ -216,56 +217,67 @@
                 }
             }
         })
-
     }
 
-    // function validation() {
-    //     // initialize
-    //     var save = new FormData();
-    //     save.append('lokasi',$("#lokasi").val());
-    //     console.log($("#lokasi").val());
-    //     $.ajax({
-    //         headers: {
-    //             'X-CSRF-TOKEN': $('meta[name="csrf-token"]').attr('content')
-    //         },
-    //         url: "{{route('kepegawaian.absensi.getDistance')}}",
-    //         method: 'POST',
-    //         data: save,
-    //         cache: false,
-    //         contentType: false,
-    //         processData: false,
-    //         dataType: 'json',
-    //         success: function(res) {
-    //             if (res > 100) {
-    //             Swal.fire({
-    //                 title: `Anda berada di luar area Rumah Sakit`,
-    //                 text: 'Mendekatlah ke titik lokasi terdekat Absensi!',
-    //                 icon: `error`,
-    //                 showConfirmButton: false,
-    //                 showCancelButton: false,
-    //                 allowOutsideClick: true,
-    //                 allowEscapeKey: false,
-    //                 timer: 3000,
-    //                 timerProgressBar: true,
-    //                 backdrop: `rgba(26,27,41,0.8)`,
-    //             });
-    //             } else {
-    //                 Swal.fire({
-    //                     title: `Anda berada di dalam area Rumah Sakit`,
-    //                     text: 'Silakan melakukan absensi!',
-    //                     icon: `success`,
-    //                     showConfirmButton: false,
-    //                     showCancelButton: false,
-    //                     allowOutsideClick: true,
-    //                     allowEscapeKey: false,
-    //                     timer: 3000,
-    //                     timerProgressBar: true,
-    //                     backdrop: `rgba(26,27,41,0.8)`,
-    //                 });
-    //             }
-    //         }
-    //     })
-    // }
+    function prosesPulang() {
+        // VALIDATION
+        $.ajax({
+            url: "/api/kepegawaian/absensi/validate/jadwal/{{ Auth::user()->id }}/pulang",
+            type: 'GET',
+            dataType: 'json',
+            success: function(res) {
+                if (res.code == 200) { // JIKA SYARAT ABSEN TERPENUHI
+                    // INIT
+                    var save = new FormData();
+                    save.append('lokasi',$("#lokasi").val());
+                    save.append('pegawai',"{{ Auth::user()->id }}");
+                    // SAVING DATA
+                    $.ajax({
+                        headers: {
+                            'X-CSRF-TOKEN': $('meta[name="csrf-token"]').attr('content')
+                        },
+                        url: "{{route('kepegawaian.absensi.executePulang')}}",
+                        method: 'POST',
+                        data: save,
+                        cache: false,
+                        contentType: false,
+                        processData: false,
+                        dataType: 'json',
+                        success: function(ex) {
+                            if (ex.code == 200) {
+                                Swal.fire({
+                                    title: `Pesan Berhasil!`,
+                                    text: ex.message,
+                                    icon: `success`,
+                                    showConfirmButton: false,
+                                    showCancelButton: false,
+                                    allowOutsideClick: false,
+                                    allowEscapeKey: false,
+                                    timer: 3000,
+                                    timerProgressBar: true,
+                                    backdrop: `rgba(26,27,41,0.8)`,
+                                });
+                                refreshMap();
+                            }
+                        }
+                    })
+                } else { // JIKA SYARAT ABSEN TIDAK TERPENUHI
+                    Swal.fire({
+                        title: `Pesan Error`,
+                        text: res.message,
+                        icon: `warning`,
+                        showConfirmButton: false,
+                        showCancelButton: false,
+                        allowOutsideClick: false,
+                        allowEscapeKey: false,
+                        timer: 3000,
+                        timerProgressBar: true,
+                        backdrop: `rgba(26,27,41,0.8)`,
+                    });
+                }
+            }
+        })
+    }
 
     function take_snapshot() {
         // Webcam.snap( function(data_uri) {

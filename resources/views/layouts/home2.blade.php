@@ -6,17 +6,19 @@
 	<meta charset="utf-8">
 	<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, minimum-scale=1, minimal-ui, viewport-fit=cover">
 	<meta name="theme-color" content="#2196f3">
-	<meta name="author" content="DexignZone" />
-    <meta name="keywords" content="" />
+    <meta name="description" content="Sistem Elektronik Absensi Rumah Sakit PKU Muhammadiyah Sukoharjo" />
+    <meta name="keywords" content="absensi, simrsmu, sistem absensi, pkuskh, rspkuskh, sistem pku, sistem absensi rumah sakit, rumah sakit pku, pku muhammadiyah sukoharjo, absensi pku sukoharjo, absen rs pku sukoharjo">
+    <meta name="author" content="Yussuf Faisal" />
     <meta name="robots" content="" />
-	<meta name="description" content=""/>
 	<meta property="og:title" content="" />
 	<meta property="og:description" content="" />
-	<meta property="og:image" content="social-image.png"/>
+	<meta property="og:image" content=""/>
 	<meta name="format-detection" content="telephone=no">
 
     <!-- Favicons Icon -->
-	<link rel="shortcut icon" type="image/x-icon" href="{{ asset('assets/images/favicon.png') }}" />
+    <link rel="shortcut icon" href="{{ asset('images/logo/logo_new_light.png') }}">
+    <link rel="apple-touch-icon" sizes="76x76" href="{{ asset('images/logo/logo_new_light.png') }}">
+    <link rel="icon" type="image/png" sizes="96x96" href="{{ asset('images/logo/logo_new_light.png') }}">
 
     <!-- Title -->
 	<title>Capture | E-Absensi</title>
@@ -66,7 +68,8 @@
                         </a>
                     </div>
                     <div class="mid-content">
-                        <h5 class="mb-0">Absensi</h5>
+                        {{-- PAGE TITLE --}}
+                        <h5 class="mb-0"></h5>
                     </div>
                     <div class="right-content">
                         <a href="javascript:void(0);" class="menu-toggler">

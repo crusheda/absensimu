@@ -4,6 +4,7 @@ namespace App\Http\Controllers\Absensi;
 
 use App\Http\Controllers\Controller;
 use Illuminate\Http\Request;
+use App\Models\profil_rs;
 use App\Models\users;
 use App\Models\absensi;
 use App\Models\jadwal;
@@ -19,9 +20,11 @@ class AbsenController extends Controller
     public function index()
     {
         $agent = new Agent();
+        $profil_rs = profil_rs::first();
 
         $data = [
             'agent' => $agent,
+            'profil_rs' => $profil_rs,
         ];
 
         return view('pages.absensi.index')->with('list',$data);
@@ -32,10 +35,16 @@ class AbsenController extends Controller
     function initAbsensi($user)
     {
         // $users  = users::where('nik','!=',null)->where('nama','!=',null)->orderBy('nama', 'asc')->get();
-        $datenow = Carbon::now()->isoFormat('Y-m-d');
+        $datenow = Carbon::now()->isoFormat('YYYY-MM-DD');
         // $datenow = "2025-01-02";
+        // print_r($datenow);
+        // die();
 
-        $show = absensi::where('pegawai_id',$user)->whereDate("tgl_in","=",$datenow)->orderBy("tgl_in","DESC")->first();
+        $show = absensi::where('pegawai_id',$user)
+                        ->whereDate("tgl_in","=",$datenow)
+                        ->where("tgl_out",null)
+                        ->orderBy("tgl_in","DESC")
+                        ->first();
 
         $data = [
             'show' => $show,
@@ -52,6 +61,8 @@ class AbsenController extends Controller
         $time = Carbon::now()->isoFormat('H:m:s'); // 24 hour
         // print_r($time);
         // die();
+        $today = Carbon::now()->isoFormat('YYYY-MM-DD');
+        $tommorow = Carbon::now()->addDays(1)->isoFormat('YYYY-MM-DD');
         $tahun = Carbon::now()->isoFormat('YYYY');
         $bulan = Carbon::now()->isoFormat('MM');
         $tgl = Carbon::now()->isoFormat('D');
@@ -77,8 +88,8 @@ class AbsenController extends Controller
                     'message' => 'Anda berada di Waktu Masuk Kerja!',
                     'kd_shift' => $shift->singkat,
                     'nm_shift' => $shift->shift,
-                    'berangkat' => $shift->berangkat,
-                    'pulang' => $shift->pulang,
+                    'berangkat' => Carbon::parse($today.' '.$shift->berangkat)->isoFormat('YYYY-MM-DD HH:mm:ss'),
+                    'pulang' => Carbon::parse($today.' '.$shift->pulang)->isoFormat('YYYY-MM-DD HH:mm:ss'),
                     'code' => 200,
                 ));
             } else {
@@ -98,8 +109,8 @@ class AbsenController extends Controller
                     'message' => 'Anda berada di Waktu Masuk Kerja!',
                     'kd_shift' => $shift->singkat,
                     'nm_shift' => $shift->shift,
-                    'berangkat' => $shift->berangkat,
-                    'pulang' => $shift->pulang,
+                    'berangkat' => Carbon::parse($today.' '.$shift->berangkat)->isoFormat('YYYY-MM-DD HH:mm:ss'),
+                    'pulang' => Carbon::parse($tommorow.' '.$shift->pulang)->isoFormat('YYYY-MM-DD HH:mm:ss'),
                     'code' => 200,
                 ));
             } else {
@@ -111,17 +122,66 @@ class AbsenController extends Controller
         }
     }
 
+    function validatePulang($user)
+    {
+        $now = Carbon::now();
+        $datenow = $now->isoFormat('YYYY-MM-DD');
+        $show = absensi::where('pegawai_id',$user)->whereDate("ref_jam_pulang","=",$datenow)->orderBy("tgl_in","DESC")->first();
+
+        $pulangmin = Carbon::parse($show->ref_jam_pulang);
+        $pulangmax = Carbon::parse($show->ref_jam_pulang)->addHour();
+
+        if ($now <= $pulangmax && $now >= $pulangmin) {
+            return Response::json(array(
+                'message' => 'Anda dapat melanjutkan proses Absen Pulang!',
+                'code' => 200,
+            ));
+        } else {
+            return Response::json(array(
+                'message' => 'Anda belum dapat melakukan Absen Pulang!',
+                'code' => 400,
+            ));
+        }
+
+
+        return Response::json(array(
+            'message' => 'Anda berada di Waktu Masuk Kerja!',
+            'kd_shift' => $shift->singkat,
+            'nm_shift' => $shift->shift,
+            'berangkat' => Carbon::parse($today.' '.$shift->berangkat)->isoFormat('YYYY-MM-DD HH:mm:ss'),
+            'pulang' => Carbon::parse($today.' '.$shift->pulang)->isoFormat('YYYY-MM-DD HH:mm:ss'),
+            'code' => 200,
+        ));
+    }
+
     function executeAbsensi(Request $request)
     {
-        // $arrMap = explode(",",$request->lokasi);
+        // JIKA TOLERANSI KETERLAMBATAN = 10 MENIT DIHITUNG DARI JAM MULAI MASUK
+        // $toleransi = Carbon::parse('00:10:00')->isoFormat('HH:mm:ss');
+
+        // PERHITUNGAN SELISIH JAM SAAT MASUK SAMPAI KETERLAMBATAN
+        $initBerangkat = Carbon::parse($request->berangkat)->addMinutes(10);
+        $harusnyaBerangkat = new Carbon($initBerangkat); // ->isoFormat('YYYY-MM-DD H:mm:ss')
+        $berangkat = new Carbon();
+        if ($berangkat > $harusnyaBerangkat) {
+            $diff = $berangkat->diff($harusnyaBerangkat)->format('%H:%I:%S');
+            $terlambat = 1; // TERLAMBAT
+        } else {
+            $diff = Carbon::parse('00:00:00')->isoFormat('HH:mm:ss');
+            $terlambat = 0; // DISIPLIN
+        }
+
         $data = new absensi;
+        $data->jenis = 1;
         $data->pegawai_id = $request->pegawai;
         $data->kd_shift = $request->kd_shift;
         $data->nm_shift = $request->nm_shift;
         $data->ref_jam_masuk = $request->berangkat;
         $data->ref_jam_pulang = $request->pulang;
+        $data->keterlambatan = $diff;
         $data->tgl_in = Carbon::now();
         $data->lokasi_in = $request->lokasi;
+        $data->terlambat = $terlambat;
         $data->save();
 
         return Response::json(array(
@@ -130,13 +190,22 @@ class AbsenController extends Controller
         ));
     }
 
-    function executePulang(Request $request, $id)
+    function executePulang(Request $request)
     {
-        // $arrMap = explode(",",$request->lokasi);
-        $data = absensi::where('pegawai_id',$request->pegawai);
+        $now = Carbon::now();
+        $datenow = $now->isoFormat('YYYY-MM-DD');
+
+        // GET DATA TO UPDATE
+        $data = absensi::where('pegawai_id',$request->pegawai)->whereDate("ref_jam_pulang","=",$datenow)->orderBy("ref_jam_pulang","DESC")->first();
+
+        // PERHITUNGAN SELISIH JAM SAAT MASUK SAMPAI PULANG
+        $jam_berangkat = new Carbon($data->tgl_in); // ->isoFormat('YYYY-MM-DD H:mm:ss')
+        $jam_pulang = new Carbon();
+        $diff = $jam_berangkat->diff($jam_pulang)->format('%H:%I:%S');
+
         $data->tgl_out = Carbon::now();
-        $data->selisih_jam = Carbon::now() - Carbon::parse($data->tgl_in);
-        $data->lokasi_in = $request->lokasi;
+        $data->selisih_jam = $diff;
+        $data->lokasi_out = $request->lokasi;
         $data->save();
 
         return Response::json(array(
@@ -147,6 +216,7 @@ class AbsenController extends Controller
 
     function getDistance(Request $request)
     {
+        $profil_rs = profil_rs::first();
         $lokasi = explode(",",$request->lokasi);
         $lat2 = $lokasi[0];
         $lon2 = $lokasi[1];
@@ -156,7 +226,7 @@ class AbsenController extends Controller
         // RS PKU Muhammadiyah Sukoharjo : -7.677851238136329, 110.83968584828327
         // $callDistance = $this->distance("-7.733137923668563", "110.55927671462696", $lat2, $lon2);
 
-        $callDistance = $this->distance("-7.637518763021599", "110.86722103480558", $lat2, $lon2);
+        $callDistance = $this->distance($profil_rs->coord_lat, $profil_rs->coord_long, $lat2, $lon2);
         $distance = round($callDistance["meters"]);
 
         return response()->json($distance, 200);
