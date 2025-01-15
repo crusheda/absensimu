@@ -58,7 +58,7 @@ class AbsenController extends Controller
 
     function validateJadwal($user)
     {
-        $time = Carbon::now()->isoFormat('H:m:s'); // 24 hour
+        $time = Carbon::now()->isoFormat('HH:mm:ss'); // 24 hour
         // print_r($time);
         // die();
         $today = Carbon::now()->isoFormat('YYYY-MM-DD');
@@ -83,6 +83,10 @@ class AbsenController extends Controller
 
         // VALIDATING JAM MASUK
         if ($shift->pulang > $shift->berangkat) { // KECUALI MALAM ATAU LEWAT HARI
+            // print_r($time);
+            // print_r($shift->berangkat);
+            // print_r($shift->pulang);
+            // die();
             if ($time >= $shift->berangkat && $time <= $shift->pulang) { // DALAM JAM KERJA
                 return Response::json(array(
                     'message' => 'Anda berada di Waktu Masuk Kerja!',
