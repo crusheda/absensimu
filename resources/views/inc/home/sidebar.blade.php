@@ -27,26 +27,10 @@ if ($time < "10") {
             <h5 class="name">{{ Auth::user()->nick?Auth::user()->nick:Auth::user()->name }}</h5>
         </div>
     </div>
-    {{-- <ul class="nav navbar-nav">
-        <li class="nav-label">Main Menu</li>
-        <li><a class="nav-link" href="welcome.html">
-                <span class="dz-icon bg-red light">
-                    <svg width="20" height="20" viewBox="0 0 24 24" fill="none"
-                        xmlns="http://www.w3.org/2000/svg">
-                        <path opacity="0.4"
-                            d="M11.776 21.8374C9.49294 20.4273 7.37064 18.7645 5.44791 16.8796C4.09052 15.5338 3.05388 13.8905 2.41718 12.0753C1.27955 8.53523 2.60383 4.48948 6.30113 3.2884C8.25264 2.67553 10.3751 3.05175 12.0071 4.29983C13.6397 3.05315 15.7614 2.67705 17.713 3.2884C21.4103 4.48948 22.7435 8.53523 21.6058 12.0753C20.9743 13.8888 19.9438 15.5319 18.5929 16.8796C16.6684 18.7625 14.5463 20.4251 12.2648 21.8374L12.016 22L11.776 21.8374Z"
-                            fill="white" />
-                        <path
-                            d="M12.0109 22L11.776 21.8374C9.49013 20.4274 7.36487 18.7647 5.43902 16.8796C4.0752 15.5356 3.03238 13.8922 2.39052 12.0753C1.26177 8.53523 2.58605 4.48948 6.28335 3.2884C8.23486 2.67553 10.3853 3.05204 12.0109 4.31057V22Z"
-                            fill="white" />
-                        <path
-                            d="M18.2304 9.99922C18.0296 9.98629 17.8425 9.8859 17.7131 9.72157C17.5836 9.55723 17.5232 9.3434 17.5459 9.13016C17.5677 8.4278 17.168 7.78851 16.5517 7.53977C16.1609 7.43309 15.9243 7.00987 16.022 6.59249C16.1148 6.18182 16.4993 5.92647 16.8858 6.0189C16.9346 6.027 16.9816 6.04468 17.0244 6.07105C18.2601 6.54658 19.0601 7.82641 18.9965 9.22576C18.9944 9.43785 18.9117 9.63998 18.7673 9.78581C18.6229 9.93164 18.4291 10.0087 18.2304 9.99922Z"
-                            fill="white" />
-                    </svg>
-                </span>
-                <span>Welcome</span>
-            </a></li>
-        <li><a class="nav-link" href="index.html">
+    <ul class="nav navbar-nav">
+        <li class="nav-label">Menu Utama</li>
+        <li>
+            <a class="nav-link" href="{{ route('dashboard') }}">
                 <span class="dz-icon bg-pink light">
                     <svg width="18" height="18" viewBox="0 0 24 24" fill="none"
                         xmlns="http://www.w3.org/2000/svg">
@@ -55,8 +39,57 @@ if ($time < "10") {
                             fill="#130F26" />
                     </svg>
                 </span>
-                <span>Home</span>
-            </a></li>
+                <span>Dashboard</span>
+            </a>
+        </li>
+        <li>
+            <a class="nav-link" href="javascript:void(0);" onclick="event.preventDefault(); document.getElementById('logoutform').submit();">
+                <span class="dz-icon bg-red light">
+                    <svg xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink" width="18"
+                        height="18" viewBox="0 0 24 24" version="1.1" class="svg-main-icon">
+                        <g stroke="none" stroke-width="1" fill="none" fill-rule="evenodd">
+                            <rect x="0" y="0" width="24" height="24" />
+                            <path
+                                d="M14.0069431,7.00607258 C13.4546584,7.00607258 13.0069431,6.55855153 13.0069431,6.00650634 C13.0069431,5.45446114 13.4546584,5.00694009 14.0069431,5.00694009 L15.0069431,5.00694009 C17.2160821,5.00694009 19.0069431,6.7970243 19.0069431,9.00520507 L19.0069431,15.001735 C19.0069431,17.2099158 17.2160821,19 15.0069431,19 L3.00694311,19 C0.797804106,19 -0.993056895,17.2099158 -0.993056895,15.001735 L-0.993056895,8.99826498 C-0.993056895,6.7900842 0.797804106,5 3.00694311,5 L4.00694793,5 C4.55923268,5 5.00694793,5.44752105 5.00694793,5.99956624 C5.00694793,6.55161144 4.55923268,6.99913249 4.00694793,6.99913249 L3.00694311,6.99913249 C1.90237361,6.99913249 1.00694311,7.89417459 1.00694311,8.99826498 L1.00694311,15.001735 C1.00694311,16.1058254 1.90237361,17.0008675 3.00694311,17.0008675 L15.0069431,17.0008675 C16.1115126,17.0008675 17.0069431,16.1058254 17.0069431,15.001735 L17.0069431,9.00520507 C17.0069431,7.90111468 16.1115126,7.00607258 15.0069431,7.00607258 L14.0069431,7.00607258 Z"
+                                fill="#fff" fill-rule="nonzero" opacity="0.3"
+                                transform="translate(9.006943, 12.000000) scale(-1, 1) rotate(-90.000000) translate(-9.006943, -12.000000) " />
+                            <rect fill="#ff4db8" opacity="0.3"
+                                transform="translate(14.000000, 12.000000) rotate(-270.000000) translate(-14.000000, -12.000000) "
+                                x="13" y="6" width="2" height="12" rx="1" />
+                            <path
+                                d="M21.7928932,9.79289322 C22.1834175,9.40236893 22.8165825,9.40236893 23.2071068,9.79289322 C23.5976311,10.1834175 23.5976311,10.8165825 23.2071068,11.2071068 L20.2071068,14.2071068 C19.8165825,14.5976311 19.1834175,14.5976311 18.7928932,14.2071068 L15.7928932,11.2071068 C15.4023689,10.8165825 15.4023689,10.1834175 15.7928932,9.79289322 C16.1834175,9.40236893 16.8165825,9.40236893 17.2071068,9.79289322 L19.5,12.0857864 L21.7928932,9.79289322 Z"
+                                fill="#fff" fill-rule="nonzero"
+                                transform="translate(19.500000, 12.000000) rotate(-90.000000) translate(-19.500000, -12.000000) " />
+                        </g>
+                    </svg>
+                </span>
+                <span>Logout</span>
+            </a>
+        </li>
+        <li class="nav-label">Pengaturan</li>
+        <li class="nav-color mb-2" data-bs-toggle="offcanvas" data-bs-target="#offcanvasBottom"
+            aria-controls="offcanvasBottom">
+            <a class="nav-link">
+                <span class="dz-icon bg-blue light">
+                    <i class="fa-solid fa-palette"></i>
+                </span>
+                <span>Warna Dasar</span>
+            </a>
+        </li>
+        <li>
+            <div class="mode">
+                <span class="dz-icon bg-green light">
+                    <i class="fa-solid fa-moon"></i>
+                </span>
+                <span>Mode Gelap</span>
+                <div class="custom-switch">
+                    <input type="checkbox" class="switch-input theme-btn" id="toggle-dark-menu">
+                    <label class="custom-switch-label" for="toggle-dark-menu"></label>
+                </div>
+            </div>
+        </li>
+    </ul>
+    {{-- <ul class="nav navbar-nav">
         <li><a class="nav-link" href="pages.html">
                 <span class="dz-icon bg-orange light">
                     <svg xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink" width="20"

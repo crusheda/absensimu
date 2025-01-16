@@ -48,6 +48,11 @@
 <body>
 <div class="page-wraper">
 
+    <!-- Logout Form -->
+    <form id="logoutform" action="{{ route('logout') }}" method="POST" style="display: none;">
+        {{ csrf_field() }}
+    </form>
+
     <!-- Header -->
 	<header class="header transparent">
 		<div class="main-bar">

@@ -78,6 +78,25 @@
     </div>
 </div>
 
+<div class="modal animate__animated animate__rubberBand fade" id="detail" tabindex="-1" aria-hidden="true" data-bs-backdrop="static">
+    <div class="modal-dialog modal-dialog-centered modal-xl">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h4 class="modal-title">
+                    Detail Absensi
+                </h4>
+            </div>
+            <div class="modal-body">
+
+            </div>
+            <div class="modal-footer">
+                {{-- <button type="submit" id="btn-hapus" class="btn btn-danger me-sm-3 me-1" onclick=""><i class="fa fa-trash me-1" style="font-size:13px"></i> Hapus</button> --}}
+                <button type="reset" class="btn btn-outline-secondary" data-bs-dismiss="modal" aria-label="Close"><i class="fa fa-times me-1" style="font-size:13px"></i> Tutup</button>
+            </div>
+        </div>
+    </div>
+</div>
+
 <script>
     var map;
     $(document).ready(function() {
@@ -95,22 +114,37 @@
                     var updet = new Date(item.updated_at).toLocaleDateString("sv-SE");
                     var date = new Date().toLocaleDateString("sv-SE");
                     content = "<tr id='data" + item.id + "' style='font-size:13px'>";
+                    // content += `<td>
+                    //     <a href="javascript:void(0);" class="btn btn-link-secondary" id="dropdownMenuButton1" data-bs-toggle="dropdown" aria-expanded="false"><i class="ti ti-dots-vertical f-18"></i></a>
+                    //     <ul class="dropdown-menu" aria-labelledby="dropdownMenuButton1">
+                    //         <li>
+                    //             <a class="dropdown-item" href="javascript:void(0);" onclick="tambah()">Tambah Jadwal Dinas</a>
+                    //             <a class="dropdown-item" href="javascript:void(0);" onclick="showRiwayat()">Segarkan Tabel</a>
+                    //             <div class="divider pb-1"></div>
+                    //         </li>
+                    //     </ul></td>`;
                     content += `<td style='white-space: normal !important;word-wrap: break-word;'>
-                                    <div class='d-flex justify-content-start align-items-center'>
-                                        <div class='d-flex flex-column'>
-                                            <h6 class='mb-0'><a href="javascript:void(0);" class="text-dark"><b data-bs-toggle="tooltip"
-                                                data-bs-offset="0,4" data-bs-placement="bottom" data-bs-html="true" title="">Shift ${item.nm_shift}</b> ${item.terlambat == 1?'(<b class="text-danger">Terlambat selama '+item.keterlambatan+'</b>)':'(<b class="text-primary">Tepat Waktu</b>)'}</a>
-                                            </h6>
-                                            <small class='text-truncate text-muted'>Lokasi Masuk <b>${item.lokasi_in}</b> dan Lokasi Pulang <b>${item.lokasi_out?item.lokasi_out:''}</b></small>
-                                            <small class='text-truncate text-muted'>Bekerja dari <b>${item.tgl_in}</b> Sampai <b>${item.tgl_out?item.tgl_out:'-'}</b> (${item.selisih_jam?item.selisih_jam:''})</small>
+                                    <a href="javascript:void(0);" onclick="tampilDetail(${item.id})" class="text-dark" style="text-decoration:none;">
+                                        <div class='d-flex justify-content-start align-items-center'>
+                                            <div class='d-flex flex-column'>
+                                                <h6 class='mb-0'>
+                                                    <b data-bs-toggle="tooltip" data-bs-offset="0,4" data-bs-placement="bottom" data-bs-html="true" title=""><u>Shift ${item.nm_shift}</b> ${item.terlambat == 1?'(<b class="text-danger">Terlambat selama '+item.keterlambatan+'</b>)':'(<b class="text-primary">Tepat Waktu</b>)'}</u>
+                                                </h6>
+                                                <small class='text-truncate text-muted'>Lokasi Masuk <b>${item.lokasi_in}</b> dan Lokasi Pulang <b>${item.lokasi_out?item.lokasi_out:''}</b></small>
+                                                <small class='text-truncate text-muted'>Bekerja dari <b>${item.tgl_in}</b> Sampai <b>${item.tgl_out?item.tgl_out:'-'}</b> (${item.selisih_jam?item.selisih_jam:''})</small>
+                                            </div>
                                         </div>
-                                    </div>
+                                    </a>
                                 </td>`;
                     content += "</tr>";
                     $('#tampil-tbody').append(content);
                 })
             }
         })
+    }
+
+    function tampilDetail(id) {
+        $('#detail').modal('show');
     }
 </script>
 @endsection

@@ -51,6 +51,11 @@
 <body>
 <div class="page-wraper">
 
+    <!-- Logout Form -->
+    <form id="logoutform" action="{{ route('logout') }}" method="POST" style="display: none;">
+        {{ csrf_field() }}
+    </form>
+
     <div id="preloader">
         <div class="spinner"></div>
     </div>

@@ -15,12 +15,15 @@
     <div class="col-12">
         <div class="card">
             <div class="card-body">
-                <div class="alert alert-secondary">
+                {{-- <div class="alert alert-secondary">
                     <h6 class="text-center mb-3">Panduan Absensi</h6>
                     <i class="ti ti-arrow-narrow-right me-1">#</i>
-                </div>
+                </div> --}}
                 <input type="text" class="form-control" id="lokasi" hidden>
                 <div id="map" class="mb-3"></div>
+                <div id="hiddenButton" hidden>
+                    <h6 class="text-center">Jadwal Tidak Ditemukan. Silakan menghubungi Admin.</h6>
+                </div>
                 <div id="hiddenButton1" hidden>
                     <center>
                         <button type="button" class="btn btn-secondary me-2 mb-3" onclick="prosesOnCall()" disabled><i class="ti ti-activity"></i> On Call</button>
@@ -57,15 +60,28 @@
             dataType: 'json',
             success: function(res) {
                 console.log(res);
-                $("#hiddenButton1").prop('hidden',true);
-                if (res.show == null) {
-                    $("#btn-pulang").prop('disabled',true).removeClass('btn-danger').addClass('btn-secondary');
-                    $("#btn-masuk").prop('disabled',false).removeClass('btn-secondary').addClass('btn-primary');
+                if (res.jadwal == null) { // JIKA BELUM MENAMBAH JADWAL / BELUM DIVERIFIKASI OLEH KEPEGAWAIAN
+                    $("#hiddenButton1").prop('hidden',true);
+                    $("#btn-masuk").prop('disabled',true);
+                    $("#btn-pulang").prop('disabled',true);
+                    $("#hiddenButton").prop('hidden',false);
                 } else {
-                    $("#btn-pulang").prop('disabled',false).removeClass('btn-secondary').addClass('btn-danger');
-                    $("#btn-masuk").prop('disabled',true).removeClass('btn-primary').addClass('btn-secondary');
+                    $("#hiddenButton").prop('hidden',true);
+                    $("#hiddenButton1").prop('hidden',true);
+                    if (res.show == null) { // JIKA ABSEN HARI INI MASIH KOSONG
+                        $("#btn-pulang").prop('disabled',true).removeClass('btn-danger').addClass('btn-secondary');
+                        $("#btn-masuk").prop('disabled',false).removeClass('btn-secondary').addClass('btn-primary');
+                    } else {
+                        if (res.show.tgl_out == null) {
+                            $("#btn-pulang").prop('disabled',false).removeClass('btn-secondary').addClass('btn-danger');
+                            $("#btn-masuk").prop('disabled',true).removeClass('btn-primary').addClass('btn-secondary');
+                        } else {
+                            $("#btn-pulang").prop('disabled',true).removeClass('btn-danger').addClass('btn-secondary');
+                            $("#btn-masuk").prop('disabled',true).removeClass('btn-primary').addClass('btn-secondary');
+                        }
+                    }
+                    $("#hiddenButton1").prop('hidden',false);
                 }
-                $("#hiddenButton1").prop('hidden',false);
             }
         })
     }
@@ -163,7 +179,7 @@
     function prosesMasuk() {
         // VALIDATION
         $.ajax({
-            url: "/api/kepegawaian/absensi/validate/jadwal/{{ Auth::user()->id }}",
+            url: "/api/kepegawaian/absensi/validate/jadwal/{{ Auth::user()->id }}/{{ Auth::user()->getPermission('absensi_oncall') }}",
             type: 'GET',
             dataType: 'json',
             success: function(res) {
@@ -232,6 +248,7 @@
             type: 'GET',
             dataType: 'json',
             success: function(res) {
+                console.log(res);
                 if (res.code == 200) { // JIKA SYARAT ABSEN TERPENUHI
                     // INIT
                     var save = new FormData();
@@ -264,6 +281,7 @@
                                     backdrop: `rgba(26,27,41,0.8)`,
                                 });
                                 refreshMap();
+                                init();
                             }
                         }
                     })
