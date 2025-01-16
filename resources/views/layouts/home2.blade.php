@@ -69,7 +69,7 @@
                     </div>
                     <div class="mid-content">
                         {{-- PAGE TITLE --}}
-                        <h5 class="mb-0"></h5>
+                        <h5 class="mb-0" id="clock"></h5>
                     </div>
                     <div class="right-content">
                         <a href="javascript:void(0);" class="menu-toggler">
@@ -130,5 +130,13 @@
 <script src="{{ asset('assets/js/dz.carousel.js') }}"></script><!-- Swiper -->
 <script src="{{ asset('assets/vendor/swiper/swiper-bundle.min.js') }}"></script><!-- Swiper -->
 <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11.15.5/dist/sweetalert2.all.min.js"></script>
+<script>
+    window.onload = displayClock();
+    function displayClock() {
+        var display = new Date().toLocaleTimeString();
+        $('#clock').text(display);
+        setTimeout(displayClock, 1000);
+    }
+</script>
 </body>
 </html>

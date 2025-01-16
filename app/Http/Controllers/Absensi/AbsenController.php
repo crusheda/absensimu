@@ -148,14 +148,14 @@ class AbsenController extends Controller
         }
 
 
-        return Response::json(array(
-            'message' => 'Anda berada di Waktu Masuk Kerja!',
-            'kd_shift' => $shift->singkat,
-            'nm_shift' => $shift->shift,
-            'berangkat' => Carbon::parse($today.' '.$shift->berangkat)->isoFormat('YYYY-MM-DD HH:mm:ss'),
-            'pulang' => Carbon::parse($today.' '.$shift->pulang)->isoFormat('YYYY-MM-DD HH:mm:ss'),
-            'code' => 200,
-        ));
+        // return Response::json(array(
+        //     'message' => 'Anda berada di Waktu Masuk Kerja!',
+        //     'kd_shift' => $shift->singkat,
+        //     'nm_shift' => $shift->shift,
+        //     'berangkat' => Carbon::parse($today.' '.$shift->berangkat)->isoFormat('YYYY-MM-DD HH:mm:ss'),
+        //     'pulang' => Carbon::parse($today.' '.$shift->pulang)->isoFormat('YYYY-MM-DD HH:mm:ss'),
+        //     'code' => 200,
+        // ));
     }
 
     function executeAbsensi(Request $request)

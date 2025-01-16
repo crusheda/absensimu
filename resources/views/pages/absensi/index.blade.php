@@ -17,15 +17,18 @@
             <div class="card-body">
                 <div class="alert alert-secondary">
                     <h6 class="text-center mb-3">Panduan Absensi</h6>
-                    <i class="ti ti-arrow-narrow-right me-1">Mohon untuk tidak melakukan Absensi lebih dari 3 Jam dihitung dari Jam Mulai Masuk Shift</i>
+                    <i class="ti ti-arrow-narrow-right me-1">#</i>
                 </div>
                 <input type="text" class="form-control" id="lokasi" hidden>
                 <div id="map" class="mb-3"></div>
-                <center>
-                    {{-- <button type="button" class="btn btn-secondary" onclick="" disabled><i class="ti ti-plane me-1"></i> Dinas Luar</button> --}}
-                    <button type="button" class="btn btn-danger" onclick="prosesPulang()" id="btn-pulang" hidden><i class="ti ti-plane-departure me-1"></i> Absen Pulang</button>
-                    <button type="button" class="btn btn-primary" onclick="prosesMasuk()" id="btn-masuk" hidden><i class="ti ti-plane-arrival me-1"></i> Absen Masuk</button>
-                </center>
+                <div id="hiddenButton1" hidden>
+                    <center>
+                        <button type="button" class="btn btn-secondary me-2 mb-3" onclick="prosesOnCall()" disabled><i class="ti ti-activity"></i> On Call</button>
+                        <button type="button" class="btn btn-secondary me-2 mb-3" onclick="prosesIjin()" disabled><i class="ti ti-stethoscope"></i> Ijin Sakit</button>
+                        <button type="button" class="btn btn-danger me-2 mb-3" onclick="prosesPulang()" id="btn-pulang" disabled><i class="ti ti-plane-departure"></i> Absen Pulang</button>
+                        <button type="button" class="btn btn-primary mb-3" onclick="prosesMasuk()" id="btn-masuk" disabled><i class="ti ti-plane-arrival"></i> Absen Masuk</button>
+                    </center>
+                </div>
             </div>
         </div>
     </div>
@@ -54,13 +57,15 @@
             dataType: 'json',
             success: function(res) {
                 console.log(res);
+                $("#hiddenButton1").prop('hidden',true);
                 if (res.show == null) {
-                    $("#btn-pulang").prop('hidden',true)
-                    $("#btn-masuk").prop('hidden',false)
+                    $("#btn-pulang").prop('disabled',true).removeClass('btn-danger').addClass('btn-secondary');
+                    $("#btn-masuk").prop('disabled',false).removeClass('btn-secondary').addClass('btn-primary');
                 } else {
-                    $("#btn-pulang").prop('hidden',false)
-                    $("#btn-masuk").prop('hidden',true)
+                    $("#btn-pulang").prop('disabled',false).removeClass('btn-secondary').addClass('btn-danger');
+                    $("#btn-masuk").prop('disabled',true).removeClass('btn-primary').addClass('btn-secondary');
                 }
+                $("#hiddenButton1").prop('hidden',false);
             }
         })
     }
@@ -85,7 +90,7 @@
                     scrollWheelZoom: false,
                     dragging: false,
                     doubleClickZoom: false,
-                }).setView([position.coords.latitude, position.coords.longitude], 17);
+                }).setView([position.coords.latitude, position.coords.longitude], 18);
                 L.tileLayer('https://tile.openstreetmap.org/{z}/{x}/{y}.png', {
                     maxZoom: 19,
                     // attribution: '&copy; <a href="http://www.openstreetmap.org/copyright">OpenStreetMap</a>'
@@ -100,7 +105,7 @@
                     color: 'red',
                     fillColor: '#f03',
                     fillOpacity: 0.5,
-                    radius: 50
+                    radius: 30
                 }).addTo(map);
 
                 $("#lokasi").val(position.coords.latitude + ", " + position.coords.longitude);
@@ -120,7 +125,7 @@
                     processData: false,
                     dataType: 'json',
                     success: function(res) {
-                        if (res > 100) {
+                        if (res > 30) {
                         Swal.fire({
                             title: `Anda berada di luar area Rumah Sakit`,
                             text: 'Jarak Anda '+res+'m dari lokasi Absensi!',
@@ -198,6 +203,7 @@
                                     backdrop: `rgba(26,27,41,0.8)`,
                                 });
                                 refreshMap();
+                                init();
                             }
                         }
                     })
