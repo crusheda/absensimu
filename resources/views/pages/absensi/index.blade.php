@@ -19,8 +19,16 @@
                     <h6 class="text-center mb-3">Panduan Absensi</h6>
                     <i class="ti ti-arrow-narrow-right me-1">#</i>
                 </div> --}}
+                {{-- MAP --}}
                 <input type="text" class="form-control" id="lokasi" hidden>
                 <div id="map" class="mb-3"></div>
+                {{-- PHOTO --}}
+                <div>
+                    <div id="webcam" class="webcam-selfi"></div>
+                    {{-- <br/> --}}
+                    {{-- <input type="button" class="form-control" value="Take Snapshot" onClick="take_snapshot()"> --}}
+                    <input type="hidden" name="image" class="image-tag">
+                </div>
                 <div id="hiddenButton" hidden>
                     <h6 class="text-center">Jadwal Tidak Ditemukan. Silakan menghubungi Admin.</h6>
                 </div>
@@ -37,16 +45,36 @@
     </div>
 </div>
 
+<div class="modal animate__animated animate__rubberBand fade" id="modalSelfi" tabindex="-1" aria-hidden="true">
+    <div class="modal-dialog modal-simple modal-add-new-address modal-dialog-centered">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h4 class="modal-title">
+                    Selfi Photo
+                </h4>
+            </div>
+            <div class="modal-body">
+                <div id="results" style="height:auto;width:auto"></div>
+            </div>
+            <div class="modal-footer">
+                <button type="submit" id="btn-proses" class="btn btn-primary me-sm-3 me-1" onclick="prosesAbsen()"><i class="fa fa-trash me-1" style="font-size:13px"></i> Hapus</button>
+                <button type="reset" class="btn btn-outline-secondary" data-bs-dismiss="modal" aria-label="Close"><i class="fa fa-times me-1" style="font-size:13px"></i> Batal</button>
+            </div>
+        </div>
+    </div>
+</div>
+
 <script>
     var map;
     $(document).ready(function() {
-        // Webcam.set({
-        //     height: 480,
-        //     width: 0,
-        //     image_format: 'jpeg',
-        //     jpeg_quality: 80
-        // });
-        // Webcam.attach('.webcam-selfi');
+
+        Webcam.set({
+            height: 1000,
+            width: 0,
+            image_format: 'jpeg',
+            jpeg_quality: 80
+        });
+        Webcam.attach('.webcam-selfi');
 
         init();
         refreshMap();
@@ -303,24 +331,35 @@
         })
     }
 
-    function take_snapshot() {
-        // Webcam.snap( function(data_uri) {
-        //     $(".image-tag").val(data_uri);
-        //     document.getElementById('results').innerHTML = '<img src="'+data_uri+'"/>';
-        // } );
+    function showSelfi() {
+        // Webcam.set({
+        //     height: 480,
+        //     width: 0,
+        //     image_format: 'jpeg',
+        //     jpeg_quality: 80
+        // });
+        // Webcam.attach('.webcam-selfi1');
+        $('#modalSelfi').modal('show');
+    }
 
-        Swal.fire({
-            title: `Absensi Berhasil`,
-            text: 'Selamat beraktivitas!',
-            icon: `success`,
-            showConfirmButton: false,
-            showCancelButton: false,
-            allowOutsideClick: false,
-            allowEscapeKey: false,
-            timer: 3000,
-            timerProgressBar: true,
-            backdrop: `rgba(26,27,41,0.8)`,
-        });
+    function take_snapshot() {
+        Webcam.snap( function(data_uri) {
+            $(".image-tag").val(data_uri);
+            document.getElementById('results').innerHTML = '<img src="'+data_uri+'"/>';
+        } );
+
+        // Swal.fire({
+        //     title: `Absensi Berhasil`,
+        //     text: 'Selamat beraktivitas!',
+        //     icon: `success`,
+        //     showConfirmButton: false,
+        //     showCancelButton: false,
+        //     allowOutsideClick: false,
+        //     allowEscapeKey: false,
+        //     timer: 3000,
+        //     timerProgressBar: true,
+        //     backdrop: `rgba(26,27,41,0.8)`,
+        // });
     }
 </script>
 @endsection
