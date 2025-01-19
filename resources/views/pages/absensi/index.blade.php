@@ -64,7 +64,7 @@
 <script>
     var map;
     $(document).ready(function() {
-
+        console.log("{{ Auth::user()->getPermission('absensi_oncall') }}");
         Webcam.set({
             height: 500,
             width: 0,
@@ -202,9 +202,14 @@
     }
 
     function prosesMasuk() {
+        if ("{{ Auth::user()->getPermission('absensi_oncall') }}" == true) {
+            oncall = true;
+        } else {
+            oncall = false;
+        }
         // VALIDATION
         $.ajax({
-            url: "/api/kepegawaian/absensi/validate/jadwal/{{ Auth::user()->id }}/{{ Auth::user()->getPermission('absensi_oncall') }}",
+            url: "/api/kepegawaian/absensi/validate/jadwal/{{ Auth::user()->id }}/"+oncall,
             type: 'GET',
             dataType: 'json',
             success: function(res) {
