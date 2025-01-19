@@ -23,12 +23,9 @@
                 <input type="text" class="form-control" id="lokasi" hidden>
                 <div id="map" class="mb-3"></div>
                 {{-- PHOTO --}}
-                <div>
-                    <div id="webcam" class="webcam-selfi"></div>
-                    {{-- <br/> --}}
-                    {{-- <input type="button" class="form-control" value="Take Snapshot" onClick="take_snapshot()"> --}}
-                    <input type="hidden" name="image" class="image-tag">
-                </div>
+                <input type="hidden" name="image" class="image-tag">
+                <div id="webcam" class="webcam-selfi"></div>
+                {{-- <input type="button" class="form-control" value="Take Snapshot" onClick="take_snapshot()"> --}}
                 <div id="hiddenButton" hidden>
                     <h6 class="text-center">Jadwal Tidak Ditemukan. Silakan menghubungi Admin.</h6>
                 </div>
@@ -69,7 +66,7 @@
     $(document).ready(function() {
 
         Webcam.set({
-            height: 1000,
+            height: 500,
             width: 0,
             image_format: 'jpeg',
             jpeg_quality: 80

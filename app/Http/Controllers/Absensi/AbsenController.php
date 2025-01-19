@@ -189,6 +189,17 @@ class AbsenController extends Controller
         // JIKA TOLERANSI KETERLAMBATAN = 10 MENIT DIHITUNG DARI JAM MULAI MASUK
         // $toleransi = Carbon::parse('00:10:00')->isoFormat('HH:mm:ss');
 
+        $img = $request->image;
+        $title = uniqid() . '.png';
+        $folderPath = "public/files/kepegawaian/absensi/";
+        // IMAGE CONVERSION
+        $image_parts = explode(";base64,", $img);
+        $image_type_aux = explode("image/", $image_parts[0]);
+        $image_type = $image_type_aux[1];
+        $image_base64 = base64_decode($image_parts[1]);
+        $path = $folderPath . $title;
+        Storage::put($path, $image_base64);
+
         // PERHITUNGAN SELISIH JAM SAAT MASUK SAMPAI KETERLAMBATAN
         $initBerangkat = Carbon::parse($request->berangkat)->addMinutes(10);
         $harusnyaBerangkat = new Carbon($initBerangkat); // ->isoFormat('YYYY-MM-DD H:mm:ss')
@@ -210,6 +221,8 @@ class AbsenController extends Controller
         $data->ref_jam_pulang = $request->pulang;
         $data->keterlambatan = $diff;
         $data->tgl_in = Carbon::now();
+        $data->foto_in = $title;
+        $data->path_in = $path;
         $data->lokasi_in = $request->lokasi;
         $data->terlambat = $terlambat;
         $data->save();
