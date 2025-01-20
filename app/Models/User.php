@@ -126,6 +126,8 @@ class User extends Authenticatable
                     ->where('model_has_roles.model_id', Auth::user()->id)
                     ->select('users.name')
                     ->first();
+        // dd(Auth::user()->id);
+        // dd($getPermission);
 
         if (empty($getPermission->name)) {
             return false;

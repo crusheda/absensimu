@@ -49,13 +49,25 @@ class AbsenController extends Controller
                         ->first();
         $show = absensi::where('pegawai_id',$user)
                         ->whereDate("tgl_in","=",$datenow)
-                        // ->where("tgl_out",null)
+                        ->where("jenis",'1') // SHIFT
+                        ->orderBy("tgl_in","DESC")
+                        ->first();
+        $oncall = absensi::where('pegawai_id',$user)
+                        ->whereDate("tgl_in","=",$datenow)
+                        ->where("jenis",'4') // ONCALL
+                        ->orderBy("tgl_in","DESC")
+                        ->first();
+        $ijin = absensi::where('pegawai_id',$user)
+                        ->whereDate("tgl_in","=",$datenow)
+                        ->where("jenis",'3') // IJIN SAKIT
                         ->orderBy("tgl_in","DESC")
                         ->first();
 
         $data = [
             'jadwal' => $jadwal,
             'show' => $show,
+            'oncall' => $oncall,
+            'ijin' => $ijin,
         ];
 
         // print_r($data);
@@ -184,7 +196,7 @@ class AbsenController extends Controller
         }
     }
 
-    function executeAbsensi(Request $request)
+    function executeBerangkat(Request $request)
     {
         // JIKA TOLERANSI KETERLAMBATAN = 10 MENIT DIHITUNG DARI JAM MULAI MASUK
         // $toleransi = Carbon::parse('00:10:00')->isoFormat('HH:mm:ss');
@@ -222,10 +234,11 @@ class AbsenController extends Controller
         $data->keterlambatan = $diff;
         $data->tgl_in = Carbon::now();
         $data->foto_in = $title;
+        $data->title_in = $path;
         $data->path_in = $path;
         $data->lokasi_in = $request->lokasi;
         $data->terlambat = $terlambat;
-        $data->save();
+        // $data->save();
 
         return Response::json(array(
             'message' => 'Absen masuk berhasil, selamat beraktifitas',
