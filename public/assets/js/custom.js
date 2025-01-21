@@ -8,8 +8,8 @@ var Jobie = function(){
 	// Preloader
 	var handlePreloader = function(){
 		setTimeout(function() {
-            jQuery('#preloader').fadeOut(300);
-		},300);
+            jQuery('#preloader').fadeOut(800);
+		},400);
 	}
 
 	// Menubar Toggler

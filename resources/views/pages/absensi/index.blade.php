@@ -10,6 +10,18 @@
         height: auto !important;
         border-radius: 15px;
     }
+    .btn-pink {
+        background-color:#FE52F2 !important;
+        color:white !important;
+    }
+    .btn-oren {
+        background-color:#A35904 !important;
+        color:white !important;
+    }
+    .btn-kuning {
+        background-color:#A1AB06 !important;
+        color:white !important;
+    }
 </style>
 <div class="row">
     <div class="col-12">
@@ -24,28 +36,39 @@
                 <div id="map" class="mb-3"></div>
                 {{-- PHOTO --}}
                 <input type="hidden" name="image" id="image-capture" class="image-tag">
-                <center><div id="webcam" class="webcam-selfi mb-3"></div></center>
+                <center><div id="webcam" class="webcam-selfi mb-3" hidden></div></center>
                 {{-- <input type="button" class="form-control" value="Take Snapshot" onClick="take_snapshot()"> --}}
                 <div id="hiddenButton" hidden>
                     <h6 class="text-center">Jadwal Tidak Ditemukan. Silakan menghubungi Admin.</h6>
                 </div>
                 <div id="hiddenButton1" hidden> {{-- SELAIN ONCALL --}}
                     <center>
-                        <button type="button" class="btn btn-secondary me-2 mb-3" onclick="prosesIjin()" id="btn-ijin" disabled><i class="ti ti-stethoscope"></i> Ijin Sakit</button>
-                        <button type="button" class="btn btn-danger me-2 mb-3" onclick="prosesPulang()" id="btn-pulang" disabled><i class="ti ti-plane-departure"></i> Absen Pulang</button>
-                        <button type="button" class="btn btn-primary mb-3" onclick="prosesMasuk()" id="btn-masuk" disabled><i class="ti ti-plane-arrival"></i> Absen Masuk</button>
+                        <div class="btn-group btn-block mb-3" id="btn-biasa" hidden>
+                            <button type="button" class="btn btn-danger" onclick="prosesPulang()" id="btn-pulang" disabled><i class="ti ti-plane-departure"></i> Absen Pulang</button>
+                            <button type="button" class="btn btn-primary" onclick="prosesMasuk()" id="btn-masuk" disabled><i class="ti ti-plane-arrival"></i> Absen Masuk</button>
+                        </div>
                     </center>
                 </div>
                 <div id="hiddenButton2" hidden> {{-- KHUSUS ONCALL --}}
                     <center>
-                        <button type="button" class="btn btn-secondary me-2 mb-3" onclick="prosesIjin()" id="btn-ijin-oc" disabled><i class="ti ti-stethoscope"></i> Ijin Sakit</button>
-                        <button type="button" class="btn btn-primary me-2 mb-3" onclick="prosesMasuk()" id="btn-masuk-oc" disabled><i class="ti ti-plane-arrival"></i> Absen Masuk</button>
-                        <button type="button" class="btn btn-danger me-2 mb-3" onclick="prosesPulang()" id="btn-pulang-oc" disabled><i class="ti ti-plane-departure"></i> Absen Pulang</button>
-                        <button type="button" class="btn btn-secondary me-2 mb-3" onclick="prosesMulaiOnCall()" id="btn-oncall-mulai" disabled><i class="ti ti-activity"></i> Mulai On Call</button>
-                        <button type="button" class="btn btn-secondary me-2 mb-3" onclick="prosesSelesaiOnCall()" id="btn-oncall-selesai" disabled><i class="ti ti-activity"></i> Selesai On Call</button>
-                        <button type="button" class="btn btn-secondary me-2 mb-3" onclick="prosesPulangLanjutOnCall()" id="btn-pulang-oncall" disabled><i class="ti ti-activity"></i> Absen Pulang & Selesai Oncall</button>
-                        <button type="button" class="btn btn-secondary mb-3" onclick="prosesOnCallLanjutPulang()" id="btn-oncall-pulang" disabled><i class="ti ti-activity"></i> Selesai Oncall & Absen Pulang</button>
+                        <div class="btn-group btn-block mb-3" id="btn-mulai" hidden>
+                            <button type="button" class="btn btn-pink" onclick="prosesMulaiOnCall()" id="btn-oncall-mulai" disabled><i class="ti ti-vaccine"></i> Mulai On Call</button>
+                            <button type="button" class="btn btn-primary" onclick="prosesMasuk()" id="btn-shift-mulai" disabled><i class="ti ti-plane-arrival"></i> Absen Masuk</button>
+                        </div>
+                        <div class="btn-group btn-block mb-3" id="btn-selesai" hidden>
+                            <button type="button" class="btn btn-danger" onclick="prosesSelesaiOnCall()" id="btn-oncall-selesai" disabled><i class="ti ti-activity"></i> Selesai On Call</button>
+                            <button type="button" class="btn btn-danger" onclick="prosesPulang()" id="btn-shift-selesai" disabled><i class="ti ti-plane-departure"></i> Absen Pulang</button>
+                        </div>
+                        <div class="btn-group btn-block mb-3" id="btn-mix" hidden>
+                            <button type="button" class="btn btn-success" onclick="prosesOnCallLanjutPulang()" id="btn-oncall-shift" disabled><i class="ti ti-phone-outgoing"></i> Selesai Oncall & Absen Pulang</button>
+                            <button type="button" class="btn btn-oren" onclick="prosesPulangLanjutOnCall()" id="btn-shift-oncall" disabled><i class="ti ti-phone-incoming"></i> Absen Pulang & Selesai Oncall</button>
+                        </div>
                     </center>
+                </div>
+                <button type="button" class="btn btn-block btn-warning mb-3" onclick="showIjin()" id="btn-ijin" disabled><i class="ti ti-stethoscope"></i> Pengajuan Ijin Sakit</button>
+                <div class="btn-group btn-block" id="prosesijin" hidden>
+                    <button type="button" class="btn btn-dark" onclick="batalProsesIjin()" id="btn-batal-proses-ijin"><i class="ti ti-arrow-back"></i> Batal</button>
+                    <button type="button" class="btn btn-info" onclick="prosesIjin()" id="btn-proses-ijin"><i class="ti ti-send"></i> Kirim Surat Ijin</button>
                 </div>
             </div>
         </div>
@@ -74,82 +97,176 @@
 <script>
     var map;
     $(document).ready(function() {
-        init();
         refreshMap();
-        startFrontCamera();
         // validation();
     })
 
-    function init() {
+    function init(jarak) {
         $.ajax({
             url: "/api/kepegawaian/absensi/{{ Auth::user()->id }}",
             type: 'GET',
             dataType: 'json',
             success: function(res) {
-                console.log("{{ Auth::user()->getPermission('absensi_oncall') }}");
-                // console.log(res);
-                if ("{{ Auth::user()->getPermission('absensi_oncall') }}" == true) { // USER MEMILIKI AKSES ONCALL
-                    $("#hiddenButton1").prop('hidden',true);
-                    if (res.jadwal == null) { // JIKA BELUM MENAMBAH JADWAL / BELUM DIVERIFIKASI OLEH KEPEGAWAIAN
-                        $("#hiddenButton").prop('hidden',false);
-                        $("#hiddenButton2").prop('hidden',true);
+                if (res.jadwal != null) { // JIKA BELUM MENAMBAH JADWAL / BELUM DIVERIFIKASI OLEH KEPEGAWAIAN
+                    $("#btn-ijin").prop('hidden',false);
+                    if (res.ijin == null) {
+                        $("#btn-ijin").prop('disabled',false).removeClass('btn-secondary btn-warning').addClass('btn-warning');
                     } else {
-                        $("#hiddenButton2").prop('hidden',false);
-                        $("#hiddenButton").prop('hidden',true);
-                        if (res.show == null && res.oncall == null) { // DATA ABSEN MAUPUN ONCALL MASIH KOSONG
-                            $("#btn-oncall").prop('hidden',false);
-                            $("#btn-masuk").prop('disabled',false);
-                            $("#btn-pulang").prop('disabled',true);
-                            $("#btn-ijin").prop('disabled',false);
+                        $("#btn-ijin").prop('disabled',true).removeClass('btn-secondary btn-warning').addClass('btn-secondary');
+                    }
+                    $("#prosesijin").prop('hidden',true);
+                } else {
+                    $("#btn-ijin").prop('hidden',true);
+                    $("#prosesijin").prop('hidden',true);
+                }
+
+                if (jarak > 30) {
+                    $("#hiddenButton").prop('hidden',true);
+                    $("#hiddenButton1").prop('hidden',true);
+                    $("#hiddenButton2").prop('hidden',true); // ABSEN + ONCALL MUNCUL
+                } else {
+                    // $("#map").prop('hidden',false); // INIT MAP
+                    console.log("{{ Auth::user()->getPermission('absensi_oncall') }}");
+                    if ("{{ Auth::user()->getPermission('absensi_oncall') }}" == true) { // USER MEMILIKI AKSES ONCALL
+                        $("#btn-biasa").prop('hidden',true);
+                        $("#hiddenButton1").prop('hidden',true);
+                        if (res.jadwal == null) { // JIKA BELUM MENAMBAH JADWAL / BELUM DIVERIFIKASI OLEH KEPEGAWAIAN
+                            $("#hiddenButton").prop('hidden',false); // PERINGATAN JADWAL BELUM TERISI
+                            $("#hiddenButton2").prop('hidden',true);
                         } else {
-                            if (res.show == null && res.oncall != null) { // TERDAPAT ONCALL AKTIF TANPA MASUK SHIFT
-                                $("#btn-oncall").prop('hidden',true);
-                                $("#btn-masuk").prop('disabled',false);
-                                $("#btn-pulang").prop('disabled',false);
-                                $("#btn-ijin").prop('disabled',false);
+                            $("#hiddenButton2").prop('hidden',false); // ABSEN + ONCALL MUNCUL
+                            $("#hiddenButton").prop('hidden',true);
+                            $("#btn-mulai").prop('hidden',true);
+                            $("#btn-selesai").prop('hidden',true);
+                            $("#btn-mix").prop('hidden',true);
+                            if (res.show == null) { // DATA ABSEN MASIH KOSONG
+                                if (res.oncall == null) { // DATA ONCALL MASIH KOSONG
+                                    $("#btn-mulai").prop('hidden',false);
+                                    $("#btn-oncall-mulai").prop('disabled',false).removeClass('btn-secondary').addClass('btn-pink');
+                                    $("#btn-shift-mulai").prop('disabled',false).removeClass('btn-secondary').addClass('btn-primary');
+                                    // $("#btn-oncall-selesai").prop('disabled',true).removeClass('btn-danger').addClass('btn-secondary');
+                                    // $("#btn-pulang-oc").prop('disabled',true).removeClass('btn-danger').addClass('btn-secondary');
+                                    // $("#btn-pulang-oncall").prop('hidden',true).removeClass('btn-oren').addClass('btn-secondary');
+                                    // $("#btn-oncall-pulang").prop('hidden',true).removeClass('btn-success').addClass('btn-secondary');
+                                } else {
+                                    $("#btn-selesai").prop('hidden',false);
+                                    $("#btn-oncall-selesai").prop('disabled',false).removeClass('btn-secondary').addClass('btn-danger');
+                                    $("#btn-shift-oncall").prop('disabled',false).removeClass('btn-secondary').addClass('btn-oren');
+                                    $("#btn-oncall-shift").prop('disabled',false).removeClass('btn-secondary').addClass('btn-success');
+                                    $("#btn-shift-selesai").prop('disabled',false).removeClass('btn-secondary').addClass('btn-danger');
+                                }
                             } else {
 
                             }
                         }
-                    }
-                } else {
-                    // INIT DISABLED BUTTON ONCALL
-                    $("#hiddenButton2").prop('hidden',true);
-                    $("#btn-masuk-oc").prop('disabled',true);
-                    $("#btn-pulang-oc").prop('disabled',true);
-                    $("#btn-ijin-oc").prop('disabled',true);
-                    $("#btn-oncall-mulai").prop('disabled',true);
-                    $("#btn-oncall-selesai").prop('disabled',true);
-                    $("#btn-pulang-oncall").prop('disabled',true);
-                    $("#btn-oncall-pulang").prop('disabled',true);
-                    // EXECUTE
-                    if (res.jadwal == null) { // JIKA BELUM MENAMBAH JADWAL / BELUM DIVERIFIKASI OLEH KEPEGAWAIAN
-                        $("#hiddenButton1").prop('hidden',true);
-                        $("#btn-masuk").prop('disabled',true);
-                        $("#btn-pulang").prop('disabled',true);
-                        $("#btn-ijin").prop('disabled',true);
-                        $("#hiddenButton").prop('hidden',false);
-                    } else {
-                        $("#hiddenButton").prop('hidden',true);
-                        $("#hiddenButton1").prop('hidden',true);
-                        $("#btn-ijin").prop('disabled',true);
-                        if (res.show == null) { // JIKA ABSEN HARI INI MASIH KOSONG
-                            $("#btn-pulang").prop('disabled',true).removeClass('btn-danger').addClass('btn-secondary');
-                            $("#btn-masuk").prop('disabled',false).removeClass('btn-secondary').addClass('btn-primary');
+                    } else { // KHUSUS USER TANPA AKSES ONCALL
+                        // INIT DISABLED BUTTON ONCALL
+                        $("#btn-mulai").prop('hidden',true);
+                        $("#btn-selesai").prop('hidden',true);
+                        $("#btn-mix").prop('hidden',true);
+                        $("#hiddenButton2").prop('hidden',true);
+                        // $("#btn-shift-mulai").prop('disabled',true);
+                        // $("#btn-shift-selesai").prop('disabled',true);
+                        // $("#btn-oncall-mulai").prop('disabled',true);
+                        // $("#btn-oncall-selesai").prop('disabled',true);
+                        // $("#btn-shift-oncall").prop('disabled',true);
+                        // $("#btn-oncall-shift").prop('disabled',true);
+                        // $("#btn-ijin-oc").prop('disabled',true);
+                        // EXECUTE
+                        if (res.jadwal == null) { // JIKA BELUM MENAMBAH JADWAL / BELUM DIVERIFIKASI OLEH KEPEGAWAIAN
+                            $("#hiddenButton1").prop('hidden',true);
+                            $("#hiddenButton").prop('hidden',false);
+                            $("#btn-masuk").prop('disabled',true);
+                            $("#btn-pulang").prop('disabled',true);
                         } else {
-                            if (res.show.tgl_out == null) {
-                                $("#btn-pulang").prop('disabled',false).removeClass('btn-secondary').addClass('btn-danger');
-                                $("#btn-masuk").prop('disabled',true).removeClass('btn-primary').addClass('btn-secondary');
-                            } else { // JIKA JADWAL ABSEN HARI SUDAH TERISI LENGKAP
+                            $("#hiddenButton").prop('hidden',true);
+                            $("#hiddenButton1").prop('hidden',true);
+                            if (res.show == null) { // JIKA ABSEN HARI INI MASIH KOSONG
                                 $("#btn-pulang").prop('disabled',true).removeClass('btn-danger').addClass('btn-secondary');
-                                $("#btn-masuk").prop('disabled',true).removeClass('btn-primary').addClass('btn-secondary');
+                                $("#btn-masuk").prop('disabled',false).removeClass('btn-secondary').addClass('btn-primary');
+                            } else {
+                                if (res.show.tgl_out == null) {
+                                    $("#btn-pulang").prop('disabled',false).removeClass('btn-secondary').addClass('btn-danger');
+                                    $("#btn-masuk").prop('disabled',true).removeClass('btn-primary').addClass('btn-secondary');
+                                } else { // JIKA JADWAL ABSEN HARI SUDAH TERISI LENGKAP
+                                    $("#btn-pulang").prop('disabled',true).removeClass('btn-danger').addClass('btn-secondary');
+                                    $("#btn-masuk").prop('disabled',true).removeClass('btn-primary').addClass('btn-secondary');
+                                }
                             }
+                            $("#hiddenButton1").prop('hidden',false);
                         }
-                        $("#hiddenButton1").prop('hidden',false);
                     }
                 }
             }
         })
+    }
+
+    function showIjin() {
+        Webcam.reset('.webcam-selfi');
+        $("#webcam").prop('hidden',false);
+        $("#hiddenButton").prop('hidden',true);
+        $("#hiddenButton1").prop('hidden',true);
+        $("#hiddenButton2").prop('hidden',true);
+        $("#map").prop('hidden',true);
+        $("#btn-ijin").prop('hidden',true);
+        $("#prosesijin").prop('hidden',false);
+        $("#btn-gps").prop('hidden',true);
+        Swal.fire({
+            title: `Pesan Lanjutan!`,
+            html: 'Silakan foto surat ijin dokter lalu tekan tombol <b class="text-info"><u>KIRIM</u></b>',
+            icon: `warning`,
+            showConfirmButton: false,
+            showCancelButton: false,
+            allowOutsideClick: true,
+            allowEscapeKey: true,
+            timer: 8000,
+            timerProgressBar: true,
+            backdrop: `rgba(26,27,41,0.8)`,
+        });
+        startRearCamera();
+    }
+
+    function prosesIjin() {
+        Swal.fire({
+            title: `Pesan Berhasil!`,
+            text: 'Surat ijin dokter telah terkirim ke kepegawaian',
+            icon: `success`,
+            showConfirmButton: false,
+            showCancelButton: false,
+            allowOutsideClick: false,
+            allowEscapeKey: false,
+            timer: 3000,
+            timerProgressBar: true,
+            backdrop: `rgba(26,27,41,0.8)`,
+        });
+
+        $("#webcam").prop('hidden',true);
+        Webcam.reset('.webcam-selfi');
+        $("#prosesijin").prop('hidden',true);
+        $("#btn-ijin").prop('hidden',false);
+        map.remove();
+        $("#map").prop('hidden',false);
+        refreshMap(); // PESAN BERHASIL KIRIM MASIH TERTUMPUK DENGAN PESAN JARAK MAP (refreshMap)
+        $("#btn-gps").prop('hidden',false);
+    }
+
+    function batalProsesIjin() {
+        $("#webcam").prop('hidden',true);
+        Webcam.reset('.webcam-selfi');
+        $("#prosesijin").prop('hidden',true);
+        $("#btn-ijin").prop('hidden',false);
+        map.remove();
+        $("#map").prop('hidden',false);
+        refreshMap();
+        $("#btn-gps").prop('hidden',false);
+    }
+
+    function reaccurate() {
+        map.remove();
+        // $("#map").prop('hidden',true);
+        $("#webcam").prop('hidden',true);
+        Webcam.reset('.webcam-selfi');
+        refreshMap();
     }
 
     function refreshMap() {
@@ -187,7 +304,7 @@
                     color: 'red',
                     fillColor: '#f03',
                     fillOpacity: 0.5,
-                    radius: 30
+                    radius: 30 // RADIUS 30 M
                 }).addTo(map);
 
                 $("#lokasi").val(position.coords.latitude + ", " + position.coords.longitude);
@@ -207,32 +324,39 @@
                     processData: false,
                     dataType: 'json',
                     success: function(res) {
-                        if (res > 30) {
-                        Swal.fire({
-                            title: `Anda berada di luar area Rumah Sakit`,
-                            text: 'Jarak Anda '+res+'m dari lokasi Absensi!',
-                            icon: `error`,
-                            showConfirmButton: false,
-                            showCancelButton: false,
-                            allowOutsideClick: true,
-                            allowEscapeKey: false,
-                            timer: 3000,
-                            timerProgressBar: true,
-                            backdrop: `rgba(26,27,41,0.8)`,
-                        });
+                        init(res);
+                        if (res > 30) { // RADIUS 30 M
+                            Swal.fire({
+                                title: `Anda berada di luar area Rumah Sakit`,
+                                html: 'Mendekatlah ke lokasi Absensi!<br>Jarak Anda <b>'+res+' meter</b> dari titik lokasi',
+                                icon: `error`,
+                                showConfirmButton: false,
+                                showCancelButton: false,
+                                allowOutsideClick: true,
+                                allowEscapeKey: false,
+                                timer: 5000,
+                                timerProgressBar: true,
+                                backdrop: `rgba(26,27,41,0.8)`,
+                            });
+                            $("#map").prop('hidden',false);
+                            $("#webcam").prop('hidden',true);
+                            Webcam.reset('.webcam-selfi');
                         } else {
                             Swal.fire({
                                 title: `Anda berada di dalam area Rumah Sakit`,
-                                text: 'Silakan melakukan absensi! '+res+'m',
+                                html: 'Silakan melakukan absensi!<br>Jarak Anda <b>'+res+' meter</b> dari titik lokasi',
                                 icon: `success`,
                                 showConfirmButton: false,
                                 showCancelButton: false,
                                 allowOutsideClick: true,
                                 allowEscapeKey: false,
-                                timer: 3000,
+                                timer: 5000,
                                 timerProgressBar: true,
                                 backdrop: `rgba(26,27,41,0.8)`,
                             });
+                            $("#map").prop('hidden',true);
+                            $("#webcam").prop('hidden',false);
+                            startFrontCamera();
                         }
                     }
                 })
