@@ -234,11 +234,11 @@ class AbsenController extends Controller
         $data->keterlambatan = $diff;
         $data->tgl_in = Carbon::now();
         $data->foto_in = $title;
-        $data->title_in = $path;
+        // $data->title_in = $path;
         $data->path_in = $path;
         $data->lokasi_in = $request->lokasi;
         $data->terlambat = $terlambat;
-        // $data->save();
+        $data->save();
 
         return Response::json(array(
             'message' => 'Absen masuk berhasil, selamat beraktifitas',
