@@ -167,6 +167,40 @@ class AbsenController extends Controller
         }
     }
 
+    function validateIjin($user) // KHUSUS MASUK SHIFT
+    {
+        $time = Carbon::now()->isoFormat('HH:mm:ss'); // 24 hour
+        $today = Carbon::now()->isoFormat('YYYY-MM-DD');
+        $tommorow = Carbon::now()->addDays(1)->isoFormat('YYYY-MM-DD');
+        $tahun = Carbon::now()->isoFormat('YYYY');
+        $bulan = Carbon::now()->isoFormat('MM');
+        $tgl = Carbon::now()->isoFormat('D');
+        $hit = "tgl".$tgl;
+
+        $jadwal = jadwal_detail::join('kepegawaian_jadwal','kepegawaian_jadwal.id','=','kepegawaian_jadwal_detail.id_jadwal')
+                                ->where('kepegawaian_jadwal_detail.pegawai_id',$user)
+                                ->where('kepegawaian_jadwal.bulan',$bulan)
+                                ->where('kepegawaian_jadwal.tahun',$tahun)
+                                ->select('kepegawaian_jadwal.pegawai_id as id_atasan','kepegawaian_jadwal.staf','kepegawaian_jadwal.bulan','kepegawaian_jadwal.tahun','kepegawaian_jadwal_detail.*')
+                                ->first();
+
+        // EXECUTE
+        $callShift = $jadwal->$hit;
+
+        // FIND SHIFT
+        $shift = ref_shift::where('singkat',$callShift)->where('pegawai_id',$jadwal->id_atasan)->orderBy('updated_at','DESC')->first();
+
+        // VALIDATING
+        return Response::json(array(
+            'message' => 'Anda berada di Waktu Masuk Kerja!',
+            'kd_shift' => $shift->singkat,
+            'nm_shift' => $shift->shift,
+            'berangkat' => Carbon::parse($today.' '.$shift->berangkat)->isoFormat('YYYY-MM-DD HH:mm:ss'),
+            'pulang' => Carbon::parse($today.' '.$shift->pulang)->isoFormat('YYYY-MM-DD HH:mm:ss'),
+            'code' => 200,
+        ));
+    }
+
     function validatePulang($user) // KHUSUS MASUK SHIFT
     {
         $now = Carbon::now();
@@ -188,8 +222,11 @@ class AbsenController extends Controller
                     'code' => 400,
                 ));
             } else {
+                $harusnyaPulang = new Carbon($show->ref_jam_pulang); // ->isoFormat('YYYY-MM-DD H:mm:ss')
+                $pulang = new Carbon();
+                $diff = $pulang->diff($harusnyaPulang); // ->format('%H:%I:%S')
                 return Response::json(array(
-                    'message' => 'Anda belum dapat melakukan Absen Pulang sebelum jam pulang yang sudah ditentukan!',
+                    'message' => 'Anda belum dapat melakukan Absen Pulang sebelum jam pulang yang ditentukan!<br><b>'.$diff->h.' jam '.$diff->i.' menit '.$diff->s.' detik</b><br>menuju Jam Pulang',
                     'code' => 400,
                 ));
             }
@@ -242,6 +279,50 @@ class AbsenController extends Controller
 
         return Response::json(array(
             'message' => 'Absen masuk berhasil, selamat beraktifitas',
+            'code' => 200,
+        ));
+    }
+
+    function executeIjin(Request $request)
+    {
+        // JIKA TOLERANSI KETERLAMBATAN = 10 MENIT DIHITUNG DARI JAM MULAI MASUK
+        // $toleransi = Carbon::parse('00:10:00')->isoFormat('HH:mm:ss');
+
+        $img = $request->image;
+        $title = uniqid() . '.png';
+        $folderPath = "public/files/kepegawaian/absensi/ijin/";
+        // IMAGE CONVERSION
+        $image_parts = explode(";base64,", $img);
+        $image_type_aux = explode("image/", $image_parts[0]);
+        $image_type = $image_type_aux[1];
+        $image_base64 = base64_decode($image_parts[1]);
+        $path = $folderPath . $title;
+        Storage::put($path, $image_base64);
+
+        $data = new absensi;
+        $data->jenis = 3;
+        $data->pegawai_id = $request->pegawai;
+        $data->kd_shift = $request->kd_shift;
+        $data->nm_shift = $request->nm_shift;
+        $data->ref_jam_masuk = $request->berangkat;
+        $data->ref_jam_pulang = $request->pulang;
+        $data->keterlambatan = null;
+        $data->lembur = null;
+        $data->tgl_in = Carbon::now();
+        $data->tgl_out = null;
+        $data->selisih_jam = null;
+        $data->foto_in = $title;
+        $data->path_in = $path;
+        $data->foto_out = null;
+        $data->path_out = null;
+        $data->lokasi_in = $request->lokasi;
+        $data->lokasi_out = null;
+        $data->terlambat = null;
+        $data->keterangan = null;
+        $data->save();
+
+        return Response::json(array(
+            'message' => 'Surat Ijin berhasil dikirimkan',
             'code' => 200,
         ));
     }

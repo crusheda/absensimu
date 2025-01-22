@@ -75,7 +75,7 @@
     </div>
 </div>
 
-<div class="modal animate__animated animate__rubberBand fade" id="modalSelfi" tabindex="-1" aria-hidden="true">
+{{-- <div class="modal animate__animated animate__rubberBand fade" id="modalSelfi" tabindex="-1" aria-hidden="true">
     <div class="modal-dialog modal-simple modal-add-new-address modal-dialog-centered">
         <div class="modal-content">
             <div class="modal-header">
@@ -92,7 +92,7 @@
             </div>
         </div>
     </div>
-</div>
+</div> --}}
 
 <script>
     var map;
@@ -109,7 +109,7 @@
             success: function(res) {
                 if (res.jadwal != null) { // JIKA BELUM MENAMBAH JADWAL / BELUM DIVERIFIKASI OLEH KEPEGAWAIAN
                     $("#btn-ijin").prop('hidden',false);
-                    if (res.ijin == null) {
+                    if (res.show == null && res.ijin == null) {
                         $("#btn-ijin").prop('disabled',false).removeClass('btn-secondary btn-warning').addClass('btn-warning');
                     } else {
                         $("#btn-ijin").prop('disabled',true).removeClass('btn-secondary btn-warning').addClass('btn-secondary');
@@ -140,24 +140,26 @@
                             $("#btn-mulai").prop('hidden',true);
                             $("#btn-selesai").prop('hidden',true);
                             $("#btn-mix").prop('hidden',true);
-                            if (res.show == null) { // DATA ABSEN MASIH KOSONG
-                                if (res.oncall == null) { // DATA ONCALL MASIH KOSONG
-                                    $("#btn-mulai").prop('hidden',false);
-                                    $("#btn-oncall-mulai").prop('disabled',false).removeClass('btn-secondary').addClass('btn-pink');
-                                    $("#btn-shift-mulai").prop('disabled',false).removeClass('btn-secondary').addClass('btn-primary');
-                                    // $("#btn-oncall-selesai").prop('disabled',true).removeClass('btn-danger').addClass('btn-secondary');
-                                    // $("#btn-pulang-oc").prop('disabled',true).removeClass('btn-danger').addClass('btn-secondary');
-                                    // $("#btn-pulang-oncall").prop('hidden',true).removeClass('btn-oren').addClass('btn-secondary');
-                                    // $("#btn-oncall-pulang").prop('hidden',true).removeClass('btn-success').addClass('btn-secondary');
+                            if (res.ijin == null) { // JIKA BELUM MENGAJUKAN SURAT IJIN
+                                if (res.show == null) { // DATA ABSEN MASIH KOSONG
+                                    if (res.oncall == null) { // DATA ONCALL MASIH KOSONG
+                                        $("#btn-mulai").prop('hidden',false);
+                                        $("#btn-oncall-mulai").prop('disabled',false).removeClass('btn-secondary').addClass('btn-pink');
+                                        $("#btn-shift-mulai").prop('disabled',false).removeClass('btn-secondary').addClass('btn-primary');
+                                    } else {
+                                        $("#btn-selesai").prop('hidden',false);
+                                        $("#btn-oncall-selesai").prop('disabled',false).removeClass('btn-secondary').addClass('btn-danger');
+                                        $("#btn-shift-oncall").prop('disabled',false).removeClass('btn-secondary').addClass('btn-oren');
+                                        $("#btn-oncall-shift").prop('disabled',false).removeClass('btn-secondary').addClass('btn-success');
+                                        $("#btn-shift-selesai").prop('disabled',false).removeClass('btn-secondary').addClass('btn-danger');
+                                    }
                                 } else {
-                                    $("#btn-selesai").prop('hidden',false);
-                                    $("#btn-oncall-selesai").prop('disabled',false).removeClass('btn-secondary').addClass('btn-danger');
-                                    $("#btn-shift-oncall").prop('disabled',false).removeClass('btn-secondary').addClass('btn-oren');
-                                    $("#btn-oncall-shift").prop('disabled',false).removeClass('btn-secondary').addClass('btn-success');
-                                    $("#btn-shift-selesai").prop('disabled',false).removeClass('btn-secondary').addClass('btn-danger');
+
                                 }
                             } else {
-
+                                $("#btn-mulai").prop('hidden',false);
+                                $("#btn-oncall-mulai").prop('disabled',true).removeClass('btn-pink').addClass('btn-secondary');
+                                $("#btn-shift-mulai").prop('disabled',true).removeClass('btn-primary').addClass('btn-secondary');
                             }
                         }
                     } else { // KHUSUS USER TANPA AKSES ONCALL
@@ -187,17 +189,22 @@
                             $("#hiddenButton1").prop('hidden',true);
                             $("#hiddenButton").prop('hidden',true);
                             $("#btn-biasa").prop('hidden',false);
-                            if (res.show == null) { // JIKA ABSEN HARI INI MASIH KOSONG
-                                $("#btn-pulang").prop('disabled',true).removeClass('btn-danger').addClass('btn-secondary');
-                                $("#btn-masuk").prop('disabled',false).removeClass('btn-secondary').addClass('btn-primary');
-                            } else {
-                                if (res.show.tgl_out == null) {
-                                    $("#btn-pulang").prop('disabled',false).removeClass('btn-secondary').addClass('btn-danger');
-                                    $("#btn-masuk").prop('disabled',true).removeClass('btn-primary').addClass('btn-secondary');
-                                } else { // JIKA JADWAL ABSEN HARI SUDAH TERISI LENGKAP
+                            if (res.ijin == null) {
+                                if (res.show == null) { // JIKA ABSEN HARI INI MASIH KOSONG
                                     $("#btn-pulang").prop('disabled',true).removeClass('btn-danger').addClass('btn-secondary');
-                                    $("#btn-masuk").prop('disabled',true).removeClass('btn-primary').addClass('btn-secondary');
+                                    $("#btn-masuk").prop('disabled',false).removeClass('btn-secondary').addClass('btn-primary');
+                                } else {
+                                    if (res.show.tgl_out == null) {
+                                        $("#btn-pulang").prop('disabled',false).removeClass('btn-secondary').addClass('btn-danger');
+                                        $("#btn-masuk").prop('disabled',true).removeClass('btn-primary').addClass('btn-secondary');
+                                    } else { // JIKA JADWAL ABSEN HARI SUDAH TERISI LENGKAP
+                                        $("#btn-pulang").prop('disabled',true).removeClass('btn-danger').addClass('btn-secondary');
+                                        $("#btn-masuk").prop('disabled',true).removeClass('btn-primary').addClass('btn-secondary');
+                                    }
                                 }
+                            } else {
+                                $("#btn-pulang").prop('disabled',true).removeClass('btn-danger').addClass('btn-secondary');
+                                $("#btn-masuk").prop('disabled',true).removeClass('btn-primary').addClass('btn-secondary');
                             }
                             $("#hiddenButton1").prop('hidden',false);
                         }
@@ -208,7 +215,6 @@
     }
 
     function showIjin() {
-        Webcam.reset('.webcam-selfi');
         $("#webcam").prop('hidden',false);
         $("#hiddenButton").prop('hidden',true);
         $("#hiddenButton1").prop('hidden',true);
@@ -233,32 +239,95 @@
     }
 
     function prosesIjin() {
-        Swal.fire({
-            title: `Pesan Berhasil!`,
-            text: 'Surat ijin dokter telah terkirim ke kepegawaian',
-            icon: `success`,
-            showConfirmButton: false,
-            showCancelButton: false,
-            allowOutsideClick: false,
-            allowEscapeKey: false,
-            timer: 3000,
-            timerProgressBar: true,
-            backdrop: `rgba(26,27,41,0.8)`,
-        });
+        // VALIDATION
+        $.ajax({
+            url: "/api/kepegawaian/absensi/validate/ijin/{{ Auth::user()->id }}",
+            type: 'GET',
+            dataType: 'json',
+            success: function(res) {
+                if (res.code == 200) { // JIKA SYARAT ABSEN TERPENUHI
+                    // INIT
+                    Webcam.snap( function(data_uri) {
+                        $("#image-capture").val(data_uri);
+                    } );
+                    var save = new FormData();
+                    save.append('image',$("#image-capture").val());
+                    save.append('lokasi',$("#lokasi").val());
+                    save.append('kd_shift',res.kd_shift);
+                    save.append('nm_shift',res.nm_shift);
+                    save.append('berangkat',res.berangkat);
+                    save.append('pulang',res.pulang);
+                    save.append('pegawai',"{{ Auth::user()->id }}");
+                    // SAVING DATA
+                    $.ajax({
+                        headers: {
+                            'X-CSRF-TOKEN': $('meta[name="csrf-token"]').attr('content')
+                        },
+                        url: "{{route('kepegawaian.absensi.executeIjin')}}",
+                        method: 'POST',
+                        data: save,
+                        cache: false,
+                        contentType: false,
+                        processData: false,
+                        dataType: 'json',
+                        success: function(ex) {
+                            if (ex.code == 200) {
+                                Swal.fire({
+                                    title: `Pesan Berhasil!`,
+                                    text: ex.message,
+                                    icon: `success`,
+                                    showConfirmButton: false,
+                                    showCancelButton: false,
+                                    allowOutsideClick: false,
+                                    allowEscapeKey: false,
+                                    timer: 3000,
+                                    timerProgressBar: true,
+                                    backdrop: `rgba(26,27,41,0.8)`,
+                                });
+                                $("#webcam").prop('hidden',true);
+                                $("#prosesijin").prop('hidden',true);
+                                $("#btn-ijin").prop('hidden',false);
+                                map.remove();
+                                $("#map").prop('hidden',false);
+                                refreshMap(); // PESAN BERHASIL KIRIM MASIH TERTUMPUK DENGAN PESAN JARAK MAP (refreshMap)
+                                $("#btn-gps").prop('hidden',false);
+                            }
+                        }
+                    })
+                } else { // JIKA SYARAT ABSEN TIDAK TERPENUHI
+                    Swal.fire({
+                        title: `Pesan Error`,
+                        text: res.message,
+                        icon: `warning`,
+                        showConfirmButton: false,
+                        showCancelButton: false,
+                        allowOutsideClick: false,
+                        allowEscapeKey: false,
+                        timer: 3000,
+                        timerProgressBar: true,
+                        backdrop: `rgba(26,27,41,0.8)`,
+                    });
+                }
+            }
+        })
 
-        $("#webcam").prop('hidden',true);
-        Webcam.reset('.webcam-selfi');
-        $("#prosesijin").prop('hidden',true);
-        $("#btn-ijin").prop('hidden',false);
-        map.remove();
-        $("#map").prop('hidden',false);
-        refreshMap(); // PESAN BERHASIL KIRIM MASIH TERTUMPUK DENGAN PESAN JARAK MAP (refreshMap)
-        $("#btn-gps").prop('hidden',false);
+        // Swal.fire({
+        //     title: `Pesan Berhasil!`,
+        //     text: 'Surat ijin dokter telah terkirim ke kepegawaian',
+        //     icon: `success`,
+        //     showConfirmButton: false,
+        //     showCancelButton: false,
+        //     allowOutsideClick: false,
+        //     allowEscapeKey: false,
+        //     timer: 3000,
+        //     timerProgressBar: true,
+        //     backdrop: `rgba(26,27,41,0.8)`,
+        // });
+
     }
 
     function batalProsesIjin() {
         $("#webcam").prop('hidden',true);
-        Webcam.reset('.webcam-selfi');
         $("#prosesijin").prop('hidden',true);
         $("#btn-ijin").prop('hidden',false);
         map.remove();
@@ -270,8 +339,8 @@
     function reaccurate() {
         map.remove();
         // $("#map").prop('hidden',true);
-        $("#webcam").prop('hidden',true);
-        Webcam.reset('.webcam-selfi');
+        // $("#webcam").prop('hidden',true);
+        // Webcam.reset('.webcam-selfi');
         refreshMap();
     }
 
@@ -350,7 +419,7 @@
                         } else {
                             Swal.fire({
                                 title: `Anda berada di dalam area Rumah Sakit`,
-                                html: 'Silakan melakukan absensi!<br>Jarak Anda <b>'+res+' meter</b> dari titik lokasi',
+                                html: 'Anda sudah di area Absensi!<br>Jarak Anda <b>'+res+' meter</b> dari titik lokasi',
                                 icon: `success`,
                                 showConfirmButton: false,
                                 showCancelButton: false,
@@ -493,7 +562,7 @@
                 } else { // JIKA SYARAT ABSEN TIDAK TERPENUHI
                     Swal.fire({
                         title: `Pesan Error`,
-                        text: res.message,
+                        html: res.message,
                         icon: `warning`,
                         showConfirmButton: false,
                         showCancelButton: false,
@@ -542,8 +611,8 @@
     function startFrontCamera() {
         Webcam.reset('.webcam-selfi');
         Webcam.set({
-            height: 600,
-            width: 600,
+            height: 300,
+            width: 300,
             image_format: 'jpeg',
             jpeg_quality: 50,
             fps: 60,
@@ -555,8 +624,8 @@
     function startRearCamera() {
         Webcam.reset('.webcam-selfi');
         Webcam.set({
-            height: 600,
-            width: 600,
+            height: 300,
+            width: 300,
             image_format: 'jpeg',
             jpeg_quality: 50,
             fps: 60,
