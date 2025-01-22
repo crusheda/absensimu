@@ -127,7 +127,8 @@
                 } else {
                     // $("#map").prop('hidden',false); // INIT MAP
                     console.log("{{ Auth::user()->getPermission('absensi_oncall') }}");
-                    if ("{{ Auth::user()->getPermission('absensi_oncall') }}" == true) { // USER MEMILIKI AKSES ONCALL
+                    if ("{{ Auth::user()->getPermission('absensi_oncall') }}" == true || "{{ Auth::user()->getPermission('absensi_oncall') }}" || "{{ Auth::user()->getPermission('absensi_oncall') }}" != '') { // USER MEMILIKI AKSES ONCALL
+                        console.log('ONCALL NIH');
                         $("#btn-biasa").prop('hidden',true);
                         $("#hiddenButton1").prop('hidden',true);
                         if (res.jadwal == null) { // JIKA BELUM MENAMBAH JADWAL / BELUM DIVERIFIKASI OLEH KEPEGAWAIAN
@@ -160,6 +161,7 @@
                             }
                         }
                     } else { // KHUSUS USER TANPA AKSES ONCALL
+                        console.log('USER BIASA NIH');
                         // INIT DISABLED BUTTON ONCALL
                         $("#btn-mulai").prop('hidden',true);
                         $("#btn-selesai").prop('hidden',true);
@@ -176,11 +178,15 @@
                         if (res.jadwal == null) { // JIKA BELUM MENAMBAH JADWAL / BELUM DIVERIFIKASI OLEH KEPEGAWAIAN
                             $("#hiddenButton1").prop('hidden',true);
                             $("#hiddenButton").prop('hidden',false);
+                            $("#btn-biasa").prop('hidden',true);
                             $("#btn-masuk").prop('disabled',true);
                             $("#btn-pulang").prop('disabled',true);
+                            console.log('TIDAK ADA JADWAL DITEMUKAN');
                         } else {
-                            $("#hiddenButton").prop('hidden',true);
+                            console.log('JADWAL DITEMUKAN');
                             $("#hiddenButton1").prop('hidden',true);
+                            $("#hiddenButton").prop('hidden',true);
+                            $("#btn-biasa").prop('hidden',false);
                             if (res.show == null) { // JIKA ABSEN HARI INI MASIH KOSONG
                                 $("#btn-pulang").prop('disabled',true).removeClass('btn-danger').addClass('btn-secondary');
                                 $("#btn-masuk").prop('disabled',false).removeClass('btn-secondary').addClass('btn-primary');
