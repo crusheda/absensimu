@@ -348,9 +348,95 @@
         const x = document.getElementById("lokasi");
         if (navigator.geolocation) {
             // navigator.geolocation.getCurrentPosition(showPosition);
+            var lat,long;// Creating a promise out of the function
+            let getLocationPromise = new Promise((resolve, reject) => {
+                if(navigator.geolocation) {
+                    navigator.geolocation.getCurrentPosition(function (position) {
+
+                        // console.log(position.coords.latitude, position.coords.longitude) //test...
+
+                        lat = position.coords.latitude
+                        long = position.coords.longitude
+
+                        // console.log("LATLONG1: ", lat, long) //test...
+
+                        // Resolving the values which I need
+                        resolve({latitude: lat,
+                                longitude: long})
+                    })
+
+                } else {
+                    reject("your browser doesn't support geolocation API")
+                }
+            })
+            getLocationPromise.then((location) => {
+                console.log('latitude : '+lat);
+                console.log('longitude : '+long);
+                // ATTENTION
+                var save = new FormData();
+                save.append('lokasi',lat + ", " + long);
+                $.ajax({
+                    headers: {
+                        'X-CSRF-TOKEN': $('meta[name="csrf-token"]').attr('content')
+                    },
+                    url: "{{route('kepegawaian.absensi.getDistance')}}",
+                    method: 'POST',
+                    data: save,
+                    cache: false,
+                    contentType: false,
+                    processData: false,
+                    dataType: 'json',
+                    success: function(res) {
+                        init(res);
+                        if (res > 30) { // RADIUS 30 M
+                            Swal.fire({
+                                title: `Anda berada di luar area Rumah Sakit`,
+                                html: 'Mendekatlah ke lokasi Absensi!<br>Jarak Anda <b>'+res+' meter</b> dari titik lokasi',
+                                icon: `error`,
+                                showConfirmButton: false,
+                                showCancelButton: false,
+                                allowOutsideClick: true,
+                                allowEscapeKey: false,
+                                timer: 5000,
+                                timerProgressBar: true,
+                                backdrop: `rgba(26,27,41,0.8)`,
+                            });
+                            $("#map").prop('hidden',false);
+                            $("#webcam").prop('hidden',true);
+                            Webcam.reset('.webcam-selfi');
+                        } else {
+                            Swal.fire({
+                                title: `Anda berada di dalam area Rumah Sakit`,
+                                html: 'Anda sudah di area Absensi!<br>Jarak Anda <b>'+res+' meter</b> dari titik lokasi',
+                                icon: `success`,
+                                showConfirmButton: false,
+                                showCancelButton: false,
+                                allowOutsideClick: true,
+                                allowEscapeKey: false,
+                                timer: 5000,
+                                timerProgressBar: true,
+                                backdrop: `rgba(26,27,41,0.8)`,
+                            });
+                            $("#map").prop('hidden',true);
+                            $("#webcam").prop('hidden',false);
+                            startFrontCamera();
+                        }
+                    }
+                })
+            }).catch((err) => {
+                console.log(err)
+            })
+        } else {
+            alert("Browser Anda Tidak Support.");
+        }
+    }
+
+    function backupRefreshMap() {
+        const x = document.getElementById("lokasi");
+        if (navigator.geolocation) {
+            // navigator.geolocation.getCurrentPosition(showPosition);
             navigator.geolocation.getCurrentPosition(position => {
                 const { latitude, longitude } = position.coords;
-                // Show a map centered at latitude / longitude.
                 map = L.map('map',{
                     keyboard: false,
                     zoomControl: false,
@@ -359,13 +445,13 @@
                     tap: false,
                     touchZoom: false,
                     enableHighAccuracy: true,
-                    // center: [51.505, -0.09],
-                    // zoom: 13,
-                    // minZoom: 13,
                     scrollWheelZoom: false,
                     dragging: false,
                     doubleClickZoom: false,
                 }).setView([position.coords.latitude, position.coords.longitude], 18);
+                // center: [51.505, -0.09],
+                // zoom: 13,
+                // minZoom: 13,
                 L.tileLayer('https://tile.openstreetmap.org/{z}/{x}/{y}.png', {
                     maxZoom: 19,
                     // attribution: '&copy; <a href="http://www.openstreetmap.org/copyright">OpenStreetMap</a>'
