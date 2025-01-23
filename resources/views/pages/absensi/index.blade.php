@@ -373,7 +373,7 @@
 
                 // Titik Lokasi GPS
                 var marker = new L.Marker([position.coords.latitude, position.coords.longitude]);
-                marker.addTo(map).bindPopup("You are within meters from this point").openPopup();
+                marker.addTo(map).bindPopup("Titik Lokasi Anda").openPopup();
 
                 // Radius
                 var circle = L.circle(["{{ $list['profil_rs']->coord_lat }}","{{ $list['profil_rs']->coord_long }}"], { // RSPKUSKH COORD : -7.677851238136329, 110.83968584828327
@@ -414,7 +414,7 @@
                                 timerProgressBar: true,
                                 backdrop: `rgba(26,27,41,0.8)`,
                             });
-                            // $("#map").prop('hidden',false);
+                            $("#map").prop('hidden',false);
                             $("#webcam").prop('hidden',true);
                             Webcam.reset('.webcam-selfi');
                         } else {
@@ -430,7 +430,7 @@
                                 timerProgressBar: true,
                                 backdrop: `rgba(26,27,41,0.8)`,
                             });
-                            // $("#map").prop('hidden',true);
+                            $("#map").prop('hidden',true);
                             $("#webcam").prop('hidden',false);
                             startFrontCamera();
                         }
