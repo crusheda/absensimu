@@ -429,7 +429,7 @@
                                 timerProgressBar: true,
                                 backdrop: `rgba(26,27,41,0.8)`,
                             });
-                            $("#map").prop('hidden',true);
+                            // $("#map").prop('hidden',true);
                             $("#webcam").prop('hidden',false);
                             startFrontCamera();
                         }
