@@ -7,7 +7,7 @@
     .webcam-selfi video {
         /*display: inline-block; */
         width: auto;
-        height: auto !important;
+        height: 0px !important;
         border-radius: 15px;
     }
     .btn-pink {
@@ -27,16 +27,18 @@
     <div class="col-12">
         <div class="card">
             <div class="card-body">
-                {{-- <div class="alert alert-secondary">
-                    <h6 class="text-center mb-3">Panduan Absensi</h6>
-                    <i class="ti ti-arrow-narrow-right me-1">#</i>
-                </div> --}}
+                <div class="alert alert-secondary">
+                    <h5 class="text-center mb-3">Panduan Absensi</h5>
+                    <small><b><a class="text-danger">WAJIB</a> menggunakan browser di bawah ini</b></small><br>
+                    <i class="ti ti-arrow-narrow-right me-1">Iphone : Safari / Google Chrome</i><br>
+                    <i class="ti ti-arrow-narrow-right me-1">Android : Firefox</i>
+                </div>
                 {{-- MAP --}}
                 <input type="text" class="form-control" id="lokasi" hidden>
                 <div id="map" class="mb-3"></div>
                 {{-- PHOTO --}}
                 <input type="hidden" name="image" id="image-capture" class="image-tag">
-                <center><div id="webcam" class="webcam-selfi mb-3" hidden></div></center>
+                <div id="webcam" class="webcam-selfi mb-3" hidden></div>
                 {{-- <input type="button" class="form-control" value="Take Snapshot" onClick="take_snapshot()"> --}}
                 <div id="hiddenButton" hidden>
                     <h6 class="text-center">Jadwal Tidak Ditemukan. Silakan menghubungi Admin.</h6>
@@ -352,11 +354,43 @@
             let getLocationPromise = new Promise((resolve, reject) => {
                 if(navigator.geolocation) {
                     navigator.geolocation.getCurrentPosition(function (position) {
-
-                        // console.log(position.coords.latitude, position.coords.longitude) //test...
-
                         lat = position.coords.latitude
                         long = position.coords.longitude
+
+                        map = L.map('map',{
+                            keyboard: false,
+                            zoomControl: false,
+                            boxZoom: false,
+                            doubleClickZoom: false,
+                            tap: false,
+                            touchZoom: false,
+                            enableHighAccuracy: true,
+                            scrollWheelZoom: false,
+                            dragging: false,
+                            doubleClickZoom: false,
+                        }).setView([position.coords.latitude, position.coords.longitude], 18);
+                        // center: [51.505, -0.09],
+                        // zoom: 13,
+                        // minZoom: 13,
+                        L.tileLayer('https://tile.openstreetmap.org/{z}/{x}/{y}.png', {
+                            maxZoom: 19,
+                            // attribution: '&copy; <a href="http://www.openstreetmap.org/copyright">OpenStreetMap</a>'
+                        }).addTo(map);
+
+                        // Titik Lokasi GPS
+                        var marker = new L.Marker([position.coords.latitude, position.coords.longitude]);
+                        marker.addTo(map).bindPopup("Titik Lokasi Anda").openPopup();
+
+                        // Radius
+                        var circle = L.circle(["{{ $list['profil_rs']->coord_lat }}","{{ $list['profil_rs']->coord_long }}"], { // RSPKUSKH COORD : -7.677851238136329, 110.83968584828327
+                            color: 'red',
+                            fillColor: '#f03',
+                            fillOpacity: 0.5,
+                            radius: 30 // RADIUS 30 M
+                        }).addTo(map);
+
+                        $("#lokasi").val(position.coords.latitude + ", " + position.coords.longitude);
+                        // console.log(position.coords.latitude, position.coords.longitude) //test...
 
                         // console.log("LATLONG1: ", lat, long) //test...
 
@@ -366,9 +400,10 @@
                     })
 
                 } else {
-                    reject("your browser doesn't support geolocation API")
+                    reject("Browser Anda tidak support Geolocation API. Silakan mengganti browser!")
                 }
             })
+
             getLocationPromise.then((location) => {
                 console.log('latitude : '+lat);
                 console.log('longitude : '+long);
@@ -401,7 +436,7 @@
                                 timerProgressBar: true,
                                 backdrop: `rgba(26,27,41,0.8)`,
                             });
-                            $("#map").prop('hidden',false);
+                            // $("#map").prop('hidden',false);
                             $("#webcam").prop('hidden',true);
                             Webcam.reset('.webcam-selfi');
                         } else {
@@ -417,7 +452,7 @@
                                 timerProgressBar: true,
                                 backdrop: `rgba(26,27,41,0.8)`,
                             });
-                            $("#map").prop('hidden',true);
+                            // $("#map").prop('hidden',true);
                             $("#webcam").prop('hidden',false);
                             startFrontCamera();
                         }
@@ -698,8 +733,8 @@
     function startFrontCamera() {
         Webcam.reset('.webcam-selfi');
         Webcam.set({
-            height: 300,
-            width: 300,
+            height: '100%',
+            width: 0,
             image_format: 'jpeg',
             jpeg_quality: 50,
             fps: 60,
@@ -711,8 +746,8 @@
     function startRearCamera() {
         Webcam.reset('.webcam-selfi');
         Webcam.set({
-            height: 300,
-            width: 300,
+            height: '100%',
+            width: 0,
             image_format: 'jpeg',
             jpeg_quality: 50,
             fps: 60,
