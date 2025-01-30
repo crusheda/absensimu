@@ -212,7 +212,7 @@
             type: 'GET',
             dataType: 'json',
             success: function(res) {
-                $('#img').empty().append(`<center><img width="100%" src="/storage/${res.show.path_in.substring(7,1000)}" alt=""></center>`);
+                $('#img').empty().append(`<center><img width="100%" style="height:1400px;max-height:1400px" src="/storage/${res.show.path_in.substring(7,1000)}" alt=""></center>`);
                 var jenis = '';
                 if (res.show.jenis == 1) {
                     jenis = 'Masuk Shift '+res.shift.shift+' ('+res.shift.berangkat+' - '+res.shift.pulang+')';
@@ -248,10 +248,13 @@
                 } else {
                     $('#lembur').empty();
                 }
-                $('#btn-map').empty().append(`
-                    <button class="btn btn-primary" onclick="tampilMap('${res.show.lokasi_in}')">Lokasi Masuk/Berangkat</button>
-                    <button class="btn btn-danger" onclick="tampilMap('${res.show.lokasi_out}')">Lokasi Keluar/Pulang</button>
-                `);
+                $('#btn-map').empty();
+                $('#btn-map').append(`<button class="btn btn-primary" onclick="tampilMap('${res.show.lokasi_in}')">Lokasi Masuk/Berangkat</button>`);
+                if (res.show.lokasi_out) {
+                    $('#btn-map').append(`<button class="btn btn-danger" onclick="tampilMap('${res.show.lokasi_out}')">Lokasi Keluar/Pulang</button>`);
+                } else {
+                    $('#btn-map').append(`<button class="btn btn-secondary" disabled>Lokasi Keluar/Pulang</button>`);
+                }
             }
         })
         $('#detail').modal('show');
