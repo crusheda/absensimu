@@ -97,8 +97,8 @@
 </div> --}}
 
 <script>
+    var map;
     $(document).ready(function() {
-        var map;
         refreshMap();
         // validation();
     })
@@ -386,6 +386,9 @@
 
     function refreshMap() {
         const x = document.getElementById("lokasi");
+        // if (map) {
+        //     map.remove();
+        // }
         if (navigator.geolocation) {
             // navigator.geolocation.getCurrentPosition(showPosition);
             var lat,long;// Creating a promise out of the function
@@ -394,7 +397,6 @@
                     navigator.geolocation.getCurrentPosition(function (position) {
                         lat = position.coords.latitude
                         long = position.coords.longitude
-
                         map = L.map('map',{
                             keyboard: false,
                             zoomControl: false,
@@ -474,23 +476,23 @@
                                 timerProgressBar: true,
                                 backdrop: `rgba(26,27,41,0.8)`,
                             });
-                            // $("#map").prop('hidden',false);
+                            $("#map").prop('hidden',false);
                             $("#webcam").prop('hidden',true);
                             Webcam.reset('.webcam-selfi');
                         } else {
-                            Swal.fire({
-                                title: `Anda berada di dalam area Rumah Sakit`,
-                                html: 'Anda sudah di area Absensi!<br>Jarak Anda <b>'+res+' meter</b> dari titik lokasi',
-                                icon: `success`,
-                                showConfirmButton: false,
-                                showCancelButton: false,
-                                allowOutsideClick: true,
-                                allowEscapeKey: false,
-                                timer: 5000,
-                                timerProgressBar: true,
-                                backdrop: `rgba(26,27,41,0.8)`,
-                            });
-                            // $("#map").prop('hidden',true);
+                            // Swal.fire({
+                            //     title: `Anda berada di dalam area Rumah Sakit`,
+                            //     html: 'Anda sudah di area Absensi!<br>Jarak Anda <b>'+res+' meter</b> dari titik lokasi',
+                            //     icon: `success`,
+                            //     showConfirmButton: false,
+                            //     showCancelButton: false,
+                            //     allowOutsideClick: true,
+                            //     allowEscapeKey: false,
+                            //     timer: 5000,
+                            //     timerProgressBar: true,
+                            //     backdrop: `rgba(26,27,41,0.8)`,
+                            // });
+                            $("#map").prop('hidden',true);
                             $("#webcam").prop('hidden',false);
                             startFrontCamera();
                         }
@@ -616,8 +618,8 @@
                 if (res.code == 200) { // JIKA SYARAT ABSEN TERPENUHI
                     // INIT
                     Webcam.snap( function(data_uri) {
-                        console.log(data_uri);
                         $("#image-capture").val(data_uri);
+                        console.log(data_uri);
                     } );
                     console.log($("#image-capture").val());
                     var save = new FormData();
@@ -642,6 +644,22 @@
                         dataType: 'json',
                         success: function(ex) {
                             if (ex.code == 200) {
+                                // const Toast = Swal.mixin({
+                                //     toast: true,
+                                //     position: "center",
+                                //     showConfirmButton: false,
+                                //     timer: 3000,
+                                //     timerProgressBar: true,
+                                //     didOpen: (toast) => {
+                                //         toast.onmouseenter = Swal.stopTimer;
+                                //         toast.onmouseleave = Swal.resumeTimer;
+                                //     }
+                                // });
+                                // Toast.fire({
+                                //     icon: "success",
+                                //     title: `Pesan Berhasil!`,
+                                //     text: ex.message
+                                // });
                                 Swal.fire({
                                     title: `Pesan Berhasil!`,
                                     text: ex.message,
@@ -654,8 +672,8 @@
                                     timerProgressBar: true,
                                     backdrop: `rgba(26,27,41,0.8)`,
                                 });
-                                refreshMap();
                                 init();
+                                reaccurate();
                             }
                         }
                     })
@@ -773,7 +791,7 @@
     function startFrontCamera() {
         Webcam.reset('.webcam-selfi');
         Webcam.set({
-            height: '100%',
+            height: '600',
             width: 0,
             image_format: 'jpeg',
             jpeg_quality: 50,
@@ -786,7 +804,7 @@
     function startRearCamera() {
         Webcam.reset('.webcam-selfi');
         Webcam.set({
-            height: '100%',
+            height: '600',
             width: 0,
             image_format: 'jpeg',
             jpeg_quality: 50,

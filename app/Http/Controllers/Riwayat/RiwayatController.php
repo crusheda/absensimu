@@ -30,7 +30,7 @@ class RiwayatController extends Controller
     function initRiwayat($user)
     {
         $show = absensi::where('pegawai_id',$user)
-                        ->where('tgl_out','!=',null)
+                        ->where('tgl_in','!=',null)
                         ->orderBy("tgl_in","DESC")
                         ->get();
 
@@ -43,4 +43,28 @@ class RiwayatController extends Controller
 
         return response()->json($data, 200);
     }
+
+    function showRiwayat($user,$id)
+    {
+        $show = absensi::where('pegawai_id',$user)
+                        ->where('id',$id)
+                        ->first();
+        if ($show) {
+            $shift = ref_shift::where('pegawai_id',$user)
+                            ->where('singkat',$show->kd_shift)
+                            ->first();
+        } else {
+            $shift = '';
+        }
+
+        $data = [
+            'show' => $show,
+            'shift' => $shift,
+        ];
+
+        return response()->json($data, 200);
+    }
+
+    // $data = perbaikan_ipsrs::find($id);
+    // return Storage::download($data->filename_pengaduan, $data->title_pengaduan);
 }

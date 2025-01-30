@@ -77,9 +77,11 @@
                         {{-- PAGE TITLE --}}
                         <h5 class="mb-0" id="clock"></h5>
                     </div>
-                    <div class="right-content">
-                        <button class="btn btn-link-light text-primary" onclick="reaccurate()" id="btn-gps"><i class="ti ti-map-pin"></i></button>
-                    </div>
+                    @if (request()->routeIs('absensi.index'))
+                        <div class="right-content">
+                            <button class="btn btn-link-light text-primary" onclick="reaccurate()" id="btn-gps"><i class="ti ti-map-pin"></i></button>
+                        </div>
+                    @endif
                 </div>
             </div>
         </div>

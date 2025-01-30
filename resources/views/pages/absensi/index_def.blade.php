@@ -363,6 +363,7 @@
     function take_snapshot() {
         Webcam.snap( function(data_uri) {
             $(".image-tag").val(data_uri);
+            console.log(data_uri);
             document.getElementById('results').innerHTML = '<img src="'+data_uri+'"/>';
         } );
 
@@ -372,8 +373,8 @@
             icon: `success`,
             showConfirmButton: false,
             showCancelButton: false,
-            allowOutsideClick: false,
-            allowEscapeKey: false,
+            allowOutsideClick: true,
+            allowEscapeKey: true,
             timer: 3000,
             timerProgressBar: true,
             backdrop: `rgba(26,27,41,0.8)`,

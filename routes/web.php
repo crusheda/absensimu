@@ -13,8 +13,8 @@ use Illuminate\Support\Facades\Route;
 |
 */
 
-// Route::get('/signin', function () {
-//     return view('pages.auth.signin');
+// Route::get('/test', function () {
+//     return view('pages.absensi.index_def');
 // });
 
 Auth::routes(['register' => false]);
@@ -27,6 +27,9 @@ Route::group(['middleware' => ['auth']], function () {
     Route::get('/absensi', [App\Http\Controllers\Absensi\AbsenController::class, 'index'])->name('absensi.index');
     Route::get('/riwayat', [App\Http\Controllers\Riwayat\RiwayatController::class, 'index'])->name('riwayat.index');
 
+    Route::get('/test', function () {
+        return view('pages.absensi.index_def');
+    });
 });
 
 Route::get('/manifest.json', [App\Http\Controllers\HomeController::class, 'manifest']);

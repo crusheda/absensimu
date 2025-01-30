@@ -1,6 +1,9 @@
 @extends('layouts.home2')
 
 @section('content')
+<style>
+    #map { height: 400px;},
+</style>
 {{-- <div class="input-group input-search">
     <span class="input-group-text">
         <a href="javascript:void(0);" class="search-icon">
@@ -57,11 +60,12 @@
 
 <div class="row">
     <div class="col-12">
-        <div class="card">
+        <div class="card" style="height: 100%">
             <div class="card-title">
             </div>
             <div class="card-body">
                 <h6 class="text-center mb-3">Riwayat Absensi</h6>
+                {{-- <div id="map" class="mb-3"></div> --}}
                 <div class="table-responsive">
                     <table id="table" class="table table-hover" style="font-size:13px">
                         <tbody id="tampil-tbody">
@@ -85,9 +89,43 @@
                 <h4 class="modal-title">
                     Detail Absensi
                 </h4>
+                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"><i class="fas fa-close"></i></button>
             </div>
             <div class="modal-body">
-
+                <div class="table-responsive">
+                    <table class="table table-hover table-borderless table-striped">
+                        <tbody>
+                            <tr>
+                                <th colspan='2'><div id="img"></div></th>
+                            </tr>
+                            <tr>
+                                <th colspan='2' class="text-center"><h5 id="jenis"></h5></th>
+                            </tr>
+                            <tr>
+                                <th>Waktu Absensi Masuk</th>
+                                <td id="wMasuk"></td>
+                            </tr>
+                            <tr>
+                                <th>Waktu Absensi Pulang</th>
+                                <td id="wPulang"></td>
+                            </tr>
+                            <tr>
+                                <th>Keterlambatan</th>
+                                <td id="terlambat"></td>
+                            </tr>
+                            <tr>
+                                <th>Lembur/Kelebihan</th>
+                                <td id="lembur"></td>
+                            </tr>
+                            <tr>
+                                <th colspan="2"><center><div id="btn-map" class="btn-group"></div></center></th>
+                            </tr>
+                            <tr id="map-hide" hidden>
+                                <th colspan="2"><center><div id="map"></div></center></th>
+                            </tr>
+                        </tbody>
+                    </table>
+                </div>
             </div>
             <div class="modal-footer">
                 {{-- <button type="submit" id="btn-hapus" class="btn btn-danger me-sm-3 me-1" onclick=""><i class="fa fa-trash me-1" style="font-size:13px"></i> Hapus</button> --}}
@@ -123,19 +161,43 @@
                     //             <div class="divider pb-1"></div>
                     //         </li>
                     //     </ul></td>`;
-                    content += `<td style='white-space: normal !important;word-wrap: break-word;'>
-                                    <a href="javascript:void(0);" onclick="tampilDetail(${item.id})" class="text-dark" style="text-decoration:none;">
-                                        <div class='d-flex justify-content-start align-items-center'>
-                                            <div class='d-flex flex-column'>
-                                                <h6 class='mb-0'>
-                                                    <b data-bs-toggle="tooltip" data-bs-offset="0,4" data-bs-placement="bottom" data-bs-html="true" title=""><u>Shift ${item.nm_shift}</b> ${item.terlambat == 1?'(<b class="text-danger">Terlambat selama '+item.keterlambatan+'</b>)':'(<b class="text-primary">Tepat Waktu</b>)'}</u>
-                                                </h6>
-                                                <small class='text-truncate text-muted'>Lokasi Masuk <b>${item.lokasi_in}</b> dan Lokasi Pulang <b>${item.lokasi_out?item.lokasi_out:''}</b></small>
-                                                <small class='text-truncate text-muted'>Bekerja dari <b>${item.tgl_in}</b> Sampai <b>${item.tgl_out?item.tgl_out:'-'}</b> (${item.selisih_jam?item.selisih_jam:''})</small>
+                    if (item.jenis == 1) {
+                        var pulang = '';
+                        if (item.lokasi_out) {
+                            pulang = `dan Lokasi Pulang <b>${item.lokasi_out}</b>`;
+                        }
+                        content += `<td style='white-space: normal !important;word-wrap: break-word;'>
+                                        <a href="javascript:void(0);" onclick="tampilDetail(${item.id})" class="text-dark" style="text-decoration:none;">
+                                            <div class='d-flex justify-content-start align-items-center'>
+                                                <div class='d-flex flex-column'>
+                                                    <h6 class='mb-0'>
+                                                        <u><b data-bs-toggle="tooltip" data-bs-offset="0,4" data-bs-placement="bottom" data-bs-html="true" title="">Shift ${item.nm_shift}</b> ${item.terlambat == 1?'(<b class="text-danger">Terlambat selama '+item.keterlambatan+'</b>)':'(<b class="text-primary">Tepat Waktu</b>)'}</u>
+                                                    </h6>
+                                                    <small class='text-truncate text-muted'>Lokasi Masuk <b>${item.lokasi_in}</b> ${pulang}</small>
+                                                    <small class='text-truncate text-muted'>Bekerja dari <b>${item.tgl_in}</b> ${item.tgl_out?'Sampai <b>'+item.tgl_out+'</b>':''} ${item.selisih_jam?'('+item.selisih_jam+')':''}</small>
+                                                </div>
                                             </div>
-                                        </div>
-                                    </a>
-                                </td>`;
+                                        </a>
+                                    </td>`;
+                    } else {
+                        if (item.jenis == 3) {
+                            content += `<td style='white-space: normal !important;word-wrap: break-word;'>
+                                            <a href="javascript:void(0);" onclick="tampilDetail(${item.id})" class="text-dark" style="text-decoration:none;">
+                                                <div class='d-flex justify-content-start align-items-center'>
+                                                    <div class='d-flex flex-column'>
+                                                        <h6 class='mb-0'>
+                                                            <b data-bs-toggle="tooltip" data-bs-offset="0,4" data-bs-placement="bottom" data-bs-html="true" title=""><u class='text-warning'>Ijin Tidak Masuk</u></b>
+                                                        </h6>
+                                                        <small class='text-truncate text-muted'>Lokasi Tercatat <b>${item.lokasi_in}</b></small>
+                                                        <small class='text-truncate text-muted'>Tgl Pengajuan <b>${item.tgl_in}</b></small>
+                                                    </div>
+                                                </div>
+                                            </a>
+                                        </td>`;
+                        } else {
+
+                        }
+                    }
                     content += "</tr>";
                     $('#tampil-tbody').append(content);
                 })
@@ -144,7 +206,90 @@
     }
 
     function tampilDetail(id) {
+        $('#map-hide').prop('hidden',true);
+        $.ajax({
+            url: "/api/kepegawaian/riwayat/{{ Auth::user()->id }}/"+id,
+            type: 'GET',
+            dataType: 'json',
+            success: function(res) {
+                $('#img').empty().append(`<center><img width="100%" src="/storage/${res.show.path_in.substring(7,1000)}" alt=""></center>`);
+                var jenis = '';
+                if (res.show.jenis == 1) {
+                    jenis = 'Masuk Shift '+res.shift.shift+' ('+res.shift.berangkat+' - '+res.shift.pulang+')';
+                } else {
+                    if (res.show.jenis == 2) {
+                        jenis = '';
+                    } else {
+                        if (res.show.jenis == 3) {
+                            jenis = 'Ijin Tidak Masuk';
+                        } else {
+                            if (res.show.jenis == 4) {
+                                jenis = 'Masuk On Call';
+                            } else {
+                                jenis = 'Kegiatan <b class="text-danger">TIDAK VALID</b>';
+                            }
+                        }
+                    }
+                }
+                $('#jenis').empty().text(jenis);
+                $('#wMasuk').empty().text(res.show.tgl_in);
+                if (res.show.tgl_out) {
+                    $('#wPulang').text(res.show.tgl_out);
+                } else {
+                    $('#wPulang').empty();
+                }
+                if (res.show.keterlambatan) {
+                    $('#terlambat').text(res.show.keterlambatan);
+                } else {
+                    $('#terlambat').empty();
+                }
+                if (res.show.lembur) {
+                    $('#lembur').text(res.show.lembur);
+                } else {
+                    $('#lembur').empty();
+                }
+                $('#btn-map').empty().append(`
+                    <button class="btn btn-primary" onclick="tampilMap('${res.show.lokasi_in}')">Lokasi Masuk/Berangkat</button>
+                    <button class="btn btn-danger" onclick="tampilMap('${res.show.lokasi_out}')">Lokasi Keluar/Pulang</button>
+                `);
+            }
+        })
         $('#detail').modal('show');
+    }
+
+    function tampilMap(lokasi) {
+        // console.log(lokasi);
+        $('#map-hide').prop('hidden',false);
+        // Tampil MAP
+        if (map) {
+            map.remove();
+        }
+        var lat,long;// Creating a promise out of the function
+        var arr = lokasi.split(", ");
+        lat = arr[0];
+        long = arr[1];
+        map = L.map('map',{
+            keyboard: false,
+            zoomControl: true,
+            boxZoom: false,
+            doubleClickZoom: true,
+            tap: false,
+            touchZoom: false,
+            enableHighAccuracy: true,
+            scrollWheelZoom: true,
+            dragging: true,
+            doubleClickZoom: false,
+        }).setView([lat, long], 18);
+
+        L.tileLayer('https://tile.openstreetmap.org/{z}/{x}/{y}.png', {
+            maxNativeZoom:19,
+            minZoom:7,
+            maxZoom:22
+            // attribution: '&copy; <a href="http://www.openstreetmap.org/copyright">OpenStreetMap</a>'
+        }).addTo(map);
+
+        var marker = new L.Marker([lat, long]);
+        marker.addTo(map).bindPopup("<center>Titik Lokasi Anda<br><b class='text-danger'>"+lokasi+"</b></center>").openPopup();
     }
 </script>
 @endsection
