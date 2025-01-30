@@ -38,6 +38,8 @@ class AbsenController extends Controller
         $datenow = Carbon::now()->isoFormat('YYYY-MM-DD');
         $tahun = Carbon::now()->isoFormat('YYYY');
         $bulan = Carbon::now()->isoFormat('MM');
+        $tgl = Carbon::now()->isoFormat('D');
+        $hit = "tgl".$tgl;
         // $datenow = "2025-01-02";
         // print_r($datenow);
         // die();
@@ -45,8 +47,17 @@ class AbsenController extends Controller
                         ->where('kepegawaian_jadwal_detail.pegawai_id',$user)
                         ->where('kepegawaian_jadwal.bulan',$bulan)
                         ->where('kepegawaian_jadwal.tahun',$tahun)
+                        ->where('kepegawaian_jadwal.progress',3)
+                        ->select('kepegawaian_jadwal_detail.'.$hit)
                         ->orderBy('kepegawaian_jadwal_detail.id','DESC')
                         ->first();
+
+        if (!empty($jadwal) || $jadwal != null) {
+            $shift = ref_shift::where('pegawai_id',$user)->where('singkat',$jadwal->$hit)->first();
+        } else {
+            $shift = null;
+        }
+
         $show = absensi::where('pegawai_id',$user)
                         ->whereDate("tgl_in","=",$datenow)
                         ->where("jenis",'1') // SHIFT
@@ -65,6 +76,7 @@ class AbsenController extends Controller
 
         $data = [
             'jadwal' => $jadwal,
+            'shift' => $shift,
             'show' => $show,
             'oncall' => $oncall,
             'ijin' => $ijin,
@@ -238,6 +250,8 @@ class AbsenController extends Controller
         // JIKA TOLERANSI KETERLAMBATAN = 10 MENIT DIHITUNG DARI JAM MULAI MASUK
         // $toleransi = Carbon::parse('00:10:00')->isoFormat('HH:mm:ss');
 
+        // print_r($request->all());
+        // die();
         $img = $request->image;
         $title = uniqid() . '.png';
         $folderPath = "public/files/kepegawaian/absensi/";

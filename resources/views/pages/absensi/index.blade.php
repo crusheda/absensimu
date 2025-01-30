@@ -41,7 +41,7 @@
                 <div id="webcam" class="webcam-selfi mb-3" hidden></div>
                 {{-- <input type="button" class="form-control" value="Take Snapshot" onClick="take_snapshot()"> --}}
                 <div id="hiddenButton" hidden>
-                    <h6 class="text-center">Jadwal Tidak Ditemukan. Silakan menghubungi Admin.</h6>
+                    <h6 class="text-center">Jadwal tidak ditemukan atau belum tervalidasi. Silakan menghubungi Admin.</h6>
                 </div>
                 <div id="hiddenButton1" hidden> {{-- SELAIN ONCALL --}}
                     <center>
@@ -109,28 +109,29 @@
             type: 'GET',
             dataType: 'json',
             success: function(res) {
-                if (res.jadwal != null) { // JIKA BELUM MENAMBAH JADWAL / BELUM DIVERIFIKASI OLEH KEPEGAWAIAN
+                if (res.jadwal != null) { // JIKA SUDAH MENAMBAH JADWAL & TELAH DIVALIDASI OLEH KEPEGAWAIAN
                     $("#btn-ijin").prop('hidden',false);
                     if (res.show == null && res.ijin == null) {
                         $("#btn-ijin").prop('disabled',false).removeClass('btn-secondary btn-warning').addClass('btn-warning');
                     } else {
                         $("#btn-ijin").prop('disabled',true).removeClass('btn-secondary btn-warning').addClass('btn-secondary');
+                        console.log('IJIN SUDAH TERISI UNTUK HARI INI');
                     }
                     $("#prosesijin").prop('hidden',true);
                 } else {
                     $("#btn-ijin").prop('hidden',true);
                     $("#prosesijin").prop('hidden',true);
+                    console.log('JADWAL TIDAK VALID');
                 }
 
                 if (jarak > 30) {
                     $("#hiddenButton").prop('hidden',true);
                     $("#hiddenButton1").prop('hidden',true);
                     $("#hiddenButton2").prop('hidden',true); // ABSEN + ONCALL MUNCUL
+                    console.log('TITIK LOKASI GPS LEBIH DARI 30 METER');
                 } else {
-                    // $("#map").prop('hidden',false); // INIT MAP
-                    console.log("{{ Auth::user()->getPermission('absensi_oncall') }}");
                     if ("{{ Auth::user()->getPermission('absensi_oncall') }}" == true || "{{ Auth::user()->getPermission('absensi_oncall') }}" || "{{ Auth::user()->getPermission('absensi_oncall') }}" != '') { // USER MEMILIKI AKSES ONCALL
-                        console.log('ONCALL NIH');
+                        console.log('USER ONCALL');
                         $("#btn-biasa").prop('hidden',true);
                         $("#hiddenButton1").prop('hidden',true);
                         if (res.jadwal == null) { // JIKA BELUM MENAMBAH JADWAL / BELUM DIVERIFIKASI OLEH KEPEGAWAIAN
@@ -165,7 +166,7 @@
                             }
                         }
                     } else { // KHUSUS USER TANPA AKSES ONCALL
-                        console.log('USER BIASA NIH');
+                        console.log('USER BIASA');
                         // INIT DISABLED BUTTON ONCALL
                         $("#btn-mulai").prop('hidden',true);
                         $("#btn-selesai").prop('hidden',true);
@@ -193,8 +194,45 @@
                             $("#btn-biasa").prop('hidden',false);
                             if (res.ijin == null) {
                                 if (res.show == null) { // JIKA ABSEN HARI INI MASIH KOSONG
-                                    $("#btn-pulang").prop('disabled',true).removeClass('btn-danger').addClass('btn-secondary');
-                                    $("#btn-masuk").prop('disabled',false).removeClass('btn-secondary').addClass('btn-primary');
+                                    th = new Date().getHours(); // get Jam = 0-23
+                                    tm = new Date().getMinutes(); // get Menit = 0-59
+                                    ts = new Date().getSeconds(); // get Detik = 0-59
+                                    const thisD = new Date().toLocaleDateString('en-CA'); // YYYY-MM-DD
+                                    const tomorrow = new Date();
+                                    tomorrow.setDate(tomorrow.getDate() + 1);
+                                    const thisT = tomorrow.toLocaleDateString('en-CA');
+                                    dbMasuk = new Date(thisD+' '+res.shift.berangkat);
+                                    dbPulang = new Date(thisD+' '+res.shift.pulang);
+                                    if (res.shift.pulang > res.shift.berangkat) { // JIKA ABSENSI TIDAK LEWAT HARI
+                                        if (th >= dbPulang.getHours()) { // Jika Jam Absen Masuk Lebih dari sama dgn Jam pulang
+                                            $("#btn-pulang").prop('disabled',true).removeClass('btn-danger').addClass('btn-secondary');
+                                            $("#btn-masuk").prop('disabled',true).removeClass('btn-primary').addClass('btn-secondary');
+                                            console.log('Jam Absen Masuk Lebih dari sama dgn Jam pulang');
+                                        } else { // JIKA ABSENSI SEBELUM JAM PULANG
+                                            if (th >= dbMasuk.getHours() - 1) { // MINIMAL ABSENSI 1 JAM SEBELUM JAM MASUK
+                                                $("#btn-pulang").prop('disabled',true).removeClass('btn-danger').addClass('btn-secondary');
+                                                $("#btn-masuk").prop('disabled',false).removeClass('btn-secondary').addClass('btn-primary');
+                                            } else { // JIKA ABSENSI DILUAR ANTARA JAM MASUK DAN JAM PULANG
+                                                $("#btn-pulang").prop('disabled',true).removeClass('btn-danger').addClass('btn-secondary');
+                                                $("#btn-masuk").prop('disabled',true).removeClass('btn-primary').addClass('btn-secondary');
+                                                console.log('Jam Absen Masuk Tidak pada/antara jam masuk (-1 jam) dan pulang');
+                                            }
+                                        }
+                                    } else { // JIKA ABSENSI LEWAT HARI (MALAM ke PAGI)
+                                        if (th >= dbMasuk.getHours() - 1 && th >= dbPulang.getHours()) {
+                                            $("#btn-pulang").prop('disabled',true).removeClass('btn-danger').addClass('btn-secondary');
+                                            $("#btn-masuk").prop('disabled',false).removeClass('btn-secondary').addClass('btn-primary');
+                                        } else {
+                                            if (th <= dbMasuk.getHours() - 1 && th <= dbPulang.getHours()) {
+                                                $("#btn-pulang").prop('disabled',true).removeClass('btn-danger').addClass('btn-secondary');
+                                                $("#btn-masuk").prop('disabled',false).removeClass('btn-secondary').addClass('btn-primary');
+                                            } else {
+                                                $("#btn-pulang").prop('disabled',true).removeClass('btn-danger').addClass('btn-secondary');
+                                                $("#btn-masuk").prop('disabled',true).removeClass('btn-primary').addClass('btn-secondary');
+                                                console.log('Jam Absen Masuk Tidak lebih dari jam masuk dan kurang dari jam pulang');
+                                            }
+                                        }
+                                    }
                                 } else {
                                     if (res.show.tgl_out == null) {
                                         $("#btn-pulang").prop('disabled',false).removeClass('btn-secondary').addClass('btn-danger');
@@ -578,8 +616,10 @@
                 if (res.code == 200) { // JIKA SYARAT ABSEN TERPENUHI
                     // INIT
                     Webcam.snap( function(data_uri) {
+                        console.log(data_uri);
                         $("#image-capture").val(data_uri);
                     } );
+                    console.log($("#image-capture").val());
                     var save = new FormData();
                     save.append('image',$("#image-capture").val());
                     save.append('lokasi',$("#lokasi").val());
