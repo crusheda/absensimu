@@ -212,7 +212,7 @@
             type: 'GET',
             dataType: 'json',
             success: function(res) {
-                $('#img').empty().append(`<center><img width="100%" style="height:600px;max-height:600px" src="/storage/${res.show.path_in.substring(7,1000)}" alt=""></center>`);
+                $('#img').empty().append(`<center><img width="100%" style="height:500px;max-height:600px" src="/storage/${res.show.path_in.substring(7,1000)}" alt=""></center>`);
                 var jenis = '';
                 if (res.show.jenis == 1) {
                     jenis = 'Masuk Shift '+res.shift.shift+'<br>(<b class="text-primary">'+res.shift.berangkat+'</b> - <b class="text-text-danger">'+res.shift.pulang+'</b>)';
@@ -231,7 +231,7 @@
                         }
                     }
                 }
-                $('#jenis').empty().text(jenis);
+                $('#jenis').empty().html(jenis);
                 $('#wMasuk').empty().text(res.show.tgl_in);
                 if (res.show.tgl_out) {
                     $('#wPulang').text(res.show.tgl_out);
