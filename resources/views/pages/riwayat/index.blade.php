@@ -215,7 +215,7 @@
                 $('#img').empty().append(`<center><img width="100%" style="height:500px;max-height:600px" src="/storage/${res.show.path_in.substring(7,1000)}" alt=""></center>`);
                 var jenis = '';
                 if (res.show.jenis == 1) {
-                    jenis = 'Masuk Shift '+res.shift.shift+'<br>(<b class="text-primary">'+res.shift.berangkat+'</b> - <b class="text-text-danger">'+res.shift.pulang+'</b>)';
+                    jenis = 'Masuk Shift '+res.shift.shift+'<br>(<b class="text-primary">'+res.shift.berangkat+'</b> - <b class="text-danger">'+res.shift.pulang+'</b>)';
                 } else {
                     if (res.show.jenis == 2) {
                         jenis = '';

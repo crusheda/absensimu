@@ -49,9 +49,13 @@ class RiwayatController extends Controller
         $show = absensi::where('pegawai_id',$user)
                         ->where('id',$id)
                         ->first();
-        $jadwal = jadwal::whereIn('staf',$user)->first();
+        $jadwal = jadwal_detail::join('kepegawaian_jadwal','kepegawaian_jadwal_detail.id_jadwal','=','kepegawaian_jadwal.id')
+                        ->where('kepegawaian_jadwal_detail.pegawai_id',$user)
+                        ->select('kepegawaian_jadwal.pegawai_id as atasan','kepegawaian_jadwal.staf as bawahan')
+                        ->orderBy('kepegawaian_jadwal_detail.id','DESC')
+                        ->first();
         if ($show) {
-            $shift = ref_shift::where('pegawai_id',$jadwal->pegawai_id)
+            $shift = ref_shift::where('pegawai_id',$jadwal->atasan)
                             ->where('singkat',$show->kd_shift)
                             ->first();
         } else {
