@@ -48,12 +48,12 @@ class AbsenController extends Controller
                         ->where('kepegawaian_jadwal.bulan',$bulan)
                         ->where('kepegawaian_jadwal.tahun',$tahun)
                         ->where('kepegawaian_jadwal.progress',3)
-                        ->select('kepegawaian_jadwal_detail.'.$hit)
+                        ->select('kepegawaian_jadwal_detail.'.$hit,'kepegawaian_jadwal.pegawai_id as atasan','kepegawaian_jadwal.staf as bawahan')
                         ->orderBy('kepegawaian_jadwal_detail.id','DESC')
                         ->first();
 
         if (!empty($jadwal) || $jadwal != null) {
-            $shift = ref_shift::where('pegawai_id',$user)->where('singkat',$jadwal->$hit)->first();
+            $shift = ref_shift::where('pegawai_id',$jadwal->atasan)->where('singkat',$jadwal->$hit)->first();
         } else {
             $shift = null;
         }
