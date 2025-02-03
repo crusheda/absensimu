@@ -24,7 +24,7 @@
                         <i class="fa fa-eye"></i>
                     </span>
                 </div>
-                <a href="javascript: void(0);" class="btn-link d-block text-center">Lupa Password?</a>
+                <a href="https://simrsmu.com/lupapassword" class="btn-link d-block text-center">Lupa Password?</a>
                 <div class="input-group">
                     <button type="submit" class="btn mt-2 btn-primary w-100 btn-rounded">Masuk</button>
                 </div>
