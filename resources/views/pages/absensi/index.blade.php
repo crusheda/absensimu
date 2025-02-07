@@ -27,6 +27,15 @@
     <div class="col-12">
         <div class="card">
             <div class="card-body">
+                {{-- PHOTO --}}
+                <input type="hidden" name="image" id="image-capture" class="image-tag">
+                <div id="webcam" class="webcam-selfi mb-3" hidden></div>
+            </div>
+        </div>
+    </div>
+    <div class="col-12">
+        <div class="card">
+            <div class="card-body">
                 <div class="alert alert-secondary">
                     <h5 class="text-center mb-3">Panduan Absensi</h5>
                     <small><b><a class="text-danger">WAJIB</a> menggunakan browser di bawah ini</b></small><br>
@@ -36,9 +45,6 @@
                 {{-- MAP --}}
                 <input type="text" class="form-control" id="lokasi" hidden>
                 <div id="map" class="mb-3"></div>
-                {{-- PHOTO --}}
-                <input type="hidden" name="image" id="image-capture" class="image-tag">
-                <div id="webcam" class="webcam-selfi mb-3" hidden></div>
                 {{-- <input type="button" class="form-control" value="Take Snapshot" onClick="take_snapshot()"> --}}
                 <div id="hiddenButton" hidden>
                     <h6 class="text-center">Jadwal tidak ditemukan atau belum tervalidasi. Silakan menghubungi Admin.</h6>
@@ -187,6 +193,7 @@
                             $("#btn-masuk").prop('disabled',true);
                             $("#btn-pulang").prop('disabled',true);
                             console.log('TIDAK ADA JADWAL DITEMUKAN');
+                            // stopCameraMap();
                         } else {
                             console.log('JADWAL DITEMUKAN');
                             $("#hiddenButton1").prop('hidden',true);
@@ -215,7 +222,7 @@
                                             } else { // JIKA ABSENSI DILUAR ANTARA JAM MASUK DAN JAM PULANG
                                                 $("#btn-pulang").prop('disabled',true).removeClass('btn-danger').addClass('btn-secondary');
                                                 $("#btn-masuk").prop('disabled',true).removeClass('btn-primary').addClass('btn-secondary');
-                                                console.log('Jam Absen Masuk Tidak pada/antara jam masuk (-1 jam) dan pulang');
+                                                console.log('Jam Absen Masuk Tidak pada/antara jam masuk (-1 jam) dan jam pulang');
                                             }
                                         }
                                     } else { // JIKA ABSENSI LEWAT HARI (MALAM ke PAGI)
@@ -812,6 +819,13 @@
             constraints: { facingMode: 'environment' }
         });
         Webcam.attach('.webcam-selfi');
+    }
+
+    function stopCameraMap() {
+        map.remove();
+        $("#map").prop('hidden',false);
+        Webcam.reset('.webcam-selfi');
+        $("#webcam").prop('hidden',true);
     }
 </script>
 @endsection
