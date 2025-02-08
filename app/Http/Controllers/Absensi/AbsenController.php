@@ -111,12 +111,21 @@ class AbsenController extends Controller
         // FIND SHIFT
         $shift = ref_shift::where('singkat',$callShift)->where('pegawai_id',$jadwal->id_atasan)->orderBy('updated_at','DESC')->first();
 
+        $jam_masuk = Carbon::parse($shift->berangkat)->isoFormat('HH:mm:ss');
+        $jam_pulang = Carbon::parse($shift->pulang)->isoFormat('HH:mm:ss');
+        if ($jam_pulang > $jam_masuk) {
+            $lewat_hari = 1;
+        } else {
+            $lewat_hari = 0;
+        }
+
         if ($oncall) { // JIKA USER BISA ONCALL / MEMPUNYAI PERMISSION = absensi_oncall
             // VALIDATING JAM MASUK
             if ($shift->pulang > $shift->berangkat) {
                 if ($time >= Carbon::parse($shift->berangkat)->subHour()->isoFormat('HH:mm:ss') && $time <= $shift->pulang) { // DALAM JAM KERJA (MIN 1 JAM SEBELUM JAM MASUK)
                     return Response::json(array(
                         'message' => 'Anda berada di Waktu Masuk Kerja!',
+                        'lewat_hari' => $lewat_hari,
                         'kd_shift' => $shift->singkat,
                         'nm_shift' => $shift->shift,
                         'berangkat' => Carbon::parse($today.' '.$shift->berangkat)->isoFormat('YYYY-MM-DD HH:mm:ss'),
@@ -141,6 +150,7 @@ class AbsenController extends Controller
                 if ($time >= Carbon::parse($shift->berangkat)->subHour()->isoFormat('HH:mm:ss') && $time <= $shift->pulang) { // DALAM JAM KERJA (MIN 1 JAM SEBELUM JAM MASUK)
                     return Response::json(array(
                         'message' => 'Anda berada di Waktu Masuk Kerja!',
+                        'lewat_hari' => $lewat_hari,
                         'kd_shift' => $shift->singkat,
                         'nm_shift' => $shift->shift,
                         'berangkat' => Carbon::parse($today.' '.$shift->berangkat)->isoFormat('YYYY-MM-DD HH:mm:ss'),
@@ -162,6 +172,7 @@ class AbsenController extends Controller
                 if ($now >= $convBerangkat && $now <= $convPulang) { // DALAM JAM KERJA
                     return Response::json(array(
                         'message' => 'Anda berada di Waktu Masuk Kerja!',
+                        'lewat_hari' => $lewat_hari,
                         'kd_shift' => $shift->singkat,
                         'nm_shift' => $shift->shift,
                         'berangkat' => Carbon::parse($today.' '.$shift->berangkat)->isoFormat('YYYY-MM-DD HH:mm:ss'),
@@ -205,6 +216,7 @@ class AbsenController extends Controller
         // VALIDATING
         return Response::json(array(
             'message' => 'Anda berada di Waktu Masuk Kerja!',
+            'lewat_hari' => 0,
             'kd_shift' => $shift->singkat,
             'nm_shift' => $shift->shift,
             'berangkat' => Carbon::parse($today.' '.$shift->berangkat)->isoFormat('YYYY-MM-DD HH:mm:ss'),
@@ -289,6 +301,7 @@ class AbsenController extends Controller
         $data->path_in = $path;
         $data->lokasi_in = $request->lokasi;
         $data->terlambat = $terlambat;
+        $data->lewat_hari = $request->lewat_hari;
         $data->save();
 
         return Response::json(array(
@@ -333,6 +346,7 @@ class AbsenController extends Controller
         $data->lokasi_out = null;
         $data->terlambat = null;
         $data->keterangan = null;
+        $data->lewat_hari = $request->lewat_hari;
         $data->save();
 
         return Response::json(array(
