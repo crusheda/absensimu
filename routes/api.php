@@ -18,7 +18,7 @@ Route::middleware('auth:sanctum')->get('/user', function (Request $request) {
     return $request->user();
 });
 
-Route::get('kepegawaian/absensi/{user}', [\App\Http\Controllers\Absensi\AbsenController::class, 'initAbsensi'])->name('kepegawaian.absensi.initAbsensi');
+Route::post('kepegawaian/absensi/validate', [\App\Http\Controllers\Absensi\AbsenController::class, 'validate'])->name('kepegawaian.absensi.validate');
 Route::post('kepegawaian/absensi/distance', [\App\Http\Controllers\Absensi\AbsenController::class, 'getDistance'])->name('kepegawaian.absensi.getDistance');
 Route::get('kepegawaian/absensi/validate/jadwal/{user}/pulang', [\App\Http\Controllers\Absensi\AbsenController::class, 'validatePulang'])->name('kepegawaian.absensi.validatePulang');
 Route::get('kepegawaian/absensi/validate/jadwal/{user}/{oncall}', [\App\Http\Controllers\Absensi\AbsenController::class, 'validateJadwal'])->name('kepegawaian.absensi.validateJadwal');

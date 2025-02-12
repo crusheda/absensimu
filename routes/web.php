@@ -13,9 +13,9 @@ use Illuminate\Support\Facades\Route;
 |
 */
 
-// Route::get('/test', function () {
-//     return view('pages.absensi.index_def');
-// });
+Route::get('/demo', function () {
+    return view('pages.index');
+});
 
 Auth::routes(['register' => false]);
 // Auth::routes();

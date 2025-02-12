@@ -32,8 +32,22 @@ class AbsenController extends Controller
 
 
     // API FUNCTION ----------------------------------------------------------------------------------------------------
-    function initAbsensi($user)
+    function initAbsensi(Request $request)
     {
+        $profil_rs = profil_rs::first();
+        $lokasi = explode(",",$request->lokasi);
+        $lat2 = $lokasi[0];
+        $lon2 = $lokasi[1];
+
+        // Kantor Kelurahan Bakung : -7.733879364254091, 110.55628417878309
+        // Kilat Photo Studio : -7.63783189686527, 110.86775211807864
+        // RS PKU Muhammadiyah Sukoharjo : -7.677851238136329, 110.83968584828327
+        // $callDistance = $this->distance("-7.733137923668563", "110.55927671462696", $lat2, $lon2);
+
+        $callDistance = $this->distance($profil_rs->coord_lat, $profil_rs->coord_long, $lat2, $lon2);
+        $distance = round($callDistance["meters"]);
+
+        // ---------------------------------------------------------------
         // $users  = users::where('nik','!=',null)->where('nama','!=',null)->orderBy('nama', 'asc')->get();
         $datenow = Carbon::now()->isoFormat('YYYY-MM-DD');
         $tahun = Carbon::now()->isoFormat('YYYY');
@@ -75,6 +89,7 @@ class AbsenController extends Controller
                         ->first();
 
         $data = [
+            'distance' => $distance,
             'jadwal' => $jadwal,
             'shift' => $shift,
             'show' => $show,

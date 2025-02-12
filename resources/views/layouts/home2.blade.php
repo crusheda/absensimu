@@ -92,11 +92,11 @@
 
     <!-- Page Content -->
     <div class="page-content bottom-content">
-        <div class="container">
+        {{-- <div class="container"> --}}
 
             @yield('content')
 
-        </div>
+        {{-- </div> --}}
     </div>
     <!-- Page Content End-->
 
