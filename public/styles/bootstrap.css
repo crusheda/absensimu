@@ -17336,3 +17336,7 @@ input[type=range] {
 .theme-dark .speach-input input {
     border: solid 1px #404040
 }
+
+.no-click {
+    pointer-events: none
+}

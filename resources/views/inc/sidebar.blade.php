@@ -51,20 +51,25 @@
         <div class="card card-style rounded-m p-3 py-2 mb-0">
             <a href="#" data-bs-toggle="offcanvas" data-bs-target="#menu-color">
                 <i class="gradient-highlight shadow-bg shadow-bg-xs bi bi-palette-fill"></i>
-                <span>Highlights</span>
+                <span>Warna Dasar</span>
                 <i class="bi bi-chevron-right"></i>
             </a>
             <a href="#" data-toggle-theme data-trigger-switch="switch-1">
                 <i class="gradient-dark shadow-bg shadow-bg-xs bi bi-moon-fill font-13"></i>
-                <span>Dark Mode</span>
+                <span>Mode Gelap</span>
                 <div class="form-switch ios-switch switch-green switch-s me-2">
                     <input type="checkbox" data-toggle-theme class="ios-input" id="switch-1">
                     <label class="custom-control-label" for="switch-1"></label>
                 </div>
             </a>
-            <a href="#" id=""><i class="gradient-red shadow-bg shadow-bg-xs bi bi-box-arrow-right"></i><span>Logout</span><i class="bi bi-chevron-right"></i></a>
+            <a href="javascript:void(0);" onclick="event.preventDefault(); document.getElementById('logoutform').submit();"><i class="gradient-red shadow-bg shadow-bg-xs bi bi-box-arrow-right"></i><span>Logout</span><i class="bi bi-chevron-right"></i></a>
         </div>
     </div>
+
+    <!-- Logout Form -->
+    <form id="logoutform" action="{{ route('logout') }}" method="POST" style="display: none;">
+        {{ csrf_field() }}
+    </form>
 
     {{-- <span class="menu-divider mt-4">Messages</span>
     <div class="menu-content px-3">

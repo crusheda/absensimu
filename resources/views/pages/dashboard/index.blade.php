@@ -1,207 +1,176 @@
-@extends('layouts.home')
+@extends('layouts.dashboard.index')
 
 @section('content')
-<div class="content-inner pt-0">
-    <div class="container fb">
-        <!-- Search -->
-        <form class="">
-            <div class="card card-bx card-content" style="border-radius: 30px; overflow: hidden;">
-                <div class="card-body">
-                    <div class="hstack gap-3">
-                        <div class="item-list recent-jobs-list">
-                            <div class="item-content">
-                                <a href="javascript:void(0);" class="item-media me-2"><img src="{{ asset('/images/user2.png') }}" width="50" alt="logo"></a>
-                                <div class="item-inner">
-                                    <div class="item-title-row">
-                                        <h6 class="item-title"><a href="javascript:void(0);">Reguler</a></h6>
-                                        <div class="item-subtitle">07.00 - 14.00 WIB</div>
-                                    </div>
-                                </div>
-                            </div>
-                            {{-- <h5>Reguler</h5><code>07:00 - 14:00</code> --}}
-                        </div>
-                        <div class="ms-auto"></div>
-                        <div class="vr"></div>
-                        <div class=""><blockquote>{{ \Carbon\Carbon::now()->isoFormat('dddd, D MMMM Y') }}</blockquote><h4 id="clock"></h4></div>
-                    </div>
-                    <div class="divider inner-divider transparent mb-0" style="border-radius:30px"><span class="text-primary" style="border-radius:30px">Bulan {{ \Carbon\Carbon::now()->isoFormat('MMMM') }}</span></div>
-                    <div class="row mt-1 mb-0">
-                        <div class="hstack gap-3 text-center">
-                            <div class="col mt-2">
-                                <h4 class="title">
-                                    @if ($list['hadir'])
-                                        @foreach ($list['hadir'] as $item)
-                                            {{ $item }}x
-                                        @endforeach
-                                    @else
-                                        0x
-                                    @endif
-                                </h4>
-                                <p>Hadir</p>
-                            </div>
-                            <div class="vr"></div>
-                            <div class="col mt-2">
-                                <h4 class="title">
-                                    @if ($list['terlambat'])
-                                        @foreach ($list['terlambat'] as $item)
-                                            {{ $item }}x
-                                        @endforeach
-                                    @else
-                                        0x
-                                    @endif
-                                </h4>
-                                <p>Terlambat</p>
-                            </div>
-                            <div class="vr"></div>
-                            <div class="col mt-2">
-                                <h4 class="title">
-                                    @if ($list['ijin'])
-                                        @foreach ($list['ijin'] as $item)
-                                            {{ $item }}x
-                                        @endforeach
-                                    @else
-                                        0x
-                                    @endif
-                                </h4>
-                                <p>Ijin</p>
-                            </div>
-                        </div>
-                    </div>
-                </div>
-            </div>
-            {{-- <div class="input-group">
-                <span class="input-group-text">
-                    <a href="javascript:void(0);" class="search-icon">
-                        <svg width="24" height="24" viewBox="0 0 24 24" fill="none">
-                            <path d="M20.5605 18.4395L16.7528 14.6318C17.5395 13.446 18 12.0262 18 10.5C18 6.3645 14.6355 3 10.5 3C6.3645 3 3 6.3645 3 10.5C3 14.6355 6.3645 18 10.5 18C12.0262 18 13.446 17.5395 14.6318 16.7528L18.4395 20.5605C19.0245 21.1462 19.9755 21.1462 20.5605 20.5605C21.1462 19.9748 21.1462 19.0252 20.5605 18.4395ZM5.25 10.5C5.25 7.605 7.605 5.25 10.5 5.25C13.395 5.25 15.75 7.605 15.75 10.5C15.75 13.395 13.395 15.75 10.5 15.75C7.605 15.75 5.25 13.395 5.25 10.5Z" fill="#B9B9B9"/>
-                        </svg>
-                    </a>
-                </span>
-                <input type="text" placeholder="Cari sesuatu..." class="form-control ps-0 bs-0" style="border-top-right-radius:50px;border-bottom-right-radius:50px">
-            </div> --}}
-        </form>
+<!-- Your Page Content Goes Here-->
+<div class="page-content">
 
-        {{-- @if ($list['agent']->isMobile()) --}}
-            <!-- Dashboard Area -->
-            <div class="dashboard-area">
-
-                {{-- <div class="m-b10">
-                    <div class="title-bar">
-                        <h5 class="dz-title">Recomended Jobs</h5>
-                        <div class="swiper-defult-pagination pagination-dots style-1 p-0"></div>
-                    </div>
-                    <div class="swiper-btn-center-lr">
-                        <div class="swiper-container tag-group mt-4 dz-swiper recomand-swiper">
-                            <div class="swiper-wrapper">
-                                <div class="swiper-slide">
-                                    <div class="card job-post">
-                                        <div class="card-body">
-                                            <div class="media media-80">
-                                                <img src="assets/images/logo/logo.png" alt="/">
-                                            </div>
-                                            <div class="card-info">
-                                                <h6 class="title"><a href="javascript:void(0);">Software Engineer</a></h6>
-                                                <span class="location">Jakarta, Indonesia</span>
-                                                <div class="d-flex align-items-center">
-                                                    <svg class="text-primary" width="24" height="24" viewBox="0 0 24 24" fill="none">
-                                                        <path d="M8.5 23C9.70017 23.0072 10.8898 22.7761 12 22.32C13.109 22.7799 14.2995 23.0112 15.5 23C19.145 23 22 21.055 22 18.571V14.429C22 11.945 19.145 10 15.5 10C15.331 10 15.165 10.008 15 10.017V5.333C15 2.9 12.145 1 8.5 1C4.855 1 2 2.9 2 5.333V18.667C2 21.1 4.855 23 8.5 23ZM20 18.571C20 19.72 18.152 21 15.5 21C12.848 21 11 19.72 11 18.571V17.646C12.3542 18.4696 13.9153 18.8898 15.5 18.857C17.0847 18.8898 18.6458 18.4696 20 17.646V18.571ZM15.5 12C18.152 12 20 13.28 20 14.429C20 15.578 18.152 16.857 15.5 16.857C12.848 16.857 11 15.577 11 14.429C11 13.281 12.848 12 15.5 12ZM8.5 3C11.152 3 13 4.23 13 5.333C13 6.43601 11.152 7.66701 8.5 7.66701C5.848 7.66701 4 6.43701 4 5.333C4 4.229 5.848 3 8.5 3ZM4 8.48201C5.35986 9.28959 6.91876 9.7001 8.5 9.66701C10.0812 9.7001 11.6401 9.28959 13 8.48201V10.33C11.9102 10.6047 10.9107 11.1586 10.1 11.937C9.57422 12.0508 9.03795 12.1091 8.5 12.111C5.848 12.111 4 10.881 4 9.77801V8.48201ZM4 12.927C5.36015 13.7338 6.91891 14.1439 8.5 14.111C8.678 14.111 8.85 14.089 9.025 14.08C9.0101 14.1958 9.00176 14.3123 9 14.429V16.514C8.832 16.524 8.67 16.556 8.5 16.556C5.848 16.556 4 15.326 4 14.222V12.927ZM4 17.371C5.35986 18.1786 6.91876 18.5891 8.5 18.556C8.668 18.556 8.833 18.543 9 18.535V18.571C9.01431 19.4223 9.34144 20.2385 9.919 20.864C9.45111 20.9524 8.97615 20.9979 8.5 21C5.848 21 4 19.77 4 18.667V17.371Z" fill="#40189D"/>
-                                                    </svg>
-                                                    <span class="ms-2 price-item">$500 - $1,000</span>
-                                                </div>
-                                            </div>
-                                        </div>
-                                    </div>
-                                </div>
-                                <div class="swiper-slide">
-                                    <div class="card job-post">
-                                        <div class="card-body">
-                                            <div class="media media-80">
-                                                <img src="assets/images/logo/logo.png" alt="/">
-                                            </div>
-                                            <div class="card-info">
-                                                <h6 class="title"><a href="javascript:void(0);">Software Engineer</a></h6>
-                                                <span class="location">Jakarta, Indonesia</span>
-                                                <div class="d-flex align-items-center">
-                                                    <svg class="text-primary" width="24" height="24" viewBox="0 0 24 24" fill="none">
-                                                        <path d="M8.5 23C9.70017 23.0072 10.8898 22.7761 12 22.32C13.109 22.7799 14.2995 23.0112 15.5 23C19.145 23 22 21.055 22 18.571V14.429C22 11.945 19.145 10 15.5 10C15.331 10 15.165 10.008 15 10.017V5.333C15 2.9 12.145 1 8.5 1C4.855 1 2 2.9 2 5.333V18.667C2 21.1 4.855 23 8.5 23ZM20 18.571C20 19.72 18.152 21 15.5 21C12.848 21 11 19.72 11 18.571V17.646C12.3542 18.4696 13.9153 18.8898 15.5 18.857C17.0847 18.8898 18.6458 18.4696 20 17.646V18.571ZM15.5 12C18.152 12 20 13.28 20 14.429C20 15.578 18.152 16.857 15.5 16.857C12.848 16.857 11 15.577 11 14.429C11 13.281 12.848 12 15.5 12ZM8.5 3C11.152 3 13 4.23 13 5.333C13 6.43601 11.152 7.66701 8.5 7.66701C5.848 7.66701 4 6.43701 4 5.333C4 4.229 5.848 3 8.5 3ZM4 8.48201C5.35986 9.28959 6.91876 9.7001 8.5 9.66701C10.0812 9.7001 11.6401 9.28959 13 8.48201V10.33C11.9102 10.6047 10.9107 11.1586 10.1 11.937C9.57422 12.0508 9.03795 12.1091 8.5 12.111C5.848 12.111 4 10.881 4 9.77801V8.48201ZM4 12.927C5.36015 13.7338 6.91891 14.1439 8.5 14.111C8.678 14.111 8.85 14.089 9.025 14.08C9.0101 14.1958 9.00176 14.3123 9 14.429V16.514C8.832 16.524 8.67 16.556 8.5 16.556C5.848 16.556 4 15.326 4 14.222V12.927ZM4 17.371C5.35986 18.1786 6.91876 18.5891 8.5 18.556C8.668 18.556 8.833 18.543 9 18.535V18.571C9.01431 19.4223 9.34144 20.2385 9.919 20.864C9.45111 20.9524 8.97615 20.9979 8.5 21C5.848 21 4 19.77 4 18.667V17.371Z" fill="#40189D"/>
-                                                    </svg>
-                                                    <span class="ms-2 price-item">$500 - $1,000</span>
-                                                </div>
-                                            </div>
-                                        </div>
-                                    </div>
-                                </div>
-                                <div class="swiper-slide">
-                                    <div class="card job-post">
-                                        <div class="card-body">
-                                            <div class="media media-80">
-                                                <img src="assets/images/logo/logo.png" alt="/">
-                                            </div>
-                                            <div class="card-info">
-                                                <h6 class="title"><a href="javascript:void(0);">Software Engineer</a></h6>
-                                                <span class="location">Jakarta, Indonesia</span>
-                                                <div class="d-flex align-items-center">
-                                                    <svg class="text-primary" width="24" height="24" viewBox="0 0 24 24" fill="none">
-                                                        <path d="M8.5 23C9.70017 23.0072 10.8898 22.7761 12 22.32C13.109 22.7799 14.2995 23.0112 15.5 23C19.145 23 22 21.055 22 18.571V14.429C22 11.945 19.145 10 15.5 10C15.331 10 15.165 10.008 15 10.017V5.333C15 2.9 12.145 1 8.5 1C4.855 1 2 2.9 2 5.333V18.667C2 21.1 4.855 23 8.5 23ZM20 18.571C20 19.72 18.152 21 15.5 21C12.848 21 11 19.72 11 18.571V17.646C12.3542 18.4696 13.9153 18.8898 15.5 18.857C17.0847 18.8898 18.6458 18.4696 20 17.646V18.571ZM15.5 12C18.152 12 20 13.28 20 14.429C20 15.578 18.152 16.857 15.5 16.857C12.848 16.857 11 15.577 11 14.429C11 13.281 12.848 12 15.5 12ZM8.5 3C11.152 3 13 4.23 13 5.333C13 6.43601 11.152 7.66701 8.5 7.66701C5.848 7.66701 4 6.43701 4 5.333C4 4.229 5.848 3 8.5 3ZM4 8.48201C5.35986 9.28959 6.91876 9.7001 8.5 9.66701C10.0812 9.7001 11.6401 9.28959 13 8.48201V10.33C11.9102 10.6047 10.9107 11.1586 10.1 11.937C9.57422 12.0508 9.03795 12.1091 8.5 12.111C5.848 12.111 4 10.881 4 9.77801V8.48201ZM4 12.927C5.36015 13.7338 6.91891 14.1439 8.5 14.111C8.678 14.111 8.85 14.089 9.025 14.08C9.0101 14.1958 9.00176 14.3123 9 14.429V16.514C8.832 16.524 8.67 16.556 8.5 16.556C5.848 16.556 4 15.326 4 14.222V12.927ZM4 17.371C5.35986 18.1786 6.91876 18.5891 8.5 18.556C8.668 18.556 8.833 18.543 9 18.535V18.571C9.01431 19.4223 9.34144 20.2385 9.919 20.864C9.45111 20.9524 8.97615 20.9979 8.5 21C5.848 21 4 19.77 4 18.667V17.371Z" fill="#40189D"/>
-                                                    </svg>
-                                                    <span class="ms-2 price-item">$500 - $1,000</span>
-                                                </div>
-                                            </div>
-                                        </div>
-                                    </div>
-                                </div>
-                            </div>
-                        </div>
-                    </div>
-                </div> --}}
-
-                <div class="title-bar">
-                    <h5 class="dz-title">Berita Terbaru</h5>
-                    <a class="btn btn-sm text-dark" href="search.html">Selengkapnya</a>
-                </div>
-                <div class="list item-list recent-jobs-list">
-                    <ul style="padding-left:0rem">
-                        <li>
-                            <div class="item-content">
-                                <a href="javascript:void(0);" class="item-media"><img src="{{ asset('/images/admin.png') }}" width="55" alt="logo"></a>
-                                <div class="item-inner">
-                                    <div class="item-title-row">
-                                        <div class="item-subtitle">Keluaran Baru</div>
-                                        <h6 class="item-title"><a href="javascript:void(0);">E-Absensi</a></h6>
-                                    </div>
-                                    <div class="d-flex align-items-center mb-2">
-                                        <svg class="text-primary" width="24" height="24" viewBox="0 0 24 24" fill="none">
-                                            <path d="M8.5 23C9.70017 23.0072 10.8898 22.7761 12 22.32C13.109 22.7799 14.2995 23.0112 15.5 23C19.145 23 22 21.055 22 18.571V14.429C22 11.945 19.145 10 15.5 10C15.331 10 15.165 10.008 15 10.017V5.333C15 2.9 12.145 1 8.5 1C4.855 1 2 2.9 2 5.333V18.667C2 21.1 4.855 23 8.5 23ZM20 18.571C20 19.72 18.152 21 15.5 21C12.848 21 11 19.72 11 18.571V17.646C12.3542 18.4696 13.9153 18.8898 15.5 18.857C17.0847 18.8898 18.6458 18.4696 20 17.646V18.571ZM15.5 12C18.152 12 20 13.28 20 14.429C20 15.578 18.152 16.857 15.5 16.857C12.848 16.857 11 15.577 11 14.429C11 13.281 12.848 12 15.5 12ZM8.5 3C11.152 3 13 4.23 13 5.333C13 6.43601 11.152 7.66701 8.5 7.66701C5.848 7.66701 4 6.43701 4 5.333C4 4.229 5.848 3 8.5 3ZM4 8.48201C5.35986 9.28959 6.91876 9.7001 8.5 9.66701C10.0812 9.7001 11.6401 9.28959 13 8.48201V10.33C11.9102 10.6047 10.9107 11.1586 10.1 11.937C9.57422 12.0508 9.03795 12.1091 8.5 12.111C5.848 12.111 4 10.881 4 9.77801V8.48201ZM4 12.927C5.36015 13.7338 6.91891 14.1439 8.5 14.111C8.678 14.111 8.85 14.089 9.025 14.08C9.0101 14.1958 9.00176 14.3123 9 14.429V16.514C8.832 16.524 8.67 16.556 8.5 16.556C5.848 16.556 4 15.326 4 14.222V12.927ZM4 17.371C5.35986 18.1786 6.91876 18.5891 8.5 18.556C8.668 18.556 8.833 18.543 9 18.535V18.571C9.01431 19.4223 9.34144 20.2385 9.919 20.864C9.45111 20.9524 8.97615 20.9979 8.5 21C5.848 21 4 19.77 4 18.667V17.371Z" fill="#40189D"/>
-                                        </svg>
-                                        <div class="item-price">Lebih praktis dan efisien absensi pakai E-Absensi</div>
-                                    </div>
-                                    <div class="d-flex align-items-center">
-                                        <svg class="text-primary" width="20" height="20" viewBox="0 0 20 20" fill="none" xmlns="http://www.w3.org/2000/svg">
-                                            <path opacity="0.4" d="M0.000244141 9.07849C0.0502441 11.4165 0.190244 15.4155 0.210244 15.8565C0.281244 16.7995 0.642244 17.7525 1.20424 18.4245C1.98624 19.3675 2.94924 19.7885 4.29224 19.7885C6.14824 19.7985 8.19424 19.7985 10.1812 19.7985C12.1762 19.7985 14.1122 19.7985 15.7472 19.7885C17.0712 19.7885 18.0642 19.3565 18.8362 18.4245C19.3982 17.7525 19.7592 16.7895 19.8102 15.8565C19.8302 15.4855 19.9302 11.1445 19.9902 9.07849H0.000244141Z" fill="#130F26"/>
-                                            <path d="M9.24548 13.3842V14.6782C9.24548 15.0922 9.58148 15.4282 9.99548 15.4282C10.4095 15.4282 10.7455 15.0922 10.7455 14.6782V13.3842C10.7455 12.9702 10.4095 12.6342 9.99548 12.6342C9.58148 12.6342 9.24548 12.9702 9.24548 13.3842Z" fill="#130F26"/>
-                                            <path fill-rule="evenodd" clip-rule="evenodd" d="M8.21137 12.5564C8.11137 12.9194 7.76237 13.1514 7.38437 13.1014C4.83337 12.7454 2.39537 11.8404 0.337366 10.4814C0.126366 10.3434 0.000366211 10.1074 0.000366211 9.8554V6.3894C0.000366211 4.2894 1.71237 2.5814 3.81737 2.5814H5.78437C5.97237 1.1294 7.20237 0.000396729 8.70437 0.000396729H11.2864C12.7874 0.000396729 14.0184 1.1294 14.2064 2.5814H16.1834C18.2824 2.5814 19.9904 4.2894 19.9904 6.3894V9.8554C19.9904 10.1074 19.8634 10.3424 19.6544 10.4814C17.5924 11.8464 15.1444 12.7554 12.5764 13.1104C12.5414 13.1154 12.5074 13.1174 12.4734 13.1174C12.1344 13.1174 11.8314 12.8884 11.7464 12.5524C11.5444 11.7564 10.8214 11.1994 9.99037 11.1994C9.14837 11.1994 8.43337 11.7444 8.21137 12.5564ZM11.2864 1.5004H8.70437C8.03137 1.5004 7.46937 1.9604 7.30137 2.5814H12.6884C12.5204 1.9604 11.9584 1.5004 11.2864 1.5004Z" fill="#130F26"/>
-                                        </svg>
-                                        <div class="item-price">RS PKU Muhammadiyah Sukoharjo</div>
-                                    </div>
-                                </div>
-                            </div>
-                            <div class="sortable-handler"></div>
-                        </li>
-                    </ul>
-                </div>
-
-            </div>
-        {{-- @else
-        @endif --}}
+    <div class="card mb-n5" data-card-height="500" style="background-image: url(/images/cover2.jpg)">
+        <div class="card-overlay bg-gradient opacity-90"></div>
     </div>
+
+    <div class="card card-style over-card">
+        <div class="content">
+            <div class="hstack gap-3">
+                <div class="d-flex">
+                    <div><img src="{{ asset('/images/user2.png') }}" width="50" class="rounded-xl"></div>
+                    <div>
+                        <h5 class="mx-2">Yussuf Faisal</h5>
+                        <p class="mb-0 mt-n2 font-11 mx-2">Reguler</p>
+                        <p class="mb-0 mt-n2 font-10 mx-2">07.00 - 14.00 WIB</p>
+                    </div>
+                </div>
+                <div class="ms-auto"></div>
+                <div class="vr"></div>
+                <div class="align-self-center"><span class="opacity-50 font-10"><i class="bi bi-clock pe-2"></i>{{ \Carbon\Carbon::now()->isoFormat('dddd, D MMMM Y') }}</span><h1 id="clock"></h1></div>
+            </div>
+        </div>
+    </div>
+
+    <div class="card card-style bg-18">
+        <div class="card-body my-3">
+            <h5 class="badge gradient-highlight shadow-bg shadow-bg-s color-white rounded-xs p-2 font-11 mb-3">Live</h5>
+            <h1 class="color-white">
+                Rekap
+                <br>Data
+            </h1>
+            <p class="color-white opacity-60 mb-0">
+                Lihat rekapitulasi Absensi Anda
+            </p>
+            <a href="#" class="btn btn-s rounded-sm gradient-highlight shadow-bg shadow-bg-m color-white mt-3 text-uppercase font-800"><i class="bi bi-play-circle pe-2"></i> Buka Riwayat</a>
+        </div>
+        <div class="card-overlay bg-black opacity-50"></div>
+        <div class="card-overlay bg-gradient-fade"></div>
+    </div>
+
+
+    {{-- <div class="card card-style">
+        <div class="content">
+            <div class="d-flex">
+                <div><img src="images/pictures/1s.jpg" width="40" class="rounded-xl"></div>
+                <div><h5 class="mx-2">John Doe</h5><p class="mb-0 mt-n2 font-10 mx-2">Posted 25 Minutes Ag</p></div>
+            </div>
+            <p class="mb-2">Absolutely brilliant widgets. This is a chat widget, right? I can use multiple comments? How about replies? Can we add those too?</p>
+            <div class="d-flex">
+                <div class="me-auto"><a href="#" class="color-red-dark font-11"><i class="bi bi-heart-fill color-red-dark"></i><span class="px-1"></span>Love</a></div>
+                <div class="m-auto"><a href="#" class="color-theme font-11"><i class="bi bi-reply-fill font-13 color-blue-dark"></i><span class="px-1"></span>Reply</a></div>
+                <div class="ms-auto"><a href="#" class="color-brown-dark font-11"><i class="bi bi-flag-fill color-brown-dark"></i><span class="px-1"></span>Report</a></div>
+            </div>
+        </div>
+        <div class="content ps-4">
+            <div class="d-flex">
+                <div><img src="images/pictures/2s.jpg" width="40" class="rounded-xl"></div>
+                <div><h5 class="mx-2">Jack Son</h5><p class="mb-0 mt-n2 font-10 mx-2">Posted 15 Minutes Ag</p></div>
+            </div>
+            <p class="mb-2">Yeap! Leave replies too! It's super simple!</p>
+            <div class="d-flex">
+                <div class="me-auto"><a href="#" class="color-red-dark font-11"><i class="bi bi-heart-fill color-red-dark"></i><span class="px-1"></span>Love</a></div>
+                <div class="m-auto"><a href="#" class="color-theme font-11"><i class="bi bi-reply-fill font-13 color-blue-dark"></i><span class="px-1"></span>Reply</a></div>
+                <div class="ms-auto"><a href="#" class="color-brown-dark font-11"><i class="bi bi-flag-fill color-brown-dark"></i><span class="px-1"></span>Report</a></div>
+            </div>
+        </div>
+        <div class="content">
+            <div class="d-flex">
+                <div><img src="images/pictures/3s.jpg" width="40" class="rounded-xl"></div>
+                <div><h5 class="mx-2">Sir John</h5><p class="mb-0 mt-n2 font-10 mx-2">Posted 15 Minutes Ag</p></div>
+            </div>
+            <p class="mb-2">This is awesome. How about if I just write a lot of text here, it will look good right? The typography seems amazing!</p>
+            <div class="d-flex">
+                <div class="me-auto"><a href="#" class="color-red-dark font-11"><i class="bi bi-heart-fill color-red-dark"></i><span class="px-1"></span>Love</a></div>
+                <div class="m-auto"><a href="#" class="color-theme font-11"><i class="bi bi-reply-fill font-13 color-blue-dark"></i><span class="px-1"></span>Reply</a></div>
+                <div class="ms-auto"><a href="#" class="color-brown-dark font-11"><i class="bi bi-flag-fill color-brown-dark"></i><span class="px-1"></span>Report</a></div>
+            </div>
+        </div>
+        <div class="divider divider-margins mb-0"></div>
+        <div class="content">
+            <h4>Leave a reply.</h4>
+            <p class="font-12">
+                Please keep in mind of our <a href="page-terms.html">Terms and Conditions</a>
+            </p>
+            <div class="form-custom form-label form-icon mb-3">
+                <i class="bi bi-person-circle font-14"></i>
+                <input type="text" class="form-control rounded-xs" id="c1" placeholder="John Doe" pattern="[A-Za-z ]{1,32}" required />
+                <label for="c1" class="color-theme">Your Name</label>
+                <div class="valid-feedback">Excellent!<!-- text for field valid--></div>
+                <div class="invalid-feedback">Name is Missing or Invalid</div>
+                <span>(required)</span>
+            </div>
+            <div class="form-custom form-label form-icon mb-3">
+                <i class="bi bi-at font-16"></i>
+                <input type="email" class="form-control rounded-xs" id="c2" placeholder="name@example.com" pattern="[A-Za-z0-9._%+-]+@[a-z0-9.-]+\.[a-z]{2,}$" required />
+                <label for="c2" class="color-theme">Your Email</label>
+                <div class="valid-feedback">Email address looks good!<!-- text for field valid--></div>
+                <div class="invalid-feedback">Email is missing or is invalid.</div>
+                <span>(required)</span>
+            </div>
+            <div class="form-custom form-label form-icon mb-3">
+                <i class="bi bi-pencil-fill font-12"></i>
+                <textarea class="form-control rounded-xs" placeholder="Leave a comment here" id="c7"></textarea>
+                <label for="c7" class="color-theme">Your Message</label>
+                <div class="valid-feedback">HTML5 does not offer Dates Field Validation!<!-- text for field valid--></div>
+            </div>
+        </div>
+    </div> --}}
+
+    {{-- <div class="card card-style">
+        <div class="content mb-3">
+            <h3>You may like</h3>
+            <p>
+                Other posts based on your current reading habbits.
+            </p>
+            <a href="#">
+                <div class="d-flex mb-3">
+                    <div class="align-self-center me-auto">
+                        <img src="images/pictures/18l.jpg" class="rounded-m me-3" width="90">
+                    </div>
+                    <div class="align-self-center w-100">
+                        <span class="badge text-uppercase px-2 py-1 gradient-blue shadow-bg shadow-bg-xs d-block me-3 mt-n3 rounded-xs">ECONOMICS</span>
+                        <h5 class="font-15 pt-2">Global warming increases development speed of electric cars.</h5>
+                        <span class="color-theme font-11 opacity-50">25 Minutes Ago</span>
+                    </div>
+                </div>
+            </a>
+            <div class="divider mb-3"></div>
+            <a href="#">
+                <div class="d-flex mb-3">
+                    <div class="align-self-center me-auto">
+                        <img src="images/pictures/1l.jpg" class="rounded-m me-3" width="90">
+                    </div>
+                    <div class="align-self-center w-100">
+                        <span class="badge text-uppercase px-2 py-1 gradient-green shadow-bg shadow-bg-xs d-block me-3 mt-n3 rounded-xs">SOCIAL</span>
+                        <h5 class="font-15 pt-2">Hosting companies now charge influencers more that double. Here's why.</h5>
+                        <span class="color-theme font-11 opacity-50">25 Minutes Ago</span>
+                    </div>
+                </div>
+            </a>
+            <div class="divider mb-3"></div>
+            <a href="#">
+                <div class="d-flex mb-3">
+                    <div class="align-self-center me-auto">
+                        <img src="images/pictures/2l.jpg" class="rounded-m me-3" width="90">
+                    </div>
+                    <div class="align-self-center w-100">
+                        <span class="badge text-uppercase px-2 py-1 gradient-red shadow-bg shadow-bg-xs d-block me-3 mt-n3 rounded-xs">TECHNOLOGY</span>
+                        <h5 class="font-15 pt-2">Apple's sales increased tenfold after new Macbook M1 Realease.</h5>
+                        <span class="color-theme font-11 opacity-50">25 Minutes Ago</span>
+                    </div>
+                </div>
+            </a>
+        </div>
+    </div> --}}
+
+    {{-- <div class="card card-style py-3">
+        <div class="content px-2 text-center">
+            <h5 class="mb-n1 font-12 color-highlight font-700 text-uppercase">Time to Go Mobile</h5>
+            <h2>Get Duo Mobile Today</h2>
+            <p class="mb-3">
+                Start your next project with Duo and enjoy the power of a Progressive Web App.
+            </p>
+            <a href="https://1.envato.market/2ryjKA" target="_blank" class="default-link btn btn-m rounded-s gradient-highlight shadow-bg shadow-bg-s px-5 mb-0 mt-2">Get Duo Now</a>
+        </div>
+    </div> --}}
+
 </div>
-
-<div class="offcanvas-backdrop fade pwa-backdrop"></div>
-<script>
-    $(document).ready(function() {
-
-    })
-</script>
+<!-- End of Page Content-->
 <script>
     window.onload = displayClock();
     function displayClock() {

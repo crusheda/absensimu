@@ -18,6 +18,11 @@
     <link rel="shortcut icon" href="{{ asset('images/logo/logo_new_light.png') }}">
     <link rel="apple-touch-icon" sizes="76x76" href="{{ asset('images/logo/logo_new_light.png') }}">
     <link rel="icon" type="image/png" sizes="96x96" href="{{ asset('images/logo/logo_new_light.png') }}">
+
+    <!-- Initialize JS -->
+    <link rel="stylesheet" href="css/leaflet.css" crossorigin=""/>
+    <link href="https://cdn.jsdelivr.net/npm/sweetalert2@11.15.5/dist/sweetalert2.min.css" rel="stylesheet">
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/webcamjs/1.0.26/webcam.min.js"></script>
     <script src="{{ asset('js/jquery.min.js') }}"></script>
 </head>
 
@@ -30,7 +35,7 @@
     <div id="page">
 
         <!-- Header -->
-        @include('inc.header')
+        @include('inc.headersub')
 
         <!-- Footer / Menu Bar-->
         @include('inc.menubar')
@@ -61,6 +66,8 @@
         </div>
     </div> --}}
 
+    <script src="{{ asset('js/leaflet.js') }}" crossorigin=""></script>
+    <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11.15.5/dist/sweetalert2.all.min.js"></script>
     <script src="{{ asset('scripts/bootstrap.min.js') }}"></script>
     <script src="{{ asset('scripts/custom.js') }}"></script>
 </body>

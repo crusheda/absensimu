@@ -32,7 +32,7 @@ class AbsenController extends Controller
 
 
     // API FUNCTION ----------------------------------------------------------------------------------------------------
-    function initAbsensi(Request $request)
+    function init(Request $request)
     {
         $profil_rs = profil_rs::first();
         $lokasi = explode(",",$request->lokasi);
@@ -58,7 +58,7 @@ class AbsenController extends Controller
         // print_r($datenow);
         // die();
         $jadwal = jadwal_detail::join('kepegawaian_jadwal','kepegawaian_jadwal_detail.id_jadwal','=','kepegawaian_jadwal.id')
-                        ->where('kepegawaian_jadwal_detail.pegawai_id',$user)
+                        ->where('kepegawaian_jadwal_detail.pegawai_id',$request->user)
                         ->where('kepegawaian_jadwal.bulan',$bulan)
                         ->where('kepegawaian_jadwal.tahun',$tahun)
                         ->where('kepegawaian_jadwal.progress',3)
@@ -72,17 +72,17 @@ class AbsenController extends Controller
             $shift = null;
         }
 
-        $show = absensi::where('pegawai_id',$user)
+        $show = absensi::where('pegawai_id',$request->user)
                         ->whereDate("tgl_in","=",$datenow)
                         ->where("jenis",'1') // SHIFT
                         ->orderBy("tgl_in","DESC")
                         ->first();
-        $oncall = absensi::where('pegawai_id',$user)
+        $oncall = absensi::where('pegawai_id',$request->user)
                         ->whereDate("tgl_in","=",$datenow)
                         ->where("jenis",'4') // ONCALL
                         ->orderBy("tgl_in","DESC")
                         ->first();
-        $ijin = absensi::where('pegawai_id',$user)
+        $ijin = absensi::where('pegawai_id',$request->user)
                         ->whereDate("tgl_in","=",$datenow)
                         ->where("jenis",'3') // IJIN SAKIT
                         ->orderBy("tgl_in","DESC")

@@ -13,9 +13,9 @@ use Illuminate\Support\Facades\Route;
 |
 */
 
-Route::get('/demo', function () {
-    return view('pages.index');
-});
+// Route::get('/demo', function () {
+//     return view('pages.index');
+// });
 
 Auth::routes(['register' => false]);
 // Auth::routes();
@@ -32,4 +32,4 @@ Route::group(['middleware' => ['auth']], function () {
     });
 });
 
-Route::get('/manifest.json', [App\Http\Controllers\HomeController::class, 'manifest']);
+// Route::get('/manifest.json', [App\Http\Controllers\HomeController::class, 'manifest']);
