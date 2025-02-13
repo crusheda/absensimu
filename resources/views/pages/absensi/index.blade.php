@@ -27,7 +27,7 @@
                     </p>
                 </div>
                 <div class="align-self-center ms-auto">
-                    <button onclick="reaccurate()" class="btn btn-s gradient-blue shadow-bg shadow-bg-s text-uppercase font-700 rounded-sm ms-3">Refresh</button>
+                    <button onclick="refreshMap()" class="btn btn-s gradient-blue shadow-bg shadow-bg-s text-uppercase font-700 rounded-sm ms-3">Refresh</button>
                 </div>
             </div>
         </div>
@@ -85,7 +85,9 @@
         });
         Webcam.attach( '#webcam' );
 
+        console.log(map);
         refreshMap();
+        console.log(map);
         // validation();
     })
 
@@ -247,6 +249,7 @@
 
     function refreshMap() {
         const x = document.getElementById("lokasi");
+        // console.log(map);
         if (map) {
             map.remove();
         }
@@ -879,14 +882,6 @@
         $("#map").prop('hidden',false);
         refreshMap();
         $("#btn-gps").prop('hidden',false);
-    }
-
-    function reaccurate() {
-        map.remove();
-        // $("#map").prop('hidden',true);
-        // $("#webcam").prop('hidden',true);
-        // Webcam.reset('.webcam-selfi');
-        refreshMap();
     }
 
     function showSelfi() {

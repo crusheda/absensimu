@@ -14000,6 +14000,10 @@ input[type=range]::-webkit-slider-thumb {
     background-image: url(../images/pictures/23.jpg)
 }
 
+.bg-51 {
+    background-image: url(../images/wallpaper.jpg)
+}
+
 body {
     font-size: 14px;
     font-family: Roboto, sans-serif !important;

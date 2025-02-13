@@ -31,9 +31,9 @@
 
     <!-- Your Page Content Goes Here-->
     <div class="page-content">
-
-		<div class="card card-style mb-0 bg-transparent shadow-0 bg-3 mx-0 rounded-0" data-card-height="cover">
+        <div class="card card-style mb-0 bg-transparent shadow-0 bg-51 mx-0 rounded-0" style="height: 800px"> <!-- data-card-height="cover" -->
 			<div class="card-center">
+                <center><img src="{{ asset('/images/logo/logo_simrsmu_new_kop_31.png') }}" width="200" class="mb-5 pt-5" alt=""></center>
 				<div class="card card-style">
 					<div class="content">
                         <form method="POST" action="{{ route('login') }}">
