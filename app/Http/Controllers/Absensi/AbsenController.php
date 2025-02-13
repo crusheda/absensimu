@@ -129,9 +129,9 @@ class AbsenController extends Controller
         $jam_masuk = Carbon::parse($shift->berangkat)->isoFormat('HH:mm:ss');
         $jam_pulang = Carbon::parse($shift->pulang)->isoFormat('HH:mm:ss');
         if ($jam_pulang > $jam_masuk) {
-            $lewat_hari = 1;
-        } else {
             $lewat_hari = 0;
+        } else {
+            $lewat_hari = 1;
         }
 
         if ($oncall) { // JIKA USER BISA ONCALL / MEMPUNYAI PERMISSION = absensi_oncall

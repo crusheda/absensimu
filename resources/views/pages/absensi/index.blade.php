@@ -39,10 +39,9 @@
     </div>
     <div class="card card-style">
         <div class="content">
-            <div class="card-body">
                 <div id="hiddenButton1" hidden> {{-- SELAIN ONCALL --}}
                     <center>
-                        <div class="btn-group btn-block mb-3" id="btn-biasa" hidden>
+                        <div class="btn-group btn-block" id="btn-biasa" hidden>
                             <button type="button" class="btn btn-danger" onclick="prosesPulang()" id="btn-pulang" disabled><i class="bi bi-cloud-drizzle me-2"></i>Absen Pulang</button>
                             <button type="button" class="btn btn-primary" onclick="prosesMasuk()" id="btn-masuk" disabled>Absen Masuk<i class="bi bi-umbrella ms-2"></i></button>
                         </div>
@@ -50,26 +49,27 @@
                 </div>
                 <div id="hiddenButton2" hidden> {{-- KHUSUS ONCALL --}}
                     <center>
-                        <div class="btn-group btn-block mb-3" id="btn-mulai" hidden>
+                        <div class="btn-group btn-block" id="btn-mulai" hidden>
                             <button type="button" class="btn btn-pink" onclick="prosesMulaiOnCall()" id="btn-oncall-mulai" disabled><i class="ti ti-vaccine"></i> Mulai On Call</button>
                             <button type="button" class="btn btn-primary" onclick="prosesMasuk()" id="btn-shift-mulai" disabled><i class="ti ti-plane-arrival"></i> Absen Masuk</button>
                         </div>
-                        <div class="btn-group btn-block mb-3" id="btn-selesai" hidden>
+                        <div class="btn-group btn-block" id="btn-selesai" hidden>
                             <button type="button" class="btn btn-danger" onclick="prosesSelesaiOnCall()" id="btn-oncall-selesai" disabled><i class="ti ti-activity"></i> Selesai On Call</button>
                             <button type="button" class="btn btn-danger" onclick="prosesPulang()" id="btn-shift-selesai" disabled><i class="ti ti-plane-departure"></i> Absen Pulang</button>
                         </div>
-                        <div class="btn-group btn-block mb-3" id="btn-mix" hidden>
+                        <div class="btn-group btn-block" id="btn-mix" hidden>
                             <button type="button" class="btn btn-success" onclick="prosesOnCallLanjutPulang()" id="btn-oncall-shift" disabled><i class="ti ti-phone-outgoing"></i> Selesai Oncall & Absen Pulang</button>
                             <button type="button" class="btn btn-oren" onclick="prosesPulangLanjutOnCall()" id="btn-shift-oncall" disabled><i class="ti ti-phone-incoming"></i> Absen Pulang & Selesai Oncall</button>
                         </div>
                     </center>
                 </div>
-            </div>
-            <center><button type="button" class="btn btn-block btn-warning mb-3" onclick="showIjin()" id="btn-ijin" disabled hidden><i class="ti ti-stethoscope"></i> Pengajuan Ijin Sakit</button></center>
-            <div class="btn-group btn-block" id="prosesijin" hidden>
-                <button type="button" class="btn btn-dark" onclick="batalProsesIjin()" id="btn-batal-proses-ijin"><i class="ti ti-arrow-back"></i> Batal</button>
-                <button type="button" class="btn btn-info" onclick="prosesIjin()" id="btn-proses-ijin"><i class="ti ti-send"></i> Kirim Surat Ijin</button>
-            </div>
+            <center><button type="button" class="btn btn-block btn-warning" onclick="showIjin()" id="btn-ijin" disabled hidden><i class="ti ti-stethoscope"></i> Pengajuan Ijin Sakit</button></center>
+            <center>
+                <div class="btn-group btn-block" id="prosesijin" hidden>
+                    <button type="button" class="btn btn-dark" onclick="batalProsesIjin()" id="btn-batal-proses-ijin"><i class="ti ti-arrow-back"></i> Batal</button>
+                    <button type="button" class="btn btn-info" onclick="prosesIjin()" id="btn-proses-ijin"><i class="ti ti-send"></i> Kirim Surat Ijin</button>
+                </div>
+            </center>
         </div>
     </div>
 </div>
@@ -247,9 +247,9 @@
 
     function refreshMap() {
         const x = document.getElementById("lokasi");
-        // if (map) {
-        //     map.remove();
-        // }
+        if (map) {
+            map.remove();
+        }
         if (navigator.geolocation) {
             // navigator.geolocation.getCurrentPosition(showPosition);
             var lat,long;// Creating a promise out of the function
@@ -341,7 +341,6 @@
                                     timerProgressBar: true,
                                     backdrop: `rgba(26,27,41,0.8)`,
                                 });
-                                $("#hiddenCard").prop('hidden',true);
                                 $("#hiddenButton1").prop('hidden',true);
                                 $("#hiddenButton2").prop('hidden',true); // ABSEN + ONCALL MUNCUL
                                 $("#btn-ijin").prop('hidden',false);
@@ -354,7 +353,6 @@
                                 $("#prosesijin").prop('hidden',true);
                                 console.log('TITIK LOKASI GPS LEBIH DARI 30 METER');
                             } else {
-                                $("#hiddenCard").prop('hidden',false);
                                 if ("{{ Auth::user()->getPermission('absensi_oncall') }}" == true || "{{ Auth::user()->getPermission('absensi_oncall') }}" || "{{ Auth::user()->getPermission('absensi_oncall') }}" != '') { // USER MEMILIKI AKSES ONCALL
                                     console.log('USER ONCALL');
                                     $("#btn-biasa").prop('hidden',true);
@@ -397,54 +395,42 @@
                                     $("#btn-selesai").prop('hidden',true);
                                     $("#btn-mix").prop('hidden',true);
                                     $("#hiddenButton2").prop('hidden',true);
-                                    // $("#btn-shift-mulai").prop('disabled',true);
-                                    // $("#btn-shift-selesai").prop('disabled',true);
-                                    // $("#btn-oncall-mulai").prop('disabled',true);
-                                    // $("#btn-oncall-selesai").prop('disabled',true);
-                                    // $("#btn-shift-oncall").prop('disabled',true);
-                                    // $("#btn-oncall-shift").prop('disabled',true);
-                                    // $("#btn-ijin-oc").prop('disabled',true);
+                                    // INIT
+                                    $("#btn-pulang").prop('disabled',true).removeClass('btn-danger').addClass('btn-secondary');
+                                    $("#btn-masuk").prop('disabled',true).removeClass('btn-primary').addClass('btn-secondary');
+                                    $("#btn-biasa").prop('hidden',false);
+                                    $("#hiddenButton1").prop('hidden',false);
                                     // EXECUTE
-                                    if (res.jadwal == null) { // JIKA BELUM MENAMBAH JADWAL / BELUM DIVERIFIKASI OLEH KEPEGAWAIAN
-                                        $("#hiddenButton1").prop('hidden',true);
-                                        $("#hiddenButton").prop('hidden',false);
-                                        $("#btn-biasa").prop('hidden',true);
-                                        $("#btn-masuk").prop('disabled',true);
-                                        $("#btn-pulang").prop('disabled',true);
-                                        console.log('TIDAK ADA JADWAL DITEMUKAN');
-                                        // stopCameraMap();
-                                    } else {
-                                        console.log('JADWAL DITEMUKAN');
-                                        $("#hiddenButton1").prop('hidden',true);
-                                        $("#hiddenButton").prop('hidden',true);
-                                        $("#btn-biasa").prop('hidden',false);
-                                        if (res.ijin == null) { // JIKA IJIN MASIH KOSONG
-                                            th = new Date().getHours(); // get Jam = 0-23
-                                            tm = new Date().getMinutes(); // get Menit = 0-59
-                                            ts = new Date().getSeconds(); // get Detik = 0-59
-                                            if (res.show == null) { // JIKA ABSEN HARI INI MASIH KOSONG
-                                                const thisD = new Date().toLocaleDateString('en-CA'); // YYYY-MM-DD
-                                                const tomorrow = new Date();
-                                                tomorrow.setDate(tomorrow.getDate() + 1);
-                                                const thisT = tomorrow.toLocaleDateString('en-CA');
+                                    if (res.ijin == null) { // JIKA IJIN MASIH KOSONG
+                                        th = new Date().getHours(); // get Jam = 0-23
+                                        tm = new Date().getMinutes(); // get Menit = 0-59
+                                        ts = new Date().getSeconds(); // get Detik = 0-59
+                                        if (res.show == null) { // JIKA ABSEN HARI INI MASIH KOSONG
+                                            const thisD = new Date().toLocaleDateString('en-CA'); // YYYY-MM-DD
+                                            const tomorrow = new Date();
+                                            tomorrow.setDate(tomorrow.getDate() + 1);
+                                            const thisT = tomorrow.toLocaleDateString('en-CA');
+                                            if (res.shift.pulang > res.shift.berangkat) { // JIKA ABSENSI TIDAK LEWAT HARI
                                                 dbMasuk = new Date(thisD+' '+res.shift.berangkat);
                                                 dbPulang = new Date(thisD+' '+res.shift.pulang);
-                                                if (res.shift.pulang > res.shift.berangkat) { // JIKA ABSENSI TIDAK LEWAT HARI
-                                                    if (th >= dbPulang.getHours()) { // Jika Jam Absen Masuk Lebih dari sama dgn Jam pulang
+                                                if (th >= dbPulang.getHours()) { // Jika Jam Absen Masuk Lebih dari sama dgn Jam pulang
+                                                    $("#btn-pulang").prop('disabled',true).removeClass('btn-danger').addClass('btn-secondary');
+                                                    $("#btn-masuk").prop('disabled',true).removeClass('btn-primary').addClass('btn-secondary');
+                                                    console.log('Jam Absen Masuk Lebih dari sama dgn Jam pulang');
+                                                } else { // JIKA ABSENSI SEBELUM JAM PULANG
+                                                    if (th >= dbMasuk.getHours() - 1) { // MINIMAL ABSENSI 1 JAM SEBELUM JAM MASUK
+                                                        $("#btn-pulang").prop('disabled',true).removeClass('btn-danger').addClass('btn-secondary');
+                                                        $("#btn-masuk").prop('disabled',false).removeClass('btn-secondary').addClass('btn-primary');
+                                                        console.log('BISA ABSEN MASUK');
+                                                    } else { // JIKA ABSENSI DILUAR ANTARA JAM MASUK DAN JAM PULANG
                                                         $("#btn-pulang").prop('disabled',true).removeClass('btn-danger').addClass('btn-secondary');
                                                         $("#btn-masuk").prop('disabled',true).removeClass('btn-primary').addClass('btn-secondary');
-                                                        console.log('Jam Absen Masuk Lebih dari sama dgn Jam pulang');
-                                                    } else { // JIKA ABSENSI SEBELUM JAM PULANG
-                                                        if (th >= dbMasuk.getHours() - 1) { // MINIMAL ABSENSI 1 JAM SEBELUM JAM MASUK
-                                                            $("#btn-pulang").prop('disabled',true).removeClass('btn-danger').addClass('btn-secondary');
-                                                            $("#btn-masuk").prop('disabled',false).removeClass('btn-secondary').addClass('btn-primary');
-                                                        } else { // JIKA ABSENSI DILUAR ANTARA JAM MASUK DAN JAM PULANG
-                                                            $("#btn-pulang").prop('disabled',true).removeClass('btn-danger').addClass('btn-secondary');
-                                                            $("#btn-masuk").prop('disabled',true).removeClass('btn-primary').addClass('btn-secondary');
-                                                            console.log('Jam Absen Masuk Tidak pada/antara jam masuk (-1 jam) dan jam pulang');
-                                                        }
+                                                        console.log('Jam Absen Masuk Tidak pada/antara jam masuk (-1 jam) dan jam pulang');
                                                     }
-                                                } else { // JIKA ABSENSI LEWAT HARI (MALAM ke PAGI)
+                                                }
+                                            } else { // JIKA ABSENSI LEWAT HARI (MALAM ke PAGI)
+                                                dbMasuk = new Date(thisD+' '+res.shift.berangkat).toLocaleDateString('en-CA');
+                                                if (thisD == dbMasuk) {
                                                     if (th >= dbMasuk.getHours() - 1) {
                                                         $("#btn-pulang").prop('disabled',true).removeClass('btn-danger').addClass('btn-secondary');
                                                         $("#btn-masuk").prop('disabled',false).removeClass('btn-secondary').addClass('btn-primary');
@@ -452,37 +438,45 @@
                                                         $("#btn-pulang").prop('disabled',true).removeClass('btn-danger').addClass('btn-secondary');
                                                         $("#btn-masuk").prop('disabled',true).removeClass('btn-primary').addClass('btn-secondary');
                                                     }
-                                                }
-                                            } else { // ABSEN PULANG
-                                                if (res.show.tgl_out == null) {
-                                                    now = new Date().toLocaleDateString('en-CA'); // YYYY-MM-DD
-                                                    dbPulang = new Date(res.show.ref_jam_pulang);
-                                                    dayOut = dbPulang.toLocaleDateString('en-CA');
-                                                    if (now == dayOut) {
-                                                        if (th >= dbPulang.getHours()) {
-
-                                                        } else {
-
-                                                        }
-                                                    } else {
-
-                                                    }
-                                                } else { // JIKA JADWAL ABSEN HARI SUDAH TERISI LENGKAP
+                                                } else {
                                                     $("#btn-pulang").prop('disabled',true).removeClass('btn-danger').addClass('btn-secondary');
                                                     $("#btn-masuk").prop('disabled',true).removeClass('btn-primary').addClass('btn-secondary');
                                                 }
                                             }
-                                        } else {
-                                            $("#btn-pulang").prop('disabled',true).removeClass('btn-danger').addClass('btn-secondary');
-                                            $("#btn-masuk").prop('disabled',true).removeClass('btn-primary').addClass('btn-secondary');
+                                        } else { // ABSEN PULANG
+                                            if (res.show.tgl_in != null && res.show.tgl_out == null) {
+                                                now = new Date().toLocaleDateString('en-CA'); // YYYY-MM-DD
+                                                dbPulang = new Date(res.show.ref_jam_pulang);
+                                                dayOut = dbPulang.toLocaleDateString('en-CA');
+                                                if (now == dayOut) {
+                                                    if (th >= dbPulang.getHours() - 1) {
+                                                        $("#btn-pulang").prop('disabled',false).removeClass('btn-secondary').addClass('btn-danger');
+                                                        $("#btn-masuk").prop('disabled',true).removeClass('btn-primary').addClass('btn-secondary');
+                                                    } else {
+                                                        $("#btn-pulang").prop('disabled',true).removeClass('btn-danger').addClass('btn-secondary');
+                                                        $("#btn-masuk").prop('disabled',true).removeClass('btn-primary').addClass('btn-secondary');
+                                                    }
+                                                } else {
+                                                    $("#btn-pulang").prop('disabled',true).removeClass('btn-danger').addClass('btn-secondary');
+                                                    $("#btn-masuk").prop('disabled',true).removeClass('btn-primary').addClass('btn-secondary');
+                                                }
+                                            } else { // JIKA JADWAL ABSEN HARI SUDAH TERISI LENGKAP
+                                                $("#btn-pulang").prop('disabled',true).removeClass('btn-danger').addClass('btn-secondary');
+                                                $("#btn-masuk").prop('disabled',true).removeClass('btn-primary').addClass('btn-secondary');
+                                            }
                                         }
-                                        $("#hiddenButton1").prop('hidden',false);
+                                    } else {
+                                        $("#btn-pulang").prop('disabled',true).removeClass('btn-danger').addClass('btn-secondary');
+                                        $("#btn-masuk").prop('disabled',true).removeClass('btn-primary').addClass('btn-secondary');
                                     }
                                 }
                             }
                         } else {
-                            $("#btn-ijin").prop('hidden',true);
+                            $("#btn-ijin").prop('hidden',false);
+                            $("#btn-ijin").prop('disabled',true).removeClass('btn-warning').addClass('btn-secondary');
                             $("#prosesijin").prop('hidden',true);
+                            $("#hiddenButton1").prop('hidden',true);
+                            $("#hiddenButton2").prop('hidden',true);
                             $("#alerts").empty().append(`<div class="card card-style bg-red-dark alert-dismissible show shadow-bg shadow-bg-m fade p-0 rounded-m">
                                 <div class="content my-3">
                                     <div class="d-flex">
@@ -668,6 +662,7 @@
                                 //     title: `Pesan Berhasil!`,
                                 //     text: ex.message
                                 // });
+                                refreshMap();
                                 Swal.fire({
                                     title: `Pesan Berhasil!`,
                                     text: ex.message,
@@ -680,8 +675,6 @@
                                     timerProgressBar: true,
                                     backdrop: `rgba(26,27,41,0.8)`,
                                 });
-                                init();
-                                reaccurate();
                             }
                         }
                     })
@@ -698,6 +691,7 @@
                         timerProgressBar: true,
                         backdrop: `rgba(26,27,41,0.8)`,
                     });
+                    refreshMap();
                 }
             }
         })
@@ -743,7 +737,6 @@
                                     backdrop: `rgba(26,27,41,0.8)`,
                                 });
                                 refreshMap();
-                                init();
                             }
                         }
                     })
@@ -760,6 +753,7 @@
                         timerProgressBar: true,
                         backdrop: `rgba(26,27,41,0.8)`,
                     });
+                    refreshMap();
                 }
             }
         })
