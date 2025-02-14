@@ -38,9 +38,10 @@
     <span class="menu-divider">Daftar Menu</span>
     <div class="menu-list">
         <div class="card card-style rounded-m p-3 py-2 mb-0">
-            <a href="{{ route('dashboard') }}" id="nav-homes"><i class="gradient-yellow shadow-bg shadow-bg-xs bi bi-house-fill"></i><span>Dashboard</span><i class="bi bi-chevron-right"></i></a>
+            <a href="#" id="nav-homes" hidden></a> {{-- DONT DELETE THIS LINE --}}
+            <a href="{{ route('dashboard') }}"><i class="gradient-yellow shadow-bg shadow-bg-xs bi bi-house-fill"></i><span>Dashboard</span><i class="bi bi-chevron-right"></i></a>
             <a href="{{ route('absensi.index') }}"><i class="gradient-blue shadow-bg shadow-bg-xs bi bi-map"></i><span>Absensi</span><i class="bi bi-chevron-right"></i></a>
-            <a href="{{ route('riwayat.index') }}"><i class="gradient-green shadow-bg shadow-bg-xs bi-journal-bookmark"></i><span>Rekap</span><i class="bi bi-chevron-right"></i></a>
+            <a href="{{ route('rekap.index') }}"><i class="gradient-green shadow-bg shadow-bg-xs bi-journal-bookmark"></i><span>Rekap</span><i class="bi bi-chevron-right"></i></a>
             {{-- <a href="index-media.html" id="nav-media"><i class="gradient-yellow shadow-bg shadow-bg-xs bi bi-image-fill"></i><span>Media Styles</span><i class="bi bi-chevron-right"></i></a>
             <a href="index-contact.html" id="nav-mails"><i class="gradient-magenta shadow-bg shadow-bg-xs bi bi-envelope-fill"></i><span>Contact</span><i class="bi bi-chevron-right"></i></a> --}}
         </div>
@@ -62,7 +63,7 @@
                     <label class="custom-control-label" for="switch-1"></label>
                 </div>
             </a>
-            <a href="javascript:void(0);" onclick="event.preventDefault(); document.getElementById('logoutform').submit();"><i class="gradient-red shadow-bg shadow-bg-xs bi bi-box-arrow-right"></i><span>Logout</span><i class="bi bi-chevron-right"></i></a>
+            <a href="#" onclick="event.preventDefault(); document.getElementById('logoutform').submit();"><i class="gradient-red shadow-bg shadow-bg-xs bi bi-box-arrow-right"></i><span>Logout</span><i class="bi bi-chevron-right"></i></a>
         </div>
     </div>
 

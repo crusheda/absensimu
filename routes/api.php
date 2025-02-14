@@ -28,5 +28,8 @@ Route::post('kepegawaian/ijin', [\App\Http\Controllers\Absensi\AbsenController::
 Route::post('kepegawaian/berangkat', [\App\Http\Controllers\Absensi\AbsenController::class, 'executeBerangkat'])->name('kepegawaian.absensi.executeBerangkat');
 Route::post('kepegawaian/pulang', [\App\Http\Controllers\Absensi\AbsenController::class, 'executePulang'])->name('kepegawaian.absensi.executePulang');
 
+Route::get('kepegawaian/rekap/{user}', [\App\Http\Controllers\Rekap\RekapController::class, 'list'])->name('kepegawaian.rekap.list');
+Route::get('kepegawaian/rekap/{user}/detail/{id}', [\App\Http\Controllers\Rekap\RekapController::class, 'detail'])->name('kepegawaian.rekap.detail');
+
 Route::get('kepegawaian/riwayat/{user}', [\App\Http\Controllers\Riwayat\RiwayatController::class, 'initRiwayat'])->name('kepegawaian.riwayat.initRiwayat');
 Route::get('kepegawaian/riwayat/{user}/{id}', [\App\Http\Controllers\Riwayat\RiwayatController::class, 'showRiwayat'])->name('kepegawaian.riwayat.showRiwayat');

@@ -30,7 +30,6 @@ class AbsenController extends Controller
         return view('pages.absensi.index')->with('list',$data);
     }
 
-
     // API FUNCTION ----------------------------------------------------------------------------------------------------
     function init(Request $request)
     {

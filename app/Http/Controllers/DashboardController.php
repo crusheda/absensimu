@@ -28,9 +28,18 @@ class DashboardController extends Controller
         $hadir = DB::table('kepegawaian_absensi')
                         ->where('pegawai_id',Auth::user()->id)
                         ->where('jenis',1)
+                        ->where('terlambat',0)
                         ->whereMonth('tgl_in',$month)
                         ->whereYear('tgl_in',$year)
                         ->whereNotNull('tgl_out')
+                        ->whereNull('deleted_at')
+                        ->count();
+        $absenOne = DB::table('kepegawaian_absensi')
+                        ->where('pegawai_id',Auth::user()->id)
+                        ->where('jenis',1)
+                        ->whereMonth('tgl_in',$month)
+                        ->whereYear('tgl_in',$year)
+                        ->whereNull('tgl_out')
                         ->whereNull('deleted_at')
                         ->count();
         $terlambat = DB::table('kepegawaian_absensi')
@@ -39,7 +48,7 @@ class DashboardController extends Controller
                         ->where('terlambat',1)
                         ->whereMonth('tgl_in',$month)
                         ->whereYear('tgl_in',$year)
-                        ->whereNotNull('tgl_out')
+                        // ->whereNotNull('tgl_out')
                         ->whereNull('deleted_at')
                         ->count();
         $ijin = DB::table('kepegawaian_absensi')
@@ -73,6 +82,7 @@ class DashboardController extends Controller
         $data = [
             'agent' => $agent,
             'hadir' => $hadir,
+            'absenOne' => $absenOne,
             'terlambat' => $terlambat,
             'ijin' => $ijin,
             'nama_shift' => $nama_shift,

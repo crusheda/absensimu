@@ -15,7 +15,7 @@
                     <div><img src="{{ asset('/images/user2.png') }}" width="50" class="rounded-xl"></div>
                     <div>
                         <h5 class="mx-2">{{ Auth::user()->nama }}</h5>
-                        <p class="mb-0 mt-n2 font-12 mx-2">Jadwal Anda Hari Ini <b>{{ $list['nama_shift']==null?'':$list['nama_shift'] }}</b></p>
+                        <p class="mb-0 mt-n2 font-12 mx-2">Jadwal Hari Ini <b>{{ $list['nama_shift']==null?'':$list['nama_shift'] }}</b></p>
                         <p class="mb-0 mt-n2 font-12 mx-2">{{ $list['shift']==null?'':$list['shift'] }}</p>
                     </div>
                 </div>
@@ -28,7 +28,7 @@
                 <div class="me-auto">
                     <a href="#" class="color-theme">
                         <i class="bi bi-emoji-smile-fill color-blue-dark font-23"></i>
-                        <span class="font-10 d-block mb-n1">Kehadiran</span>
+                        <span class="font-10 d-block mb-n1">Tepat Waktu</span>
                         <strong class="font-18">
                             @if ($list['hadir'])
                                 @foreach ($list['hadir'] as $item)
@@ -42,11 +42,11 @@
                 </div>
                 <div class="mx-auto">
                     <a href="#" class="color-theme">
-                        <i class="bi bi-emoji-neutral-fill color-red-dark font-23"></i>
-                        <span class="font-10 d-block mb-n1">Terlambat</span>
+                        <i class="bi bi-emoji-neutral-fill color-yellow-dark font-23"></i>
+                        <span class="font-10 d-block mb-n1">Absen 1x</span>
                         <strong class="font-18">
-                            @if ($list['terlambat'])
-                                @foreach ($list['terlambat'] as $item)
+                            @if ($list['absenOne'])
+                                @foreach ($list['absenOne'] as $item)
                                     {{ $item }}x
                                 @endforeach
                             @else
@@ -57,9 +57,17 @@
                 </div>
                 <div class="mx-auto">
                     <a href="#" class="color-theme">
-                        <i class="bi bi-emoji-sunglasses-fill color-yellow-dark font-23"></i>
-                        <span class="font-10 d-block mb-n1">Cuti</span>
-                        <strong class="font-18">xx</strong>
+                        <i class="bi bi-emoji-frown-fill color-red-dark font-23"></i>
+                        <span class="font-10 d-block mb-n1">Terlambat</span>
+                        <strong class="font-18">
+                            @if ($list['terlambat'])
+                                @foreach ($list['terlambat'] as $item)
+                                    {{ $item }}x
+                                @endforeach
+                            @else
+                                0x
+                            @endif
+                        </strong>
                     </a>
                 </div>
                 <div class="ms-auto">
@@ -92,7 +100,7 @@
             <p class="color-white opacity-60 mb-0">
                 Lihat rekapitulasi Absensi Anda
             </p>
-            <a href="#" class="btn btn-s rounded-sm gradient-highlight shadow-bg shadow-bg-m color-white mt-3 text-uppercase font-800"><i class="bi bi-play-circle pe-2"></i> Buka Riwayat</a>
+            <a href="{{ route('rekap.index') }}" class="btn btn-s rounded-sm gradient-highlight shadow-bg shadow-bg-m color-white mt-3 text-uppercase font-800"><i class="bi bi-play-circle pe-2"></i> Buka Riwayat</a>
         </div>
         <div class="card-overlay bg-black opacity-50"></div>
         <div class="card-overlay bg-gradient-fade"></div>
