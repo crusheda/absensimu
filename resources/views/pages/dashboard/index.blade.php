@@ -10,19 +10,75 @@
 
     <div class="card card-style over-card">
         <div class="content">
-            <div class="hstack gap-3">
+            <div class="hstack gap-3 mb-3">
                 <div class="d-flex">
                     <div><img src="{{ asset('/images/user2.png') }}" width="50" class="rounded-xl"></div>
                     <div>
-                        <h5 class="mx-2">Yussuf Faisal</h5>
-                        <p class="mb-0 mt-n2 font-11 mx-2">Reguler</p>
-                        <p class="mb-0 mt-n2 font-10 mx-2">07.00 - 14.00 WIB</p>
+                        <h5 class="mx-2">{{ Auth::user()->nama }}</h5>
+                        <p class="mb-0 mt-n2 font-12 mx-2">Jadwal Anda Hari Ini <b>{{ $list['nama_shift']==null?'':$list['nama_shift'] }}</b></p>
+                        <p class="mb-0 mt-n2 font-12 mx-2">{{ $list['shift']==null?'':$list['shift'] }}</p>
                     </div>
                 </div>
                 <div class="ms-auto"></div>
                 <div class="vr"></div>
                 <div class="align-self-center"><span class="opacity-50 font-10"><i class="bi bi-clock pe-2"></i>{{ \Carbon\Carbon::now()->isoFormat('dddd, D MMMM Y') }}</span><h1 id="clock"></h1></div>
             </div>
+            <div class="divider divider-faded"></div>
+            <div class="d-flex">
+                <div class="me-auto">
+                    <a href="#" class="color-theme">
+                        <i class="bi bi-emoji-smile-fill color-blue-dark font-23"></i>
+                        <span class="font-10 d-block mb-n1">Kehadiran</span>
+                        <strong class="font-18">
+                            @if ($list['hadir'])
+                                @foreach ($list['hadir'] as $item)
+                                    {{ $item }}x
+                                @endforeach
+                            @else
+                                0x
+                            @endif
+                        </strong>
+                    </a>
+                </div>
+                <div class="mx-auto">
+                    <a href="#" class="color-theme">
+                        <i class="bi bi-emoji-neutral-fill color-red-dark font-23"></i>
+                        <span class="font-10 d-block mb-n1">Terlambat</span>
+                        <strong class="font-18">
+                            @if ($list['terlambat'])
+                                @foreach ($list['terlambat'] as $item)
+                                    {{ $item }}x
+                                @endforeach
+                            @else
+                                0x
+                            @endif
+                        </strong>
+                    </a>
+                </div>
+                <div class="mx-auto">
+                    <a href="#" class="color-theme">
+                        <i class="bi bi-emoji-sunglasses-fill color-yellow-dark font-23"></i>
+                        <span class="font-10 d-block mb-n1">Cuti</span>
+                        <strong class="font-18">xx</strong>
+                    </a>
+                </div>
+                <div class="ms-auto">
+                    <a href="#" class="color-theme">
+                        <i class="bi bi-file-medical-fill color-green-dark font-23"></i>
+                        <span class="font-10 d-block mb-n1">Ijin</span>
+                        <strong class="font-18">
+                            @if ($list['ijin'])
+                                @foreach ($list['ijin'] as $item)
+                                    {{ $item }}x
+                                @endforeach
+                            @else
+                                0x
+                            @endif
+                        </strong>
+                    </a>
+                </div>
+            </div>
+            {{-- <a href="#" class="btn btn-s text-uppercase font-700 rounded-sm btn-full gradient-blue shadow-bg shadow-bg-s mt-3">Follow</a> --}}
         </div>
     </div>
 
