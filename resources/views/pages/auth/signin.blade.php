@@ -27,18 +27,23 @@
     <div class="spinner-border color-highlight" role="status"></div>
 </div>
 
-<div id="page">
+<div id="page" class="" style="background: url('/images/wallpaper.jpg');background-repeat: no-repeat;background-size: 100% 100%;">
+
+	<!-- Main Sidebar-->
+        @include('inc.sidebar')
+	<!-- Menu Highlights-->
+        @include('inc.highlight')
 
     <!-- Your Page Content Goes Here-->
     <div class="page-content">
-        <div class="card card-style mb-0 bg-transparent shadow-0 bg-51 mx-0 rounded-0" style="height: 800px"> <!-- data-card-height="cover" -->
+        <div class="card card-style mb-0 bg-transparent shadow-0 mx-0 rounded-0" style="height: 800px"> <!-- data-card-height="cover" -->
 			<div class="card-center">
-                <center><img src="{{ asset('/images/logo/logo_simrsmu_new_kop_31.png') }}" width="200" class="mb-5 pt-5" alt=""></center>
-				<div class="card card-style">
+                <center><img src="{{ asset('/images/logo/logo_simrsmu_new_kop_31.png') }}" width="200" class="pt-3" alt=""></center>
+				<div class="">
 					<div class="content">
                         <form method="POST" action="{{ route('login') }}">
                             @csrf
-                            <h1 class="text-center font-800 font-30 mb-2">Masuk E-Absensi</h1>
+                            <h1 class="text-center font-800 font-30 mb-2">Masuk <b class="text-primary">E-Absensi</b></h1>
                             <p class="text-center font-13 mt-n2 mb-3">Silakan masuk ke sistem menggunakan Akun <a href="https://simrsmu.com/"><b>Simrsmu</b></a></p>
                             <div class="form-custom form-label form-icon mb-3">
                                 <i class="bi bi-person-circle font-14"></i>
@@ -48,7 +53,7 @@
                             </div>
                             <div class="form-custom form-label form-icon mb-3">
                                 <i class="bi bi-asterisk font-12"></i>
-                                <input type="text" class="form-control rounded-xs" id="c2" name="password" value="{{ old('password') }}" autocomplete="current-password" placeholder="Masukkan Password" required/>
+                                <input type="password" class="form-control rounded-xs" id="c2" name="password" value="{{ old('password') }}" autocomplete="current-password" placeholder="Masukkan Password" required/>
                                 <label for="c2" class="color-theme">Password</label>
                                 <span>(Wajib)</span>
                             </div>

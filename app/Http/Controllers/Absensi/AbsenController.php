@@ -77,6 +77,12 @@ class AbsenController extends Controller
                         ->where("jenis",'1') // SHIFT
                         ->orderBy("tgl_in","DESC")
                         ->first();
+        $showMalam = absensi::where('pegawai_id',$request->user)
+                        ->whereDate("ref_jam_pulang","=",$datenow)
+                        ->where("lewat_hari",'1') // SHIFT
+                        ->where("jenis",'1') // SHIFT
+                        ->orderBy("ref_jam_pulang","DESC")
+                        ->first();
         $oncall = absensi::where('pegawai_id',$request->user)
                         ->whereDate("tgl_in","=",$datenow)
                         ->where("jenis",'4') // ONCALL
@@ -92,6 +98,7 @@ class AbsenController extends Controller
             'distance' => $distance,
             'jadwal' => $jadwal,
             'shift' => $shift,
+            'showMalam' => $showMalam,
             'show' => $show,
             'oncall' => $oncall,
             'ijin' => $ijin,
@@ -281,7 +288,7 @@ class AbsenController extends Controller
         // die();
         $img = $request->image;
         $title = uniqid() . '.png';
-        $folderPath = "public/files/kepegawaian/absensi/";
+        $folderPath = "public/files/kepegawaian/absensi/masuk/";
         // IMAGE CONVERSION
         $image_parts = explode(";base64,", $img);
         $image_type_aux = explode("image/", $image_parts[0]);
@@ -375,6 +382,17 @@ class AbsenController extends Controller
         $now = Carbon::now();
         $datenow = $now->isoFormat('YYYY-MM-DD');
 
+        $img = $request->image;
+        $title = uniqid() . '.png';
+        $folderPath = "public/files/kepegawaian/absensi/pulang/";
+        // IMAGE CONVERSION
+        $image_parts = explode(";base64,", $img);
+        $image_type_aux = explode("image/", $image_parts[0]);
+        $image_type = $image_type_aux[1];
+        $image_base64 = base64_decode($image_parts[1]);
+        $path = $folderPath . $title;
+        Storage::put($path, $image_base64);
+
         // GET DATA TO UPDATE
         $data = absensi::where('pegawai_id',$request->pegawai)->whereDate("ref_jam_pulang","=",$datenow)->orderBy("ref_jam_pulang","DESC")->first();
 
@@ -391,6 +409,8 @@ class AbsenController extends Controller
         $data->tgl_out = Carbon::now();
         $data->lembur = $diffLembur;
         $data->selisih_jam = $diffKerja;
+        $data->foto_out = $title;
+        $data->path_out = $path;
         $data->lokasi_out = $request->lokasi;
         $data->save();
 
