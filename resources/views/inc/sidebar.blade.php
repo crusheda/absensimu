@@ -15,11 +15,12 @@
         <div class="d-flex px-2 pb-2 pt-2">
             <?php $foto_profil = \DB::table('users_foto')->where('user_id', Auth::user()->id)->first(); ?>
             <div>
-                @if (empty($foto_profil->filename))
+                <a href="javascript:void(0);"><img src="{{ asset('/images/user2.png') }}" width="45" class="rounded-s" alt="img"></a>
+                {{-- @if (empty($foto_profil->filename))
                     <a href="javascript:void(0);"><img src="{{ asset('/images/user2.png') }}" width="45" class="rounded-s" alt="img"></a>
                 @else
                     <a href="javascript:void(0);"><img src="{{ url('storage/'.substr($foto_profil->filename,7,1000)) }}" width="45" class="rounded-s" alt="img"></a>
-                @endif
+                @endif --}}
             </div>
             <div class="ps-2 align-self-center">
                 <h5 class="ps-1 mb-0 line-height-xs pt-1">Hai, {{ Auth::user()->nick?Auth::user()->nick:Auth::user()->name }}</h5>
