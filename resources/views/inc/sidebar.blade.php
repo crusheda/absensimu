@@ -17,8 +17,8 @@
                 <a href="#"><img src="{{ asset('/images/user2.png') }}" width="45" class="rounded-s" alt="img"></a>
             </div>
             <div class="ps-2 align-self-center">
-                <h5 class="ps-1 mb-0 line-height-xs pt-1">Yussuf Faisal</h5>
-                <h6 class="ps-1 mb-0 font-400 opacity-40">Testing</h6>
+                <h5 class="ps-1 mb-0 line-height-xs pt-1">{{ Auth::user()->nama }}</h5>
+                <h6 class="ps-1 mb-0 font-400 opacity-40">Development</h6>
             </div>
             {{-- <div class="ms-auto">
                 <a href="#" data-bs-toggle="dropdown" class="icon icon-m ps-3"><i class="bi bi-three-dots-vertical font-18 color-theme"></i></a>

@@ -31,9 +31,7 @@
                         <span class="font-10 d-block mb-n1">Tepat Waktu</span>
                         <strong class="font-18">
                             @if ($list['hadir'])
-                                @foreach ($list['hadir'] as $item)
-                                    {{ $item }}x
-                                @endforeach
+                                {{ $list['hadir'] }}x
                             @else
                                 0x
                             @endif
@@ -46,9 +44,7 @@
                         <span class="font-10 d-block mb-n1">Absen 1x</span>
                         <strong class="font-18">
                             @if ($list['absenOne'])
-                                @foreach ($list['absenOne'] as $item)
-                                    {{ $item }}x
-                                @endforeach
+                                {{ $list['absenOne'] }}x
                             @else
                                 0x
                             @endif
@@ -61,9 +57,7 @@
                         <span class="font-10 d-block mb-n1">Terlambat</span>
                         <strong class="font-18">
                             @if ($list['terlambat'])
-                                @foreach ($list['terlambat'] as $item)
-                                    {{ $item }}x
-                                @endforeach
+                                {{ $list['terlambat'] }}x
                             @else
                                 0x
                             @endif
@@ -76,9 +70,7 @@
                         <span class="font-10 d-block mb-n1">Ijin</span>
                         <strong class="font-18">
                             @if ($list['ijin'])
-                                @foreach ($list['ijin'] as $item)
-                                    {{ $item }}x
-                                @endforeach
+                                {{ $list['ijin'] }}x
                             @else
                                 0x
                             @endif
