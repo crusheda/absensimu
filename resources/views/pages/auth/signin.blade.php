@@ -30,7 +30,7 @@
 <div id="page" class="" style="background: url('/images/wallpaper.jpg');background-repeat: no-repeat;background-size: 100% 100%;">
 
 	<!-- Main Sidebar-->
-        @include('inc.sidebar')
+        {{-- @include('inc.sidebar') --}}
 	<!-- Menu Highlights-->
         @include('inc.highlight')
 

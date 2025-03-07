@@ -13,12 +13,17 @@
 
     <div class="bg-theme mx-3 rounded-m shadow-m mt-3 mb-3">
         <div class="d-flex px-2 pb-2 pt-2">
+            <?php $foto_profil = \DB::table('users_foto')->where('user_id', Auth::user()->id)->first(); ?>
             <div>
-                <a href="#"><img src="{{ asset('/images/user2.png') }}" width="45" class="rounded-s" alt="img"></a>
+                @if (empty($foto_profil->filename))
+                    <a href="javascript:void(0);"><img src="{{ asset('/images/user2.png') }}" width="45" class="rounded-s" alt="img"></a>
+                @else
+                    <a href="javascript:void(0);"><img src="{{ url('storage/'.substr($foto_profil->filename,7,1000)) }}" width="45" class="rounded-s" alt="img"></a>
+                @endif
             </div>
             <div class="ps-2 align-self-center">
-                <h5 class="ps-1 mb-0 line-height-xs pt-1">{{ Auth::user()->nama }}</h5>
-                <h6 class="ps-1 mb-0 font-400 opacity-40">Development</h6>
+                <h5 class="ps-1 mb-0 line-height-xs pt-1">Hai, {{ Auth::user()->nick?Auth::user()->nick:Auth::user()->name }}</h5>
+                <h6 class="ps-1 mb-0 font-400 opacity-40">{{ Auth::user()->nip?'NIP '.Auth::user()->nip:'' }}</h6>
             </div>
             {{-- <div class="ms-auto">
                 <a href="#" data-bs-toggle="dropdown" class="icon icon-m ps-3"><i class="bi bi-three-dots-vertical font-18 color-theme"></i></a>
