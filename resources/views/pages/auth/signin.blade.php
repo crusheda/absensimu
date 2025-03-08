@@ -76,7 +76,7 @@
     </div>
 	<!-- End of Page Content-->
 
-	<div class="offcanvas offcanvas-bottom rounded-m offcanvas-detached" id="menu-install-pwa-ios">
+	{{-- <div class="offcanvas offcanvas-bottom rounded-m offcanvas-detached" id="menu-install-pwa-ios">
 	   <div class="content">
 			 <img src="{{ asset('images/logo/logo_new_light.png') }}" alt="img" width="80" class="rounded-l mx-auto my-4">
 		  <h1 class="text-center font-800 font-20">Add E-Absensi to Home Screen</h1>
@@ -97,7 +97,7 @@
 		   <a href="#" class="pwa-install btn btn-m rounded-s text-uppercase font-900 gradient-highlight shadow-bg shadow-bg-s btn-full">Add to Home Screen</a><br>
 		   <a href="#" data-bs-dismiss="offcanvas" class="pwa-dismiss close-menu color-theme text-uppercase font-900 opacity-50 font-11 text-center d-block mt-n1">Maybe later</a>
 	   </div>
-   </div>
+   </div> --}}
 
 </div>
 <!--End of Page ID-->

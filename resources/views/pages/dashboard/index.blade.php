@@ -15,7 +15,7 @@
                     <div><img src="{{ asset('/images/user2.png') }}" width="50" class="rounded-xl"></div>
                     <div>
                         <h5 class="mx-2">{{ Auth::user()->nama }}</h5>
-                        <p class="mb-0 mt-n2 font-12 mx-2">Jadwal Hari Ini <b>{{ $list['nama_shift']==null?'':$list['nama_shift'] }}</b></p>
+                        <p class="mb-0 mt-n2 font-12 mx-2">{!! $list['nama_shift']==null?'Jadwal Tidak Ditemukan':'Jadwal Hari Ini <b>'.$list['nama_shift'].'</b>' !!}</p>
                         <p class="mb-0 mt-n2 font-12 mx-2">{{ $list['shift']==null?'':$list['shift'] }}</p>
                     </div>
                 </div>

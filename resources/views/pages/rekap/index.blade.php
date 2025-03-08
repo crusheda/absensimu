@@ -40,7 +40,7 @@
     {{-- <a data-bs-toggle="offcanvas" data-bs-target="#menu-gallery-2"  href="#"><img src="images/pictures/5s.jpg" class="rounded-m img-fluid d-block"></a>
     <span class="font-700 color-theme font-14 text-center d-block mb-3">Album Sheet 2</span> --}}
 
-	<div class="offcanvas offcanvas-bottom rounded-m offcanvas-detached" id="detail">
+	<div class="offcanvas offcanvas-modal rounded-m offcanvas-detached" id="detail">
 		<div class="content mb-0">
             <div class="d-flex">
                 <div>
@@ -175,12 +175,12 @@
                 var content3 = ``;
                 if (res.show.jenis == 1) { // JAGA SHIFT
                     content3 += `<a class="col" data-gallery="gallery-2" href="/storage/${res.show.path_in.substring(7,1000)}" title="${res.show.foto_in}">
-                                    <img src="/storage/${res.show.path_in.substring(7,1000)}" data-src="/storage/${res.show.path_in.substring(7,1000)}" class="preload-img img-fluid rounded-xs" alt="img" style="height:150px;">
+                                    <img src="/storage/${res.show.path_in.substring(7,1000)}" data-src="/storage/${res.show.path_in.substring(7,1000)}" class="preload-img img-fluid rounded-xs" alt="img" style="height:150px;width:100px">
                                     <p class="font-600 color-theme font-12 pb-3">Masuk</p>
                                 </a>`;
                     if (res.show.path_out) {
                         content3 += `<a class="col" data-gallery="gallery-2" href="/storage/${res.show.path_out.substring(7,1000)}" title="${res.show.foto_out}">
-                                        <img src="/storage/${res.show.path_in.substring(7,1000)}" data-src="/storage/${res.show.path_out.substring(7,1000)}" class="preload-img img-fluid rounded-xs" alt="img" style="height:150px;">
+                                        <img src="/storage/${res.show.path_in.substring(7,1000)}" data-src="/storage/${res.show.path_out.substring(7,1000)}" class="preload-img img-fluid rounded-xs" alt="img" style="height:150px;width:100px">
                                         <p class="font-600 color-theme font-12 pb-3">Pulang</p>
                                     </a>`;
                     }
@@ -189,7 +189,7 @@
 
                     } else { // IJIN
                         content3 += `<a class="col-md-12" data-gallery="gallery-2" href="/storage/${res.show.path_in.substring(7,1000)}" title="${res.show.foto_in}">
-                                        <img src="/storage/${res.show.path_in.substring(7,1000)}" data-src="/storage/${res.show.path_in.substring(7,1000)}" class="preload-img img-fluid rounded-xs" alt="img" style="height:150px;">
+                                        <img src="/storage/${res.show.path_in.substring(7,1000)}" data-src="/storage/${res.show.path_in.substring(7,1000)}" class="preload-img img-fluid rounded-xs" alt="img" style="height:150px;width:100px">
                                         <p class="font-600 color-theme font-12 pb-3">Lampiran Surat</p>
                                     </a>`;
                     }

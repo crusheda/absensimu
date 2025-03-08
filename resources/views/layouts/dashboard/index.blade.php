@@ -45,8 +45,8 @@
         <!-- Menu Highlights-->
         @include('inc.highlight')
 
-        <!-- Main Notification/Bell-->
-        @include('inc.notification')
+        <!-- Main Notification/Bell/Pesan ADD TO HOME SCREEN-->
+        {{-- @include('inc.notification') --}}
 
         <!-- Your Page Content Goes Here-->
         @yield('content')

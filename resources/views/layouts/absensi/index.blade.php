@@ -47,7 +47,7 @@
         @include('inc.highlight')
 
         <!-- Main Notification/Bell-->
-        @include('inc.notification')
+        {{-- @include('inc.notification') --}}
 
         <!-- Your Page Content Goes Here-->
         @yield('content')

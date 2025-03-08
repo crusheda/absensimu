@@ -852,6 +852,7 @@
                     var save = new FormData();
                     save.append('image',$("#image-capture").val());
                     save.append('lokasi',$("#lokasi").val());
+                    save.append('lewat_hari',res.lewat_hari);
                     save.append('kd_shift',res.kd_shift);
                     save.append('nm_shift',res.nm_shift);
                     save.append('berangkat',res.berangkat);
