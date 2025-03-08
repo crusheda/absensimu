@@ -40,7 +40,7 @@
     {{-- <a data-bs-toggle="offcanvas" data-bs-target="#menu-gallery-2"  href="#"><img src="images/pictures/5s.jpg" class="rounded-m img-fluid d-block"></a>
     <span class="font-700 color-theme font-14 text-center d-block mb-3">Album Sheet 2</span> --}}
 
-	<div class="offcanvas offcanvas-modal rounded-m offcanvas-detached" id="detail">
+	<div class="offcanvas offcanvas-bottom rounded-m offcanvas-detached" id="detail">
 		<div class="content mb-0">
             <div class="d-flex">
                 <div>
@@ -58,8 +58,8 @@
             <p class="mb-3">
                 Lorem ipsum dolor sit amet consectetur adipisicing elit.
             </p> --}}
-            <div class="table-responsive mb-3" id="table-detail"></div>
-			<div class="row text-center mb-4 pb-5" id="img-detail"></div>
+            <div class="table-responsive mb-5 pb-5" id="table-detail"></div>
+			{{-- <div class="row text-center mb-4 pb-5" id="img-detail"></div> --}}
 
 		</div>
 	</div>
@@ -149,11 +149,14 @@
                                 <thead>
                                     <tr>
                                         <th class="border-fade-blue" scope="col">Jam Masuk</th>
-                                        <td>${res.show.tgl_in}</td>
+                                        <td>
+                                            <a data-gallery="gallery-1" href="/storage/${res.show.path_in.substring(7,1000)}" title="">${res.show.tgl_in} (<b class="text-dark">Lihat Foto</b>)</a>
+                                        </td>
                                     </tr>
                                     <tr>
                                         <th class="border-fade-blue" scope="col">Jam Pulang</th>
-                                        <td>${res.show.tgl_out?res.show.tgl_out:'-'}</td>
+                                        <td>
+                                            <a data-gallery="gallery-1" href="${res.show.tgl_out?'/storage/'+res.show.path_out.substring(7,1000):'javascript:void(0);'}" title="">${res.show.tgl_out?res.show.tgl_out+' (<b class="text-dark">Lihat Foto</b>)':'-'}</a></td>
                                     </tr>
                                     <tr>
                                     <th class="border-fade-blue" scope="col">Keterlambatan</th>

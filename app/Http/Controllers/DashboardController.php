@@ -66,6 +66,8 @@ class DashboardController extends Controller
                         ->where('kepegawaian_jadwal.tahun',$year)
                         ->orderBy('kepegawaian_jadwal_detail.updated_at','DESC')
                         ->first();
+
+        $shift = null;
         if ($getJadwal) {
             $xshift = ref_shift::where('pegawai_id',$getJadwal->atasan)->where('singkat',$getJadwal->$hit)->first();
             $nama_shift = $xshift->shift;

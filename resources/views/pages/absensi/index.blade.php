@@ -84,7 +84,7 @@
     var map;
     $(document).ready(function() {
         Webcam.set({
-            width: 300,
+            width: 400,
             height: 600,
             image_format: 'jpeg',
             jpeg_quality: 90
@@ -970,12 +970,12 @@
     function startFrontCamera() {
         Webcam.reset('#webcam');
         Webcam.set({
-            width: 300,
+            width: 400,
             height: 600,
             image_format: 'jpeg',
             jpeg_quality: 90,
             fps: 60,
-            flip_horiz: true
+            // flip_horiz: true
         });
         Webcam.attach('#webcam');
     }
@@ -983,7 +983,7 @@
     function startRearCamera() {
         Webcam.reset('#webcam');
         Webcam.set({
-            width: 300,
+            width: 400,
             height: 600,
             image_format: 'jpeg',
             jpeg_quality: 90,
