@@ -68,13 +68,26 @@ class DashboardController extends Controller
                         ->first();
 
         $shift = null;
+        $nama_shift = null;
         if ($getJadwal) {
             $xshift = ref_shift::where('pegawai_id',$getJadwal->atasan)->where('singkat',$getJadwal->$hit)->first();
-            $nama_shift = $xshift->shift;
-            if ($xshift->berangkat == '00:00:00' && $xshift->pulang == '00:00:00') {
-                $shift = null;
+            if ($xshift) {
+                $nama_shift = $xshift->shift;
+                if ($xshift->berangkat == '00:00:00' && $xshift->pulang == '00:00:00') {
+                    $shift = null;
+                } else {
+                    $shift = Carbon::parse($xshift->berangkat)->isoFormat('HH.mm').' - '.Carbon::parse($xshift->pulang)->isoFormat('HH.mm').' WIB';
+                }
             } else {
-                $shift = Carbon::parse($xshift->berangkat)->isoFormat('HH.mm').' - '.Carbon::parse($xshift->pulang)->isoFormat('HH.mm').' WIB';
+                $shift = null;
+            }
+
+            if ($getJadwal->$hit == 'L') {
+                $shift = 'Libur/Tidak Masuk';
+            } else {
+                if ($getJadwal->$hit == 'C') {
+                    $shift = 'Cuti/Tidak Masuk';
+                }
             }
         } else {
             $nama_shift = null;
