@@ -61,6 +61,7 @@ class DashboardController extends Controller
         $getJadwal = jadwal_detail::join('kepegawaian_jadwal','kepegawaian_jadwal_detail.id_jadwal','=','kepegawaian_jadwal.id')
                         ->select('kepegawaian_jadwal_detail.'.$hit,'kepegawaian_jadwal.pegawai_id as atasan')
                         ->where('kepegawaian_jadwal_detail.pegawai_id',Auth::user()->id)
+                        ->where('kepegawaian_jadwal.deleted_at',null)
                         ->where('kepegawaian_jadwal.progress',3)
                         ->where('kepegawaian_jadwal.bulan',$month)
                         ->where('kepegawaian_jadwal.tahun',$year)
@@ -69,6 +70,8 @@ class DashboardController extends Controller
 
         $shift = null;
         $nama_shift = null;
+        // print_r($getJadwal);
+        // die();
         if ($getJadwal) {
             $xshift = ref_shift::where('pegawai_id',$getJadwal->atasan)->where('singkat',$getJadwal->$hit)->first();
             if ($xshift) {

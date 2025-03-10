@@ -27,7 +27,7 @@
     </div> --}}
     <div class="card card-style">
         <div class="card-top p-3">
-            <a href="#" class="btn btn-xs bg-theme color-theme font-700 font-9 float-end">Lihat Grafik</a>
+            <a href="#" class="btn btn-xs bg-theme color-theme font-700 font-9 float-end"><s>Lihat Grafik</s></a>
         </div>
         <div class="content">
             <h4 class="mb-3">Rekapitulasi Data <b class="text-primary">Absensi</b></h4>
@@ -47,7 +47,9 @@
                     <h6 class="font-700 mb-n1 color-highlight" id="id-detail"></h6>
                     <h3 id="judul-detail"></h3>
                 </div>
-                <div class="ms-auto" id="btn-map"></div>
+                <div class="ms-auto">
+                    <a href="#" data-bs-dismiss="offcanvas" class="btn btn-xs bg-dark rounded-m ms-3"><i class="bi bi-x-lg me-2"></i> Tutup</a>
+                </div>
             </div>
             <div id="map" class=""></div>
             <p class="mb-3">
@@ -59,6 +61,7 @@
                 Lorem ipsum dolor sit amet consectetur adipisicing elit.
             </p> --}}
             <div class="table-responsive mb-5 pb-5" id="table-detail"></div>
+            {{-- <center><div class="ms-auto mb-5 pb-5" id="btn-map"></div></center> --}}
 			{{-- <div class="row text-center mb-4 pb-5" id="img-detail"></div> --}}
 
 		</div>
@@ -135,13 +138,13 @@
                 }
                 // INIT BUTTON MAP
                 var content1 = ``;
-                content1 += `<a href="#" class="btn btn-xs gradient-blue color-white shadow-bg shadow-bg-xs rounded me-2" onclick="tampilMap('${res.show.lokasi_in}')">Berangkat</a>`;
+                content1 += `<a href="#" class="btn btn-xs gradient-blue color-white shadow-bg shadow-bg-xs rounded me-2" onclick="tampilMap('${res.show.lokasi_in}')">GPS Berangkat</a>`;
                 if (res.show.lokasi_out) {
-                    content1 += `<a href="#" class="btn btn-xs gradient-red shadow-bg shadow-bg-xs rounded" onclick="tampilMap('${res.show.lokasi_out}')">Pulang</a>`;
+                    content1 += `<a href="#" class="btn btn-xs gradient-red shadow-bg shadow-bg-xs rounded" onclick="tampilMap('${res.show.lokasi_out}')">GPS Pulang</a>`;
                 } else {
                     content1 += `<a href="#" class="btn btn-xs color-theme no-click shadow-bg shadow-bg-xs rounded">Pulang</a>`;
                 }
-                content1 += `<a href="#" data-bs-dismiss="offcanvas" class="btn btn-xs bg-dark rounded-m ms-3"><i class="bi bi-x-lg"></i></a>`;
+                content1 += `<a href="#" data-bs-dismiss="offcanvas" class="btn btn-xs bg-dark rounded">Tutup</a>`;
                 $('#btn-map').empty().append(content1);
                 // INIT TABLE
                 var content2 = ``;
@@ -150,13 +153,13 @@
                                     <tr>
                                         <th class="border-fade-blue" scope="col">Jam Masuk</th>
                                         <td>
-                                            <a data-gallery="gallery-1" href="/storage/${res.show.path_in.substring(7,1000)}" title="">${res.show.tgl_in} (<b class="text-dark">Lihat Foto</b>)</a>
+                                            <a data-gallery="gallery-1" href="/storage/${res.show.path_in.substring(7,1000)}" title="">${res.show.tgl_in}&nbsp;&nbsp;(<u><b class="text-dark">Lihat Foto</b></u>)</a>&nbsp;&nbsp;<a href="#" onclick="tampilMap('${res.show.lokasi_in}')">(<u><b class="text-dark">Lihat Peta</b></u>)</a>
                                         </td>
                                     </tr>
                                     <tr>
                                         <th class="border-fade-blue" scope="col">Jam Pulang</th>
                                         <td>
-                                            <a data-gallery="gallery-1" href="${res.show.tgl_out?'/storage/'+res.show.path_out.substring(7,1000):'javascript:void(0);'}" title="">${res.show.tgl_out?res.show.tgl_out+' (<b class="text-dark">Lihat Foto</b>)':'-'}</a></td>
+                                            <a data-gallery="gallery-1" href="${res.show.tgl_out?'/storage/'+res.show.path_out.substring(7,1000):'javascript:void(0);'}" title="">${res.show.tgl_out?res.show.tgl_out+'&nbsp;&nbsp;(<u><b class="text-dark">Lihat Foto</b></u>)':'-'}</a>&nbsp;&nbsp;${res.show.tgl_out?`<a href="#" onclick="tampilMap('${res.show.lokasi_out}')">(<u><b class="text-dark">Lihat Peta</b></u>)</a>`:''}</td>
                                     </tr>
                                     <tr>
                                     <th class="border-fade-blue" scope="col">Keterlambatan</th>

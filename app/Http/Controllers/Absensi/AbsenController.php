@@ -57,14 +57,14 @@ class AbsenController extends Controller
         // print_r($datenow);
         // die();
         $jadwal = jadwal_detail::join('kepegawaian_jadwal','kepegawaian_jadwal_detail.id_jadwal','=','kepegawaian_jadwal.id')
+                        ->select('kepegawaian_jadwal_detail.'.$hit,'kepegawaian_jadwal.pegawai_id as atasan','kepegawaian_jadwal.staf as bawahan','kepegawaian_jadwal.progress')
                         ->where('kepegawaian_jadwal_detail.pegawai_id',$request->user)
+                        ->where('kepegawaian_jadwal.deleted_at',null)
                         ->where('kepegawaian_jadwal.bulan',$bulan)
                         ->where('kepegawaian_jadwal.tahun',$tahun)
-                        ->where('kepegawaian_jadwal.progress',3)
-                        ->select('kepegawaian_jadwal_detail.'.$hit,'kepegawaian_jadwal.pegawai_id as atasan','kepegawaian_jadwal.staf as bawahan')
+                        ->whereIn('kepegawaian_jadwal.progress',[2,3])
                         ->orderBy('kepegawaian_jadwal_detail.id','DESC')
                         ->first();
-
         if (!empty($jadwal) || $jadwal != null) {
             $shift = ref_shift::where('pegawai_id',$jadwal->atasan)->where('singkat',$jadwal->$hit)->first();
         } else {
@@ -93,6 +93,8 @@ class AbsenController extends Controller
                         ->orderBy("tgl_in","DESC")
                         ->first();
 
+        // print_r($showMalam);
+        // die();
         $data = [
             'distance' => $distance,
             'jadwal' => $jadwal,
@@ -253,7 +255,7 @@ class AbsenController extends Controller
         $show = absensi::where('pegawai_id',$user)->where('jenis','1')->whereDate("ref_jam_pulang","=",$datenow)->orderBy("tgl_in","DESC")->first();
 
         $pulangmin = Carbon::parse($show->ref_jam_pulang);
-        $pulangmax = Carbon::parse($show->ref_jam_pulang)->addHour();
+        $pulangmax = Carbon::parse($show->ref_jam_pulang)->addHour(2);
 
         if ($now >= $pulangmin && $now <= $pulangmax) {
             return Response::json(array(
@@ -308,27 +310,57 @@ class AbsenController extends Controller
             $terlambat = 0; // DISIPLIN
         }
 
-        $data = new absensi;
-        $data->jenis = 1;
-        $data->pegawai_id = $request->pegawai;
-        $data->kd_shift = $request->kd_shift;
-        $data->nm_shift = $request->nm_shift;
-        $data->ref_jam_masuk = $request->berangkat;
-        $data->ref_jam_pulang = $request->pulang;
-        $data->keterlambatan = $diff;
-        $data->tgl_in = Carbon::now();
-        $data->foto_in = $title;
-        // $data->title_in = $path;
-        $data->path_in = $path;
-        $data->lokasi_in = $request->lokasi;
-        $data->terlambat = $terlambat;
-        $data->lewat_hari = $request->lewat_hari;
-        $data->save();
+        $validasi = absensi::where('pegawai_id',$request->pegawai)
+                            ->where('jenis',1)
+                            ->where('kd_shift',$request->kd_shift)
+                            ->where('ref_jam_masuk',$request->berangkat)
+                            ->where('ref_jam_pulang',$request->pulang)
+                            // ->limit(30)
+                            ->first();
 
-        return Response::json(array(
-            'message' => 'Absen masuk berhasil, selamat beraktifitas',
-            'code' => 200,
-        ));
+        // $tahun = Carbon::now()->isoFormat('YYYY');
+        // $bulan = Carbon::now()->isoFormat('MM');
+        // $tgl = Carbon::now()->isoFormat('D');
+        // $hit = "tgl".$tgl;etail::join('kepegawaian_jadwal','kepegawaian_jadwal_detail.id_jadwal','=','kepegawaian_jadwal.id')
+        //                 ->select('kepegawaian_jadwal_detail.'.$hit,'kepegawaian_jadwal.pegawai_id as atasan','kepegawaian_jadwal.staf as bawahan','kepegawaian_jadwal.progress')
+        //                 ->where('kepegawaian_jadwal_detail.pegawai_id',$request->pegawai)
+        //                 ->where('kepegawaian_jadwal.deleted_at',null)
+        //                 ->where('kepegawaian_jadwal.bulan',$bulan)
+        //                 ->where('kepegawaian_jadwal.tahun',$tahun)
+        //                 ->whereIn('kepegawaian_jadwal.progress',[2,3])
+        //                 ->orderBy('kepegawaian_jadwal_detail.id','DESC')
+        //                 ->first();
+
+        if ($validasi) {
+            return Response::json(array(
+                'message' => 'Absen masuk terdeteksi duplikat dengan sebelumnya, silakan melihat Rekap Data Absensi',
+                'code' => 400,
+            ));
+        } else {
+            $data = new absensi;
+            $data->jenis = 1;
+            $data->pegawai_id = $request->pegawai;
+            $data->kd_shift = $request->kd_shift;
+            $data->nm_shift = $request->nm_shift;
+            $data->ref_jam_masuk = $request->berangkat;
+            $data->ref_jam_pulang = $request->pulang;
+            $data->keterlambatan = $diff;
+            $data->tgl_in = Carbon::now();
+            $data->foto_in = $title;
+            // $data->title_in = $path;
+            $data->path_in = $path;
+            $data->lokasi_in = $request->lokasi;
+            $data->terlambat = $terlambat;
+            $data->lewat_hari = $request->lewat_hari;
+            $data->save();
+
+            return Response::json(array(
+                'message' => 'Absen masuk berhasil, selamat beraktifitas',
+                'code' => 200,
+            ));
+        }
+
+
     }
 
     function executeIjin(Request $request)
