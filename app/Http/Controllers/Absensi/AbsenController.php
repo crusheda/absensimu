@@ -288,79 +288,84 @@ class AbsenController extends Controller
         // print_r($request->all());
         // die();
         $img = $request->image;
-        $title = uniqid() . '.png';
-        $folderPath = "public/files/kepegawaian/absensi/masuk/";
-        // IMAGE CONVERSION
-        $image_parts = explode(";base64,", $img);
-        $image_type_aux = explode("image/", $image_parts[0]);
-        $image_type = $image_type_aux[1];
-        $image_base64 = base64_decode($image_parts[1]);
-        $path = $folderPath . $title;
-        Storage::put($path, $image_base64);
+        if ($img) {
+            $title = uniqid() . '.png';
+            $folderPath = "public/files/kepegawaian/absensi/masuk/";
+            // IMAGE CONVERSION
+            $image_parts = explode(";base64,", $img);
+            $image_type_aux = explode("image/", $image_parts[0]);
+            $image_type = $image_type_aux[1];
+            $image_base64 = base64_decode($image_parts[1]);
+            $path = $folderPath . $title;
+            Storage::put($path, $image_base64);
 
-        // PERHITUNGAN SELISIH JAM SAAT MASUK SAMPAI KETERLAMBATAN
-        $initBerangkat = Carbon::parse($request->berangkat)->addMinutes(10);
-        $harusnyaBerangkat = new Carbon($initBerangkat); // ->isoFormat('YYYY-MM-DD H:mm:ss')
-        $berangkat = new Carbon();
-        if ($berangkat > $harusnyaBerangkat) {
-            $diff = $berangkat->diff($harusnyaBerangkat)->format('%H:%I:%S');
-            $terlambat = 1; // TERLAMBAT
+            // PERHITUNGAN SELISIH JAM SAAT MASUK SAMPAI KETERLAMBATAN
+            $initBerangkat = Carbon::parse($request->berangkat)->addMinutes(10);
+            $harusnyaBerangkat = new Carbon($initBerangkat); // ->isoFormat('YYYY-MM-DD H:mm:ss')
+            $berangkat = new Carbon();
+            if ($berangkat > $harusnyaBerangkat) {
+                $diff = $berangkat->diff($harusnyaBerangkat)->format('%H:%I:%S');
+                $terlambat = 1; // TERLAMBAT
+            } else {
+                $diff = Carbon::parse('00:00:00')->isoFormat('HH:mm:ss');
+                $terlambat = 0; // DISIPLIN
+            }
+
+            $validasi = absensi::where('pegawai_id',$request->pegawai)
+                                ->where('jenis',1)
+                                ->where('kd_shift',$request->kd_shift)
+                                ->where('ref_jam_masuk',$request->berangkat)
+                                ->where('ref_jam_pulang',$request->pulang)
+                                // ->limit(30)
+                                ->first();
+
+            // $tahun = Carbon::now()->isoFormat('YYYY');
+            // $bulan = Carbon::now()->isoFormat('MM');
+            // $tgl = Carbon::now()->isoFormat('D');
+            // $hit = "tgl".$tgl;etail::join('kepegawaian_jadwal','kepegawaian_jadwal_detail.id_jadwal','=','kepegawaian_jadwal.id')
+            //                 ->select('kepegawaian_jadwal_detail.'.$hit,'kepegawaian_jadwal.pegawai_id as atasan','kepegawaian_jadwal.staf as bawahan','kepegawaian_jadwal.progress')
+            //                 ->where('kepegawaian_jadwal_detail.pegawai_id',$request->pegawai)
+            //                 ->where('kepegawaian_jadwal.deleted_at',null)
+            //                 ->where('kepegawaian_jadwal.bulan',$bulan)
+            //                 ->where('kepegawaian_jadwal.tahun',$tahun)
+            //                 ->whereIn('kepegawaian_jadwal.progress',[2,3])
+            //                 ->orderBy('kepegawaian_jadwal_detail.id','DESC')
+            //                 ->first();
+
+            if ($validasi) {
+                return Response::json(array(
+                    'message' => 'Absen masuk terdeteksi duplikat dengan sebelumnya, silakan melihat Rekap Data Absensi',
+                    'code' => 400,
+                ));
+            } else {
+                $data = new absensi;
+                $data->jenis = 1;
+                $data->pegawai_id = $request->pegawai;
+                $data->kd_shift = $request->kd_shift;
+                $data->nm_shift = $request->nm_shift;
+                $data->ref_jam_masuk = $request->berangkat;
+                $data->ref_jam_pulang = $request->pulang;
+                $data->keterlambatan = $diff;
+                $data->tgl_in = Carbon::now();
+                $data->foto_in = $title;
+                // $data->title_in = $path;
+                $data->path_in = $path;
+                $data->lokasi_in = $request->lokasi;
+                $data->terlambat = $terlambat;
+                $data->lewat_hari = $request->lewat_hari;
+                $data->save();
+
+                return Response::json(array(
+                    'message' => 'Absen masuk berhasil, selamat beraktifitas',
+                    'code' => 200,
+                ));
+            }
         } else {
-            $diff = Carbon::parse('00:00:00')->isoFormat('HH:mm:ss');
-            $terlambat = 0; // DISIPLIN
-        }
-
-        $validasi = absensi::where('pegawai_id',$request->pegawai)
-                            ->where('jenis',1)
-                            ->where('kd_shift',$request->kd_shift)
-                            ->where('ref_jam_masuk',$request->berangkat)
-                            ->where('ref_jam_pulang',$request->pulang)
-                            // ->limit(30)
-                            ->first();
-
-        // $tahun = Carbon::now()->isoFormat('YYYY');
-        // $bulan = Carbon::now()->isoFormat('MM');
-        // $tgl = Carbon::now()->isoFormat('D');
-        // $hit = "tgl".$tgl;etail::join('kepegawaian_jadwal','kepegawaian_jadwal_detail.id_jadwal','=','kepegawaian_jadwal.id')
-        //                 ->select('kepegawaian_jadwal_detail.'.$hit,'kepegawaian_jadwal.pegawai_id as atasan','kepegawaian_jadwal.staf as bawahan','kepegawaian_jadwal.progress')
-        //                 ->where('kepegawaian_jadwal_detail.pegawai_id',$request->pegawai)
-        //                 ->where('kepegawaian_jadwal.deleted_at',null)
-        //                 ->where('kepegawaian_jadwal.bulan',$bulan)
-        //                 ->where('kepegawaian_jadwal.tahun',$tahun)
-        //                 ->whereIn('kepegawaian_jadwal.progress',[2,3])
-        //                 ->orderBy('kepegawaian_jadwal_detail.id','DESC')
-        //                 ->first();
-
-        if ($validasi) {
             return Response::json(array(
-                'message' => 'Absen masuk terdeteksi duplikat dengan sebelumnya, silakan melihat Rekap Data Absensi',
+                'message' => 'Hasil selfi kamera tidak ditemukan, pastikan kamera Anda dalam kondisi Normal. Apabila masih belum dapat melakukan Absensi, silakan menghubungi Admin. Terima Kasih.',
                 'code' => 400,
             ));
-        } else {
-            $data = new absensi;
-            $data->jenis = 1;
-            $data->pegawai_id = $request->pegawai;
-            $data->kd_shift = $request->kd_shift;
-            $data->nm_shift = $request->nm_shift;
-            $data->ref_jam_masuk = $request->berangkat;
-            $data->ref_jam_pulang = $request->pulang;
-            $data->keterlambatan = $diff;
-            $data->tgl_in = Carbon::now();
-            $data->foto_in = $title;
-            // $data->title_in = $path;
-            $data->path_in = $path;
-            $data->lokasi_in = $request->lokasi;
-            $data->terlambat = $terlambat;
-            $data->lewat_hari = $request->lewat_hari;
-            $data->save();
-
-            return Response::json(array(
-                'message' => 'Absen masuk berhasil, selamat beraktifitas',
-                'code' => 200,
-            ));
         }
-
-
     }
 
     function executeIjin(Request $request)
@@ -414,41 +419,48 @@ class AbsenController extends Controller
         $datenow = $now->isoFormat('YYYY-MM-DD');
 
         $img = $request->image;
-        $title = uniqid() . '.png';
-        $folderPath = "public/files/kepegawaian/absensi/pulang/";
-        // IMAGE CONVERSION
-        $image_parts = explode(";base64,", $img);
-        $image_type_aux = explode("image/", $image_parts[0]);
-        $image_type = $image_type_aux[1];
-        $image_base64 = base64_decode($image_parts[1]);
-        $path = $folderPath . $title;
-        Storage::put($path, $image_base64);
+        if ($img) {
+            $title = uniqid() . '.png';
+            $folderPath = "public/files/kepegawaian/absensi/pulang/";
+            // IMAGE CONVERSION
+            $image_parts = explode(";base64,", $img);
+            $image_type_aux = explode("image/", $image_parts[0]);
+            $image_type = $image_type_aux[1];
+            $image_base64 = base64_decode($image_parts[1]);
+            $path = $folderPath . $title;
+            Storage::put($path, $image_base64);
 
-        // GET DATA TO UPDATE
-        $data = absensi::where('pegawai_id',$request->pegawai)->whereDate("ref_jam_pulang","=",$datenow)->orderBy("ref_jam_pulang","DESC")->first();
+            // GET DATA TO UPDATE
+            $data = absensi::where('pegawai_id',$request->pegawai)->whereDate("ref_jam_pulang","=",$datenow)->orderBy("ref_jam_pulang","DESC")->first();
 
-        // PERHITUNGAN LEMBUR JAM PULANG
-        $jam_pulang_seharusnya = new Carbon($data->ref_jam_pulang); // ->isoFormat('YYYY-MM-DD H:mm:ss')
-        $jam_pulang_sekarang = new Carbon();
-        $diffLembur = $jam_pulang_seharusnya->diff($jam_pulang_sekarang)->format('%H:%I:%S');
+            // PERHITUNGAN LEMBUR JAM PULANG
+            $jam_pulang_seharusnya = new Carbon($data->ref_jam_pulang); // ->isoFormat('YYYY-MM-DD H:mm:ss')
+            $jam_pulang_sekarang = new Carbon();
+            $diffLembur = $jam_pulang_seharusnya->diff($jam_pulang_sekarang)->format('%H:%I:%S');
 
-        // PERHITUNGAN SELISIH JAM SAAT MASUK SAMPAI PULANG
-        $jam_berangkat = new Carbon($data->tgl_in); // ->isoFormat('YYYY-MM-DD H:mm:ss')
-        $jam_pulang = new Carbon();
-        $diffKerja = $jam_berangkat->diff($jam_pulang)->format('%H:%I:%S');
+            // PERHITUNGAN SELISIH JAM SAAT MASUK SAMPAI PULANG
+            $jam_berangkat = new Carbon($data->tgl_in); // ->isoFormat('YYYY-MM-DD H:mm:ss')
+            $jam_pulang = new Carbon();
+            $diffKerja = $jam_berangkat->diff($jam_pulang)->format('%H:%I:%S');
 
-        $data->tgl_out = Carbon::now();
-        $data->lembur = $diffLembur;
-        $data->selisih_jam = $diffKerja;
-        $data->foto_out = $title;
-        $data->path_out = $path;
-        $data->lokasi_out = $request->lokasi;
-        $data->save();
+            $data->tgl_out = Carbon::now();
+            $data->lembur = $diffLembur;
+            $data->selisih_jam = $diffKerja;
+            $data->foto_out = $title;
+            $data->path_out = $path;
+            $data->lokasi_out = $request->lokasi;
+            $data->save();
 
-        return Response::json(array(
-            'message' => 'Absen pulang berhasil, hati-hati di jalan',
-            'code' => 200,
-        ));
+            return Response::json(array(
+                'message' => 'Absen pulang berhasil, hati-hati di jalan',
+                'code' => 200,
+            ));
+        } else {
+            return Response::json(array(
+                'message' => 'Hasil selfi kamera tidak ditemukan, pastikan kamera Anda dalam kondisi Normal. Apabila masih belum dapat melakukan Absensi, silakan menghubungi Admin. Terima Kasih.',
+                'code' => 400,
+            ));
+        }
     }
 
     function getDistance(Request $request)

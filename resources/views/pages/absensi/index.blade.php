@@ -328,15 +328,15 @@
                 }
             })
 
-            navigator.permissions.query({ name: 'geolocation' }).then(res => {
-                if(res.state != "granted"){ // IZIN MAP / GPS DITOLAK
-                    pesanError('Anda belum mengaktifkan izin Lokasi untuk Absensi. Silakan Aktifkan terlebih dahulu lalu lakukan Refresh Kembali dan pastikan Anda menggunakan Browser yang sesuai :<br><ul><li><u>Android = Firefox</u></li><li><u>IOS = Chrome/Safari</u></li></ul>');
-                    $('.cammapnone').prop('hidden',true);
-                    $('#btn-reload-page').prop('hidden',false);
-                    Webcam.reset('#webcam');
-                } else { // MAP / GPS DIIZINKAN
-                    $('.cammapnone').prop('hidden',false);
-                    $('#btn-reload-page').prop('hidden',true);
+            // navigator.permissions.query({ name: 'geolocation' }).then(res => {
+            //     if(res.state != "granted"){ // IZIN MAP / GPS DITOLAK
+            //         pesanError('Anda belum mengaktifkan izin Lokasi untuk Absensi. Silakan Aktifkan terlebih dahulu lalu lakukan Refresh Kembali dan pastikan Anda menggunakan Browser yang sesuai :<br><ul><li><u>Android = Firefox</u></li><li><u>IOS = Chrome/Safari</u></li></ul>');
+            //         $('.cammapnone').prop('hidden',true);
+            //         $('#btn-reload-page').prop('hidden',false);
+            //         Webcam.reset('#webcam');
+            //     } else { // MAP / GPS DIIZINKAN
+            //         $('.cammapnone').prop('hidden',false);
+            //         $('#btn-reload-page').prop('hidden',true);
                     getLocationPromise.then((location) => {
                         console.log('latitude : '+lat);
                         console.log('longitude : '+long);
@@ -598,8 +598,8 @@
                     }).catch((err) => {
                         console.log(err)
                     })
-                }
-            });
+                // } // END OF NAVIGATOR GEOLOCATION PERMISSION
+            // }); // END OF NAVIGATOR GEOLOCATION PERMISSION
         } else {
             alert("Browser Anda Tidak Support.");
         }
@@ -856,6 +856,19 @@
                                     backdrop: `rgba(26,27,41,0.8)`,
                                 });
                                 refreshMap();
+                            } else {
+                                Swal.fire({
+                                    title: `Pesan Error!`,
+                                    text: ex.message,
+                                    icon: `error`,
+                                    showConfirmButton: false,
+                                    showCancelButton: false,
+                                    allowOutsideClick: true,
+                                    allowEscapeKey: false,
+                                    // timer: 3000,
+                                    // timerProgressBar: true,
+                                    backdrop: `rgba(26,27,41,0.8)`,
+                                });
                             }
                         }
                     })
