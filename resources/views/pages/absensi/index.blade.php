@@ -12,7 +12,7 @@
 </style>
 <div class="page-content header-clear-medium">
     <div id="alerts"></div>
-    <div class="card card-style rounded-m shadow-l">
+    <div class="card card-style rounded-m shadow-l cammapnone">
         <div class="responsive-iframe">
             <input type="text" class="form-control" id="lokasi" hidden>
             <div id="map" class=""></div>
@@ -27,14 +27,14 @@
                     </p>
                 </div>
                 <div class="align-self-center ms-auto">
-                    <button onclick="refreshMap()" class="btn btn-s gradient-blue shadow-bg shadow-bg-s text-uppercase font-700 rounded-sm ms-3">Refresh</button>
+                    <button onclick="refreshMap()" class="btn btn-s btn-light gradient-highlight shadow-bg shadow-bg-s text-uppercase font-700 rounded-sm ms-3">Refresh</button>
                 </div>
             </div>
         </div>
     </div>
-    <div class="card card-style rounded-m shadow-l libur">
+    <div class="card card-style rounded-m shadow-l libur cammapnone">
         <div class="card-top">
-            <span class="badge bg-blue-dark shadow-bg shadow-bg-xs text-uppercase p-2 px-3 rounded-s my-4 ms-4">Kamera</span>
+            <span class="badge gradient-highlight shadow-bg shadow-bg-xs text-uppercase p-2 px-3 rounded-s my-4 ms-4">Kamera</span>
         </div>
         <div class="card-top">
             <button onclick="startFrontCamera()" class="bg-theme color-theme rounded-m icon icon-xs float-end m-3 border shadow-l"><i class="bi bi-camera-fill font-19"></i></button>
@@ -43,7 +43,7 @@
         <input type="hidden" name="image" id="image-capture" class="image-tag">
         <center><div id="webcam" class="webcam-selfi"></div></center>
     </div>
-    <div class="card card-style rounded-m shadow-l libur">
+    <div class="card card-style rounded-m shadow-l libur cammapnone">
         <div class="content">
                 <div id="hiddenButton1" hidden> {{-- SELAIN ONCALL --}}
                     <center>
@@ -78,6 +78,7 @@
             </center>
         </div>
     </div>
+    <center><button class="btn btn-light gradient-highlight btn-xs" onclick="location.reload();" id="btn-reload-page" hidden>Reload Page</button></center>
 </div>
 
 <script>
@@ -95,18 +96,13 @@
 
         // PERMISSION "denied" OR "granted"
         // var validate = true;
-        // navigator.permissions.query({ name: "camera" }).then(res => {
-        //     if(res.state !== "granted"){
-        //         pesanError('Anda belum mengaktifkan izin Kamera untuk Absensi. Silakan Aktifkan terlebih dahulu lalu lakukan Refresh Kembali.');
-        //         validate = false;
-        //     }
-        // });
-        navigator.permissions.query({ name: 'geolocation' }).then(res => {
-            if(res.state != "granted"){
-                pesanError('Anda belum mengaktifkan izin Lokasi untuk Absensi. Silakan Aktifkan terlebih dahulu lalu lakukan Refresh Kembali dan pastikan Anda menggunakan Browser yang sesuai :<br><ul><li><u>Android = Firefox</u></li><li><u>IOS = Chrome/Safari</u></li></ul>');
-                // validate = false;
-                $('.libur').prop('hidden',true);
+        navigator.permissions.query({ name: "camera" }).then(res => {
+            if(res.state !== "granted"){
+                pesanError('Anda belum mengaktifkan izin Kamera untuk Absensi. Silakan Aktifkan terlebih dahulu lalu lakukan Refresh Kembali.');
+                $('.cammapnone').prop('hidden',true);
+                $('#btn-reload-page').prop('hidden',false);
             } else {
+                $('#btn-reload-page').prop('hidden',true);
                 refreshMap();
             }
         });
@@ -332,267 +328,278 @@
                 }
             })
 
-            getLocationPromise.then((location) => {
-                console.log('latitude : '+lat);
-                console.log('longitude : '+long);
-                // ATTENTION
-                var save = new FormData();
-                save.append('lokasi',lat + ", " + long);
-                save.append('user',"{{ Auth::user()->id }}");
-                $.ajax({
-                    headers: {
-                        'X-CSRF-TOKEN': $('meta[name="csrf-token"]').attr('content')
-                    },
-                    url: "{{route('kepegawaian.absensi.init')}}",
-                    method: 'POST',
-                    data: save,
-                    cache: false,
-                    contentType: false,
-                    processData: false,
-                    dataType: 'json',
-                    success: function(res) {
-                        $('#meter-gps').text(res.distance);
-                        // init(res);
-                        // --------------------------------------
-                        if (res.jadwal != null) { // JIKA SUDAH MENAMBAH JADWAL & TELAH DIVALIDASI OLEH KEPEGAWAIAN
-                            if (res.jadwal.progress == 2) { // JIKA JADWAL SUDAH VERIFIKASI NAMUN BELUM DIVALIDASI
-                                $("#btn-ijin").prop('hidden',false);
-                                $("#btn-ijin").prop('disabled',true).removeClass('btn-warning').addClass('btn-secondary');
-                                $("#prosesijin").prop('hidden',true);
-                                $("#hiddenButton1").prop('hidden',true);
-                                $("#hiddenButton2").prop('hidden',true);
-                                pesanError('Jadwal telah diverifikasi oleh Atasan tetapi belum dilakukan Validasi oleh bagian Kepegawaian. Silakan menghubungi bagian Kepegawaian.');
-                                console.log('JADWAL SUDAH DIVERIFIKASI/BELUM DIVALIDASI');
-                            } else { // JIKA JADWAL SUDAH DIVALIDASI
-                                if (res.shift.berangkat == '00:00:00' && res.shift.pulang == '00:00:00') {
-                                    Swal.fire({
-                                        title: `Jadwal Hari Ini `+res.shift.shift,
-                                        html: 'Selamat berlibur hari ini dan beraktivitas kembali di kemudian hari',
-                                        icon: `warning`,
-                                        showConfirmButton: false,
-                                        showCancelButton: false,
-                                        allowOutsideClick: false,
-                                        allowEscapeKey: false,
-                                        timer: 5000,
-                                        timerProgressBar: true,
-                                        backdrop: `rgba(26,27,41,0.8)`,
-                                    });
-                                    $(".libur").prop('hidden',true); // ABSEN BIASA
-                                    Webcam.reset('#webcam');
-                                    console.log('JADWAL HARI INI LIBUR = 00:00 - 00:00 WIB');
-                                    pesanSukses('Selamat berlibur hari ini dan beraktivitas kembali di kemudian hari');
-                                } else {
-                                    if (res.distance > 30) {
-                                        Swal.fire({
-                                            title: `Anda berada di luar area Rumah Sakit`,
-                                            html: 'Mendekatlah ke lokasi Absensi!<br>Jarak Anda <b>'+res.distance+' meter</b> dari titik lokasi',
-                                            icon: `error`,
-                                            showConfirmButton: false,
-                                            showCancelButton: false,
-                                            allowOutsideClick: true,
-                                            allowEscapeKey: false,
-                                            timer: 5000,
-                                            timerProgressBar: true,
-                                            backdrop: `rgba(26,27,41,0.8)`,
-                                        });
-                                        $("#hiddenButton1").prop('hidden',true); // ABSEN BIASA
-                                        $("#hiddenButton2").prop('hidden',true); // ABSEN + ONCALL
+            navigator.permissions.query({ name: 'geolocation' }).then(res => {
+                if(res.state != "granted"){ // IZIN MAP / GPS DITOLAK
+                    pesanError('Anda belum mengaktifkan izin Lokasi untuk Absensi. Silakan Aktifkan terlebih dahulu lalu lakukan Refresh Kembali dan pastikan Anda menggunakan Browser yang sesuai :<br><ul><li><u>Android = Firefox</u></li><li><u>IOS = Chrome/Safari</u></li></ul>');
+                    $('.cammapnone').prop('hidden',true);
+                    $('#btn-reload-page').prop('hidden',false);
+                    Webcam.reset('#webcam');
+                } else { // MAP / GPS DIIZINKAN
+                    $('.cammapnone').prop('hidden',false);
+                    $('#btn-reload-page').prop('hidden',true);
+                    getLocationPromise.then((location) => {
+                        console.log('latitude : '+lat);
+                        console.log('longitude : '+long);
+                        // ATTENTION
+                        var save = new FormData();
+                        save.append('lokasi',lat + ", " + long);
+                        save.append('user',"{{ Auth::user()->id }}");
+                        $.ajax({
+                            headers: {
+                                'X-CSRF-TOKEN': $('meta[name="csrf-token"]').attr('content')
+                            },
+                            url: "{{route('kepegawaian.absensi.init')}}",
+                            method: 'POST',
+                            data: save,
+                            cache: false,
+                            contentType: false,
+                            processData: false,
+                            dataType: 'json',
+                            success: function(res) {
+                                $('#meter-gps').text(res.distance);
+                                // init(res);
+                                // --------------------------------------
+                                if (res.jadwal != null) { // JIKA SUDAH MENAMBAH JADWAL & TELAH DIVALIDASI OLEH KEPEGAWAIAN
+                                    if (res.jadwal.progress == 2) { // JIKA JADWAL SUDAH VERIFIKASI NAMUN BELUM DIVALIDASI
                                         $("#btn-ijin").prop('hidden',false);
-                                        if (res.show == null && res.ijin == null) {
-                                            $("#btn-ijin").prop('disabled',false).removeClass('btn-secondary btn-warning').addClass('btn-warning');
-                                        } else {
-                                            $("#btn-ijin").prop('disabled',true).removeClass('btn-secondary btn-warning').addClass('btn-secondary');
-                                            console.log('IJIN SUDAH TERISI UNTUK HARI INI');
-                                        }
+                                        $("#btn-ijin").prop('disabled',true).removeClass('btn-warning').addClass('btn-secondary');
                                         $("#prosesijin").prop('hidden',true);
-                                        console.log('TITIK LOKASI GPS LEBIH DARI 30 METER');
-                                    } else {
-                                        if ("{{ Auth::user()->getPermission('absensi_oncall') }}" == true || "{{ Auth::user()->getPermission('absensi_oncall') }}" || "{{ Auth::user()->getPermission('absensi_oncall') }}" != '') { // USER MEMILIKI AKSES ONCALL
-                                            console.log('USER ONCALL');
-                                            // $("#btn-biasa").prop('hidden',true);
-                                            // $("#hiddenButton1").prop('hidden',true);
-                                            // $("#hiddenButton2").prop('hidden',false); // ABSEN + ONCALL MUNCUL
-                                            // $("#hiddenButton").prop('hidden',true);
-                                            // $("#btn-mulai").prop('hidden',true);
-                                            // $("#btn-selesai").prop('hidden',true);
-                                            // $("#btn-mix").prop('hidden',true);
-                                            // if (res.ijin == null) { // JIKA BELUM MENGAJUKAN SURAT IJIN
-                                            //     if (res.show == null) { // DATA ABSEN MASIH KOSONG
-                                            //         if (res.oncall == null) { // DATA ONCALL MASIH KOSONG
-                                            //             $("#btn-mulai").prop('hidden',false);
-                                            //             $("#btn-oncall-mulai").prop('disabled',false).removeClass('btn-secondary').addClass('btn-pink');
-                                            //             $("#btn-shift-mulai").prop('disabled',false).removeClass('btn-secondary').addClass('btn-primary');
-                                            //         } else {
-                                            //             $("#btn-selesai").prop('hidden',false);
-                                            //             $("#btn-oncall-selesai").prop('disabled',false).removeClass('btn-secondary').addClass('btn-danger');
-                                            //             $("#btn-shift-oncall").prop('disabled',false).removeClass('btn-secondary').addClass('btn-oren');
-                                            //             $("#btn-oncall-shift").prop('disabled',false).removeClass('btn-secondary').addClass('btn-success');
-                                            //             $("#btn-shift-selesai").prop('disabled',false).removeClass('btn-secondary').addClass('btn-danger');
-                                            //         }
-                                            //     } else {
+                                        $("#hiddenButton1").prop('hidden',true);
+                                        $("#hiddenButton2").prop('hidden',true);
+                                        pesanError('Jadwal telah diverifikasi oleh Atasan tetapi belum dilakukan Validasi oleh bagian Kepegawaian. Silakan menghubungi bagian Kepegawaian.');
+                                        console.log('JADWAL SUDAH DIVERIFIKASI/BELUM DIVALIDASI');
+                                    } else { // JIKA JADWAL SUDAH DIVALIDASI
+                                        if (res.shift.berangkat == '00:00:00' && res.shift.pulang == '00:00:00') {
+                                            Swal.fire({
+                                                title: `Jadwal Hari Ini `+res.shift.shift,
+                                                html: 'Selamat berlibur hari ini dan beraktivitas kembali di kemudian hari',
+                                                icon: `warning`,
+                                                showConfirmButton: false,
+                                                showCancelButton: false,
+                                                allowOutsideClick: false,
+                                                allowEscapeKey: false,
+                                                timer: 5000,
+                                                timerProgressBar: true,
+                                                backdrop: `rgba(26,27,41,0.8)`,
+                                            });
+                                            $(".libur").prop('hidden',true); // ABSEN BIASA
+                                            Webcam.reset('#webcam');
+                                            console.log('JADWAL HARI INI LIBUR = 00:00 - 00:00 WIB');
+                                            pesanSukses('Selamat berlibur hari ini dan beraktivitas kembali di kemudian hari');
+                                        } else {
+                                            if (res.distance > 30) {
+                                                Swal.fire({
+                                                    title: `Anda berada di luar area Rumah Sakit`,
+                                                    html: 'Mendekatlah ke lokasi Absensi!<br>Jarak Anda <b>'+res.distance+' meter</b> dari titik lokasi',
+                                                    icon: `error`,
+                                                    showConfirmButton: false,
+                                                    showCancelButton: false,
+                                                    allowOutsideClick: true,
+                                                    allowEscapeKey: false,
+                                                    timer: 5000,
+                                                    timerProgressBar: true,
+                                                    backdrop: `rgba(26,27,41,0.8)`,
+                                                });
+                                                $("#hiddenButton1").prop('hidden',true); // ABSEN BIASA
+                                                $("#hiddenButton2").prop('hidden',true); // ABSEN + ONCALL
+                                                $("#btn-ijin").prop('hidden',false);
+                                                if (res.show == null && res.ijin == null) {
+                                                    $("#btn-ijin").prop('disabled',false).removeClass('btn-secondary btn-warning').addClass('btn-warning');
+                                                } else {
+                                                    $("#btn-ijin").prop('disabled',true).removeClass('btn-secondary btn-warning').addClass('btn-secondary');
+                                                    console.log('IJIN SUDAH TERISI UNTUK HARI INI');
+                                                }
+                                                $("#prosesijin").prop('hidden',true);
+                                                console.log('TITIK LOKASI GPS LEBIH DARI 30 METER');
+                                            } else {
+                                                if ("{{ Auth::user()->getPermission('absensi_oncall') }}" == true || "{{ Auth::user()->getPermission('absensi_oncall') }}" || "{{ Auth::user()->getPermission('absensi_oncall') }}" != '') { // USER MEMILIKI AKSES ONCALL
+                                                    console.log('USER ONCALL');
+                                                    // $("#btn-biasa").prop('hidden',true);
+                                                    // $("#hiddenButton1").prop('hidden',true);
+                                                    // $("#hiddenButton2").prop('hidden',false); // ABSEN + ONCALL MUNCUL
+                                                    // $("#hiddenButton").prop('hidden',true);
+                                                    // $("#btn-mulai").prop('hidden',true);
+                                                    // $("#btn-selesai").prop('hidden',true);
+                                                    // $("#btn-mix").prop('hidden',true);
+                                                    // if (res.ijin == null) { // JIKA BELUM MENGAJUKAN SURAT IJIN
+                                                    //     if (res.show == null) { // DATA ABSEN MASIH KOSONG
+                                                    //         if (res.oncall == null) { // DATA ONCALL MASIH KOSONG
+                                                    //             $("#btn-mulai").prop('hidden',false);
+                                                    //             $("#btn-oncall-mulai").prop('disabled',false).removeClass('btn-secondary').addClass('btn-pink');
+                                                    //             $("#btn-shift-mulai").prop('disabled',false).removeClass('btn-secondary').addClass('btn-primary');
+                                                    //         } else {
+                                                    //             $("#btn-selesai").prop('hidden',false);
+                                                    //             $("#btn-oncall-selesai").prop('disabled',false).removeClass('btn-secondary').addClass('btn-danger');
+                                                    //             $("#btn-shift-oncall").prop('disabled',false).removeClass('btn-secondary').addClass('btn-oren');
+                                                    //             $("#btn-oncall-shift").prop('disabled',false).removeClass('btn-secondary').addClass('btn-success');
+                                                    //             $("#btn-shift-selesai").prop('disabled',false).removeClass('btn-secondary').addClass('btn-danger');
+                                                    //         }
+                                                    //     } else {
 
-                                            //     }
-                                            // } else {
-                                            //     $("#btn-mulai").prop('hidden',false);
-                                            //     $("#btn-oncall-mulai").prop('disabled',true).removeClass('btn-pink').addClass('btn-secondary');
-                                            //     $("#btn-shift-mulai").prop('disabled',true).removeClass('btn-primary').addClass('btn-secondary');
-                                            // }
-                                        } else { // KHUSUS USER TANPA AKSES ONCALL
-                                            console.log('USER BIASA');
-                                            // INIT DISABLED BUTTON ONCALL
-                                            $("#btn-mulai").prop('hidden',true);
-                                            $("#btn-selesai").prop('hidden',true);
-                                            $("#btn-mix").prop('hidden',true);
-                                            $("#hiddenButton2").prop('hidden',true);
-                                            // INIT
-                                            $("#btn-pulang").prop('disabled',true).removeClass('btn-danger').addClass('btn-secondary');
-                                            $("#btn-masuk").prop('disabled',true).removeClass('btn-primary').addClass('btn-secondary');
-                                            $("#btn-biasa").prop('hidden',false);
-                                            $("#hiddenButton1").prop('hidden',false);
-                                            // EXECUTE
-                                            console.log(res);
-                                            if (res.ijin == null) { // JIKA IJIN MASIH KOSONG
-                                                th = new Date().getHours(); // get Jam = 0-23
-                                                tm = new Date().getMinutes(); // get Menit = 0-59
-                                                ts = new Date().getSeconds(); // get Detik = 0-59
-                                                if (res.showMalam != null && res.show == null) { // JIKA MASIH ADA JAGA SHIFT YANG BELUM TERSELESAIKAN (KHUSUS LEWAT HARI)
-                                                    now = new Date().toLocaleDateString('en-CA'); // YYYY-MM-DD
-                                                    dbPulang = new Date(res.showMalam.ref_jam_pulang);
-                                                    dayOut = dbPulang.toLocaleDateString('en-CA'); // YYYY-MM-DD
-                                                    dbMasuk = new Date(now+' '+res.shift.berangkat);
-                                                    dbShiftPulang = new Date(now+' '+res.shift.pulang);
-                                                    if (th >= dbPulang.getHours() - 1 && th < dbMasuk.getHours()) {
-                                                        $("#btn-pulang").prop('disabled',false).removeClass('btn-secondary').addClass('btn-danger');
-                                                        $("#btn-masuk").prop('disabled',true).removeClass('btn-primary').addClass('btn-secondary');
-                                                        console.log('BISA ABSEN PULANG LEWAT HARI');
-                                                    } else {
-                                                        if (th >= dbMasuk.getHours() - 1 && th <= dbShiftPulang.getHours()) {
-                                                            $("#btn-pulang").prop('disabled',true).removeClass('btn-danger').addClass('btn-secondary');
-                                                            $("#btn-masuk").prop('disabled',false).removeClass('btn-secondary').addClass('btn-primary');
-                                                            console.log('BISA ABSEN MASUK');
-                                                        } else {
-                                                            $("#btn-pulang").prop('disabled',true).removeClass('btn-danger').addClass('btn-secondary');
-                                                            $("#btn-masuk").prop('disabled',true).removeClass('btn-primary').addClass('btn-secondary');
-                                                            console.log('ABSEN MASUK HARI INI MASIH TERKUNCI');
-                                                            pesanError(`Absen Masuk Anda Hari ini (Pukul ${res.shift.berangkat} WIB) masih terkunci, Silakan menunggu`);
-                                                        }
-                                                    }
-                                                } else { // JIKA JAGA SHIFT CLEAR SEMUA
-                                                    if (res.showMalam == null && res.show == null) { // JIKA ABSEN HARI INI MASIH KOSONG
-                                                        const thisD = new Date().toLocaleDateString('en-CA'); // YYYY-MM-DD
-                                                        const tomorrow = new Date();
-                                                        tomorrow.setDate(tomorrow.getDate() + 1);
-                                                        const thisT = tomorrow.toLocaleDateString('en-CA');
-                                                        if (res.shift.pulang > res.shift.berangkat) { // JIKA ABSENSI TIDAK LEWAT HARI
-                                                            dbMasuk = new Date(thisD+' '+res.shift.berangkat);
-                                                            dbPulang = new Date(thisD+' '+res.shift.pulang);
-                                                            // console.log(dbMasuk);
-                                                            // console.log(dbPulang);
-                                                            if (th >= dbPulang.getHours()) { // Jika Jam Absen Masuk Lebih dari sama dgn Jam pulang
-                                                                $("#btn-pulang").prop('disabled',true).removeClass('btn-danger').addClass('btn-secondary');
+                                                    //     }
+                                                    // } else {
+                                                    //     $("#btn-mulai").prop('hidden',false);
+                                                    //     $("#btn-oncall-mulai").prop('disabled',true).removeClass('btn-pink').addClass('btn-secondary');
+                                                    //     $("#btn-shift-mulai").prop('disabled',true).removeClass('btn-primary').addClass('btn-secondary');
+                                                    // }
+                                                } else { // KHUSUS USER TANPA AKSES ONCALL
+                                                    console.log('USER BIASA');
+                                                    // INIT DISABLED BUTTON ONCALL
+                                                    $("#btn-mulai").prop('hidden',true);
+                                                    $("#btn-selesai").prop('hidden',true);
+                                                    $("#btn-mix").prop('hidden',true);
+                                                    $("#hiddenButton2").prop('hidden',true);
+                                                    // INIT
+                                                    $("#btn-pulang").prop('disabled',true).removeClass('btn-danger').addClass('btn-secondary');
+                                                    $("#btn-masuk").prop('disabled',true).removeClass('btn-primary').addClass('btn-secondary');
+                                                    $("#btn-biasa").prop('hidden',false);
+                                                    $("#hiddenButton1").prop('hidden',false);
+                                                    // EXECUTE
+                                                    console.log(res);
+                                                    if (res.ijin == null) { // JIKA IJIN MASIH KOSONG
+                                                        th = new Date().getHours(); // get Jam = 0-23
+                                                        tm = new Date().getMinutes(); // get Menit = 0-59
+                                                        ts = new Date().getSeconds(); // get Detik = 0-59
+                                                        if (res.showMalam != null && res.show == null) { // JIKA MASIH ADA JAGA SHIFT YANG BELUM TERSELESAIKAN (KHUSUS LEWAT HARI)
+                                                            now = new Date().toLocaleDateString('en-CA'); // YYYY-MM-DD
+                                                            dbPulang = new Date(res.showMalam.ref_jam_pulang);
+                                                            dayOut = dbPulang.toLocaleDateString('en-CA'); // YYYY-MM-DD
+                                                            dbMasuk = new Date(now+' '+res.shift.berangkat);
+                                                            dbShiftPulang = new Date(now+' '+res.shift.pulang);
+                                                            if (th >= dbPulang.getHours() - 1 && th < dbMasuk.getHours()) {
+                                                                $("#btn-pulang").prop('disabled',false).removeClass('btn-secondary').addClass('btn-danger');
                                                                 $("#btn-masuk").prop('disabled',true).removeClass('btn-primary').addClass('btn-secondary');
-                                                                console.log('Jam Absen Masuk Lebih dari sama dgn Jam pulang');
-                                                                pesanError(`Jam Absen Masuk sudah terlewati. Absen Masuk TIDAK BOLEH melebihi Jam Pulang.`);
-                                                            } else { // JIKA ABSENSI SEBELUM JAM PULANG
-                                                                if (th >= dbMasuk.getHours() - 1) { // MINIMAL ABSENSI 1 JAM SEBELUM JAM MASUK
+                                                                console.log('BISA ABSEN PULANG LEWAT HARI');
+                                                            } else {
+                                                                if (th >= dbMasuk.getHours() - 1 && th <= dbShiftPulang.getHours()) {
                                                                     $("#btn-pulang").prop('disabled',true).removeClass('btn-danger').addClass('btn-secondary');
                                                                     $("#btn-masuk").prop('disabled',false).removeClass('btn-secondary').addClass('btn-primary');
                                                                     console.log('BISA ABSEN MASUK');
-                                                                } else { // JIKA ABSENSI DILUAR ANTARA JAM MASUK DAN JAM PULANG
-                                                                    $("#btn-pulang").prop('disabled',true).removeClass('btn-danger').addClass('btn-secondary');
-                                                                    $("#btn-masuk").prop('disabled',true).removeClass('btn-primary').addClass('btn-secondary');
-                                                                    console.log('Jam Absen Masuk Tidak pada/antara jam masuk (-1 jam) dan jam pulang');
-                                                                    pesanError(`Jam Absen Masuk saat ini TIDAK pada/antara jam masuk yang ditetapkan (yaitu -1 jam sebelum Referensi Jam Masuk) dan wajib tidak lebih dari jam pulang yang seharusnya.`);
-                                                                }
-                                                            }
-                                                        } else { // JIKA ABSENSI MASUK LEWAT HARI (MALAM ke PAGI)
-                                                            dbMasuk = new Date(thisD+' '+res.shift.berangkat).toLocaleDateString('en-CA');
-                                                            if (thisD == dbMasuk) {
-                                                                if (th >= dbMasuk.getHours() - 1) {
-                                                                    $("#btn-pulang").prop('disabled',true).removeClass('btn-danger').addClass('btn-secondary');
-                                                                    $("#btn-masuk").prop('disabled',false).removeClass('btn-secondary').addClass('btn-primary');
                                                                 } else {
                                                                     $("#btn-pulang").prop('disabled',true).removeClass('btn-danger').addClass('btn-secondary');
                                                                     $("#btn-masuk").prop('disabled',true).removeClass('btn-primary').addClass('btn-secondary');
+                                                                    console.log('ABSEN MASUK HARI INI MASIH TERKUNCI');
+                                                                    pesanError(`Absen Masuk Anda Hari ini (Pukul ${res.shift.berangkat} WIB) masih terkunci, Silakan menunggu`);
                                                                 }
-                                                            } else {
-                                                                $("#btn-pulang").prop('disabled',true).removeClass('btn-danger').addClass('btn-secondary');
-                                                                $("#btn-masuk").prop('disabled',true).removeClass('btn-primary').addClass('btn-secondary');
                                                             }
-                                                        }
-                                                    } else { // ABSEN PULANG
-                                                        if (res.show.tgl_in != null && res.show.tgl_out == null) {
-                                                            now = new Date().toLocaleDateString('en-CA'); // YYYY-MM-DD
-                                                            dbPulang = new Date(res.show.ref_jam_pulang);
-                                                            dayOut = dbPulang.toLocaleDateString('en-CA'); // YYYY-MM-DD
-                                                            if (now == dayOut) {
-                                                                if (th >= dbPulang.getHours() - 1) {
-                                                                    $("#btn-pulang").prop('disabled',false).removeClass('btn-secondary').addClass('btn-danger');
-                                                                    $("#btn-masuk").prop('disabled',true).removeClass('btn-primary').addClass('btn-secondary');
-                                                                    pesanWarning(`Silakan melakukan Absen Pulang pada ${res.show.ref_jam_pulang} WIB sampai dengan maksimal 2 Jam setelahnya.`);
-                                                                } else {
-                                                                    if (th >= dbPulang.getHours() + 2) {
+                                                        } else { // JIKA JAGA SHIFT CLEAR SEMUA
+                                                            if (res.showMalam == null && res.show == null) { // JIKA ABSEN HARI INI MASIH KOSONG
+                                                                const thisD = new Date().toLocaleDateString('en-CA'); // YYYY-MM-DD
+                                                                const tomorrow = new Date();
+                                                                tomorrow.setDate(tomorrow.getDate() + 1);
+                                                                const thisT = tomorrow.toLocaleDateString('en-CA');
+                                                                if (res.shift.pulang > res.shift.berangkat) { // JIKA ABSENSI TIDAK LEWAT HARI
+                                                                    dbMasuk = new Date(thisD+' '+res.shift.berangkat);
+                                                                    dbPulang = new Date(thisD+' '+res.shift.pulang);
+                                                                    // console.log(dbMasuk);
+                                                                    // console.log(dbPulang);
+                                                                    if (th >= dbPulang.getHours()) { // Jika Jam Absen Masuk Lebih dari sama dgn Jam pulang
                                                                         $("#btn-pulang").prop('disabled',true).removeClass('btn-danger').addClass('btn-secondary');
                                                                         $("#btn-masuk").prop('disabled',true).removeClass('btn-primary').addClass('btn-secondary');
-                                                                        pesanError(`Absen Pulang telah terlewati (Absen Pulang seharusnya pada ${res.show.ref_jam_pulang}). Silakan melakukan Absensi kembali pada hari selanjutnya. Terima Kasih.`);
+                                                                        console.log('Jam Absen Masuk Lebih dari sama dgn Jam pulang');
+                                                                        pesanError(`Jam Absen Masuk sudah terlewati. Absen Masuk TIDAK BOLEH melebihi Jam Pulang.`);
+                                                                    } else { // JIKA ABSENSI SEBELUM JAM PULANG
+                                                                        if (th >= dbMasuk.getHours() - 1) { // MINIMAL ABSENSI 1 JAM SEBELUM JAM MASUK
+                                                                            $("#btn-pulang").prop('disabled',true).removeClass('btn-danger').addClass('btn-secondary');
+                                                                            $("#btn-masuk").prop('disabled',false).removeClass('btn-secondary').addClass('btn-primary');
+                                                                            console.log('BISA ABSEN MASUK');
+                                                                        } else { // JIKA ABSENSI DILUAR ANTARA JAM MASUK DAN JAM PULANG
+                                                                            $("#btn-pulang").prop('disabled',true).removeClass('btn-danger').addClass('btn-secondary');
+                                                                            $("#btn-masuk").prop('disabled',true).removeClass('btn-primary').addClass('btn-secondary');
+                                                                            console.log('Jam Absen Masuk Tidak pada/antara jam masuk (-1 jam) dan jam pulang');
+                                                                            pesanError(`Jam Absen Masuk saat ini TIDAK pada/antara jam masuk yang ditetapkan (yaitu -1 jam sebelum Referensi Jam Masuk) dan wajib tidak lebih dari jam pulang yang seharusnya.`);
+                                                                        }
+                                                                    }
+                                                                } else { // JIKA ABSENSI MASUK LEWAT HARI (MALAM ke PAGI)
+                                                                    dbMasuk = new Date(thisD+' '+res.shift.berangkat).toLocaleDateString('en-CA');
+                                                                    if (thisD == dbMasuk) {
+                                                                        if (th >= dbMasuk.getHours() - 1) {
+                                                                            $("#btn-pulang").prop('disabled',true).removeClass('btn-danger').addClass('btn-secondary');
+                                                                            $("#btn-masuk").prop('disabled',false).removeClass('btn-secondary').addClass('btn-primary');
+                                                                        } else {
+                                                                            $("#btn-pulang").prop('disabled',true).removeClass('btn-danger').addClass('btn-secondary');
+                                                                            $("#btn-masuk").prop('disabled',true).removeClass('btn-primary').addClass('btn-secondary');
+                                                                        }
                                                                     } else {
                                                                         $("#btn-pulang").prop('disabled',true).removeClass('btn-danger').addClass('btn-secondary');
                                                                         $("#btn-masuk").prop('disabled',true).removeClass('btn-primary').addClass('btn-secondary');
-                                                                        pesanWarning(`Absen Pulang hari ini belum tersedia sebelum minimal pada ${res.show.ref_jam_pulang}.`);
                                                                     }
                                                                 }
-                                                            } else {
-                                                                $("#btn-pulang").prop('disabled',true).removeClass('btn-danger').addClass('btn-secondary');
-                                                                $("#btn-masuk").prop('disabled',true).removeClass('btn-primary').addClass('btn-secondary');
-                                                                pesanError(`Absensi hari ini sudah terisi namun TIDAK VALID. Mohon konfirmasi Admin.`);
+                                                            } else { // ABSEN PULANG
+                                                                if (res.show.tgl_in != null && res.show.tgl_out == null) {
+                                                                    now = new Date().toLocaleDateString('en-CA'); // YYYY-MM-DD
+                                                                    dbPulang = new Date(res.show.ref_jam_pulang);
+                                                                    dayOut = dbPulang.toLocaleDateString('en-CA'); // YYYY-MM-DD
+                                                                    if (now == dayOut) {
+                                                                        if (th >= dbPulang.getHours() - 1) {
+                                                                            $("#btn-pulang").prop('disabled',false).removeClass('btn-secondary').addClass('btn-danger');
+                                                                            $("#btn-masuk").prop('disabled',true).removeClass('btn-primary').addClass('btn-secondary');
+                                                                            pesanWarning(`Silakan melakukan Absen Pulang pada ${res.show.ref_jam_pulang} WIB sampai dengan maksimal 2 Jam setelahnya.`);
+                                                                        } else {
+                                                                            if (th >= dbPulang.getHours() + 2) {
+                                                                                $("#btn-pulang").prop('disabled',true).removeClass('btn-danger').addClass('btn-secondary');
+                                                                                $("#btn-masuk").prop('disabled',true).removeClass('btn-primary').addClass('btn-secondary');
+                                                                                pesanError(`Absen Pulang telah terlewati (Absen Pulang seharusnya pada ${res.show.ref_jam_pulang}). Silakan melakukan Absensi kembali pada hari selanjutnya. Terima Kasih.`);
+                                                                            } else {
+                                                                                $("#btn-pulang").prop('disabled',true).removeClass('btn-danger').addClass('btn-secondary');
+                                                                                $("#btn-masuk").prop('disabled',true).removeClass('btn-primary').addClass('btn-secondary');
+                                                                                pesanWarning(`Absen Pulang hari ini akan tersedia mulai pada ${res.show.ref_jam_pulang}.`);
+                                                                            }
+                                                                        }
+                                                                    } else {
+                                                                        $("#btn-pulang").prop('disabled',true).removeClass('btn-danger').addClass('btn-secondary');
+                                                                        $("#btn-masuk").prop('disabled',true).removeClass('btn-primary').addClass('btn-secondary');
+                                                                        pesanError(`Absensi hari ini sudah terisi namun TIDAK VALID. Mohon konfirmasi Admin.`);
+                                                                    }
+                                                                } else { // JIKA JADWAL ABSEN HARI SUDAH TERISI LENGKAP
+                                                                    $("#btn-pulang").prop('disabled',true).removeClass('btn-danger').addClass('btn-secondary');
+                                                                    $("#btn-masuk").prop('disabled',true).removeClass('btn-primary').addClass('btn-secondary');
+                                                                    pesanSukses('Absensi Masuk dan Pulang Hari ini telah selesai dilakukan. Silakan kembali Absensi pada hari selanjutnya. Terima Kasih.');
+                                                                }
                                                             }
-                                                        } else { // JIKA JADWAL ABSEN HARI SUDAH TERISI LENGKAP
-                                                            $("#btn-pulang").prop('disabled',true).removeClass('btn-danger').addClass('btn-secondary');
-                                                            $("#btn-masuk").prop('disabled',true).removeClass('btn-primary').addClass('btn-secondary');
-                                                            pesanSukses('Absensi Masuk dan Pulang Hari ini telah selesai dilakukan. Silakan kembali Absensi pada hari selanjutnya. Terima Kasih.');
                                                         }
+                                                    } else {
+                                                        $("#btn-pulang").prop('disabled',true).removeClass('btn-danger').addClass('btn-secondary');
+                                                        $("#btn-masuk").prop('disabled',true).removeClass('btn-primary').addClass('btn-secondary');
+                                                        pesanSukses('Absensi Hari ini telah terisi dengan Ijin. Silakan melakukan Absensi kembali pada hari selanjutnya. Terima Kasih.');
                                                     }
                                                 }
-                                            } else {
-                                                $("#btn-pulang").prop('disabled',true).removeClass('btn-danger').addClass('btn-secondary');
-                                                $("#btn-masuk").prop('disabled',true).removeClass('btn-primary').addClass('btn-secondary');
-                                                pesanSukses('Absensi Hari ini telah terisi dengan Ijin. Silakan melakukan Absensi kembali pada hari selanjutnya. Terima Kasih.');
                                             }
                                         }
                                     }
+                                } else {
+                                    $("#btn-ijin").prop('hidden',false);
+                                    $("#btn-ijin").prop('disabled',true).removeClass('btn-warning').addClass('btn-secondary');
+                                    $("#prosesijin").prop('hidden',true);
+                                    $("#hiddenButton1").prop('hidden',true);
+                                    $("#hiddenButton2").prop('hidden',true);
+                                    $("#alerts").empty().append(`<div class="card card-style bg-red-dark alert-dismissible show shadow-bg shadow-bg-m fade p-0 rounded-m">
+                                        <div class="content my-3">
+                                            <div class="d-flex">
+                                                <div class="align-self-center">
+                                                    <i class="bi bi-exclamation-triangle font-36 color-white d-block"></i>
+                                                </div>
+                                                <div class="align-self-center">
+                                                    <p class="color-white mb-0 font-500 font-14 ps-3 pe-4 line-height-s">
+                                                        Perhatian! <br> Jadwal tidak ditemukan atau belum terverifikasi oleh Atasan. Silakan menghubungi Admin Jadwal.
+                                                    </p>
+                                                </div>
+                                                <div class="ms-auto">
+                                                    <button type="button" class="btn-close opacity-20 font-11 mt-n2 me-n2" data-bs-dismiss="alert" aria-label="Close"></button>
+                                                </div>
+                                            </div>
+                                        </div>
+                                    </div>`);
+                                    console.log('JADWAL TIDAK VALID/TIDAK DITEMUKAN/BELUM DIVERIFIKASI');
                                 }
+                                // ---------------------------------------------
                             }
-                        } else {
-                            $("#btn-ijin").prop('hidden',false);
-                            $("#btn-ijin").prop('disabled',true).removeClass('btn-warning').addClass('btn-secondary');
-                            $("#prosesijin").prop('hidden',true);
-                            $("#hiddenButton1").prop('hidden',true);
-                            $("#hiddenButton2").prop('hidden',true);
-                            $("#alerts").empty().append(`<div class="card card-style bg-red-dark alert-dismissible show shadow-bg shadow-bg-m fade p-0 rounded-m">
-                                <div class="content my-3">
-                                    <div class="d-flex">
-                                        <div class="align-self-center">
-                                            <i class="bi bi-exclamation-triangle font-36 color-white d-block"></i>
-                                        </div>
-                                        <div class="align-self-center">
-                                            <p class="color-white mb-0 font-500 font-14 ps-3 pe-4 line-height-s">
-                                                Perhatian! <br> Jadwal tidak ditemukan atau belum terverifikasi oleh Atasan. Silakan menghubungi Admin Jadwal.
-                                            </p>
-                                        </div>
-                                        <div class="ms-auto">
-                                            <button type="button" class="btn-close opacity-20 font-11 mt-n2 me-n2" data-bs-dismiss="alert" aria-label="Close"></button>
-                                        </div>
-                                    </div>
-                                </div>
-                            </div>`);
-                            console.log('JADWAL TIDAK VALID/TIDAK DITEMUKAN/BELUM DIVERIFIKASI');
-                        }
-                        // ---------------------------------------------
-                    }
-                })
-            }).catch((err) => {
-                console.log(err)
-            })
+                        })
+                    }).catch((err) => {
+                        console.log(err)
+                    })
+                }
+            });
         } else {
             alert("Browser Anda Tidak Support.");
         }
