@@ -141,8 +141,7 @@ class AbsenController extends Controller
         } else {
             $lewat_hari = 1;
         }
-
-        if ($oncall) { // JIKA USER BISA ONCALL / MEMPUNYAI PERMISSION = absensi_oncall
+        if ($oncall==1) { // JIKA USER BISA ONCALL / MEMPUNYAI PERMISSION = absensi_oncall
             // VALIDATING JAM MASUK
             if ($shift->pulang > $shift->berangkat) {
                 if ($time >= Carbon::parse($shift->berangkat)->subHour()->isoFormat('HH:mm:ss') && $time <= $shift->pulang) { // DALAM JAM KERJA (MIN 1 JAM SEBELUM JAM MASUK)

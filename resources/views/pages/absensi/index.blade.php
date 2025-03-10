@@ -512,8 +512,9 @@
                                                                     }
                                                                 } else { // JIKA ABSENSI MASUK LEWAT HARI (MALAM ke PAGI)
                                                                     dbMasuk = new Date(thisD+' '+res.shift.berangkat).toLocaleDateString('en-CA');
+                                                                    dbMasukOri = new Date(thisD+' '+res.shift.berangkat);
                                                                     if (thisD == dbMasuk) {
-                                                                        if (th >= dbMasuk.getHours() - 1) {
+                                                                        if (th >= dbMasukOri.getHours() - 1) {
                                                                             $("#btn-pulang").prop('disabled',true).removeClass('btn-danger').addClass('btn-secondary');
                                                                             $("#btn-masuk").prop('disabled',false).removeClass('btn-secondary').addClass('btn-primary');
                                                                         } else {
@@ -529,9 +530,8 @@
                                                                 if (res.show.tgl_in != null && res.show.tgl_out == null) {
                                                                     now = new Date().toLocaleDateString('en-CA'); // YYYY-MM-DD
                                                                     dbPulang = new Date(res.show.ref_jam_pulang);
-                                                                    console.log(dbPulang.toLocaleTimeString());
+                                                                    // console.log(dbPulang.toLocaleTimeString());
                                                                     console.log(th);
-                                                                    console.log(dbPulang.getHours() - 1);
                                                                     console.log(dbPulang.getHours() + 2);
                                                                     console.log(tm);
                                                                     console.log(dbPulang.getMinutes());
