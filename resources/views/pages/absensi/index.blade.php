@@ -96,16 +96,16 @@
 
         // PERMISSION "denied" OR "granted"
         // var validate = true;
-        navigator.permissions.query({ name: "camera" }).then(res => {
-            if(res.state !== "granted"){
-                pesanError('Anda belum mengaktifkan izin Kamera untuk Absensi. Silakan Aktifkan terlebih dahulu lalu lakukan Refresh Kembali.');
-                $('.cammapnone').prop('hidden',true);
-                $('#btn-reload-page').prop('hidden',false);
-            } else {
-                $('#btn-reload-page').prop('hidden',true);
-                refreshMap();
-            }
-        });
+        // navigator.permissions.query({ name: "camera" }).then(res => {
+        //     if(res.state !== "granted"){
+        //         pesanError('Anda belum mengaktifkan izin Kamera untuk Absensi. Silakan Aktifkan terlebih dahulu lalu lakukan Refresh Kembali.');
+        //         $('.cammapnone').prop('hidden',true);
+        //         $('#btn-reload-page').prop('hidden',false);
+        //     } else {
+        //         $('#btn-reload-page').prop('hidden',true);
+        //     }
+        // });
+        refreshMap();
         // if (validate == true) {
         //     refreshMap();
         // }
