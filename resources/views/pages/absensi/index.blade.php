@@ -529,17 +529,25 @@
                                                                 if (res.show.tgl_in != null && res.show.tgl_out == null) {
                                                                     now = new Date().toLocaleDateString('en-CA'); // YYYY-MM-DD
                                                                     dbPulang = new Date(res.show.ref_jam_pulang);
+                                                                    // console.log(th);
+                                                                    console.log(dbPulang.toLocaleTimeString());
                                                                     dayOut = dbPulang.toLocaleDateString('en-CA'); // YYYY-MM-DD
                                                                     if (now == dayOut) {
                                                                         if (th >= dbPulang.getHours() - 1) {
-                                                                            $("#btn-pulang").prop('disabled',false).removeClass('btn-secondary').addClass('btn-danger');
-                                                                            $("#btn-masuk").prop('disabled',true).removeClass('btn-primary').addClass('btn-secondary');
-                                                                            pesanWarning(`Silakan melakukan Absen Pulang pada ${res.show.ref_jam_pulang} WIB sampai dengan maksimal 2 Jam setelahnya.`);
+                                                                            if (th <= dbPulang.getHours() + 2 && tm <= dbPulang.getMinutes()) {
+                                                                                $("#btn-pulang").prop('disabled',false).removeClass('btn-secondary').addClass('btn-danger');
+                                                                                $("#btn-masuk").prop('disabled',true).removeClass('btn-primary').addClass('btn-secondary');
+                                                                                pesanWarning(`Silakan melakukan Absen Pulang dari Pukul ${dbPulang.toLocaleTimeString()} WIB sampai dengan maksimal 2 Jam setelahnya.`);
+                                                                            } else {
+                                                                                $("#btn-pulang").prop('disabled',true).removeClass('btn-danger').addClass('btn-secondary');
+                                                                                $("#btn-masuk").prop('disabled',true).removeClass('btn-primary').addClass('btn-secondary');
+                                                                                pesanError(`Absen Pulang telah terlewati (Absen Pulang seharusnya pada Pukul ${dbPulang.toLocaleTimeString()} sampai dengan 2 Jam setelahnya). Silakan melakukan Absensi kembali pada hari selanjutnya. Terima Kasih.`);
+                                                                            }
                                                                         } else {
                                                                             if (th >= dbPulang.getHours() + 2) {
                                                                                 $("#btn-pulang").prop('disabled',true).removeClass('btn-danger').addClass('btn-secondary');
                                                                                 $("#btn-masuk").prop('disabled',true).removeClass('btn-primary').addClass('btn-secondary');
-                                                                                pesanError(`Absen Pulang telah terlewati (Absen Pulang seharusnya pada ${res.show.ref_jam_pulang}). Silakan melakukan Absensi kembali pada hari selanjutnya. Terima Kasih.`);
+                                                                                pesanError(`Absen Pulang telah terlewati (Absen Pulang seharusnya pada Pukul ${dbPulang.toLocaleTimeString()} sampai dengan 2 jam setelahnya). Silakan melakukan Absensi kembali pada hari selanjutnya. Terima Kasih.`);
                                                                             } else {
                                                                                 $("#btn-pulang").prop('disabled',true).removeClass('btn-danger').addClass('btn-secondary');
                                                                                 $("#btn-masuk").prop('disabled',true).removeClass('btn-primary').addClass('btn-secondary');
@@ -1076,6 +1084,13 @@
         $("#map").prop('hidden',false);
         Webcam.reset('#webcam');
         $("#webcam").prop('hidden',true);
+    }
+
+    function convertM2H(t) {
+        var hours = Number.parseInt(t / 60);
+        var minutes = t % 60; // assuming t is the time in minutes
+
+        return `${String(hours).padStart(2,"0")}:${String(minutes).padStart(2,"0")}`
     }
 
     // TEXT MESSAGE

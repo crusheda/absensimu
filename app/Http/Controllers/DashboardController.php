@@ -62,7 +62,7 @@ class DashboardController extends Controller
                         ->select('kepegawaian_jadwal_detail.'.$hit,'kepegawaian_jadwal.pegawai_id as atasan')
                         ->where('kepegawaian_jadwal_detail.pegawai_id',Auth::user()->id)
                         ->where('kepegawaian_jadwal.deleted_at',null)
-                        ->where('kepegawaian_jadwal.progress',3)
+                        ->whereIn('kepegawaian_jadwal.progress',[2,3])
                         ->where('kepegawaian_jadwal.bulan',$month)
                         ->where('kepegawaian_jadwal.tahun',$year)
                         ->orderBy('kepegawaian_jadwal_detail.updated_at','DESC')
@@ -73,23 +73,28 @@ class DashboardController extends Controller
         // print_r($getJadwal);
         // die();
         if ($getJadwal) {
-            $xshift = ref_shift::where('pegawai_id',$getJadwal->atasan)->where('singkat',$getJadwal->$hit)->first();
-            if ($xshift) {
-                $nama_shift = $xshift->shift;
-                if ($xshift->berangkat == '00:00:00' && $xshift->pulang == '00:00:00') {
-                    $shift = null;
+            if ($getJadwal->progress == 2) {
+                $nama_shift = null;
+                $shift = 'Dalam Proses Validasi';
+            } else {
+                $xshift = ref_shift::where('pegawai_id',$getJadwal->atasan)->where('singkat',$getJadwal->$hit)->first();
+                if ($xshift) {
+                    $nama_shift = $xshift->shift;
+                    if ($xshift->berangkat == '00:00:00' && $xshift->pulang == '00:00:00') {
+                        $shift = null;
+                    } else {
+                        $shift = Carbon::parse($xshift->berangkat)->isoFormat('HH.mm').' - '.Carbon::parse($xshift->pulang)->isoFormat('HH.mm').' WIB';
+                    }
                 } else {
-                    $shift = Carbon::parse($xshift->berangkat)->isoFormat('HH.mm').' - '.Carbon::parse($xshift->pulang)->isoFormat('HH.mm').' WIB';
+                    $shift = null;
                 }
-            } else {
-                $shift = null;
-            }
 
-            if ($getJadwal->$hit == 'L') {
-                $shift = 'Libur/Tidak Masuk';
-            } else {
-                if ($getJadwal->$hit == 'C') {
-                    $shift = 'Cuti/Tidak Masuk';
+                if ($getJadwal->$hit == 'L') {
+                    $shift = 'Libur/Tidak Masuk';
+                } else {
+                    if ($getJadwal->$hit == 'C') {
+                        $shift = 'Cuti/Tidak Masuk';
+                    }
                 }
             }
         } else {

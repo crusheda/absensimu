@@ -153,13 +153,13 @@
                                     <tr>
                                         <th class="border-fade-blue" scope="col">Jam Masuk</th>
                                         <td>
-                                            <a data-gallery="gallery-1" href="/storage/${res.show.path_in.substring(7,1000)}" title="">${res.show.tgl_in}&nbsp;&nbsp;(<u><b class="text-dark">Lihat Foto</b></u>)</a>&nbsp;&nbsp;<a href="#" onclick="tampilMap('${res.show.lokasi_in}')">(<u><b class="text-dark">Lihat Peta</b></u>)</a>
+                                            <a data-gallery="gallery-1" href="javascript:;" title="">${res.show.tgl_in}</a>&nbsp;&nbsp;<a href="/storage/${res.show.path_in.substring(7,1000)}">(<u><b class="text-dark">Lihat Foto</b></u>)</a>&nbsp;&nbsp;<a href="#" onclick="tampilMap('${res.show.lokasi_in}')">(<u><b class="text-dark">Lihat Peta</b></u>)</a>
                                         </td>
                                     </tr>
                                     <tr>
                                         <th class="border-fade-blue" scope="col">Jam Pulang</th>
                                         <td>
-                                            <a data-gallery="gallery-1" href="${res.show.tgl_out?'/storage/'+res.show.path_out.substring(7,1000):'javascript:void(0);'}" title="">${res.show.tgl_out?res.show.tgl_out+'&nbsp;&nbsp;(<u><b class="text-dark">Lihat Foto</b></u>)':'-'}</a>&nbsp;&nbsp;${res.show.tgl_out?`<a href="#" onclick="tampilMap('${res.show.lokasi_out}')">(<u><b class="text-dark">Lihat Peta</b></u>)</a>`:''}</td>
+                                            <a data-gallery="gallery-1" href="javascript:;" title="">${res.show.tgl_out?res.show.tgl_out:'-'}</a>&nbsp;&nbsp;${res.show.tgl_out?'<a href="/storage/'+res.show.path_out.substring(7,1000)+'">(<u><b class="text-dark">Lihat Foto</b></u>)</a>':''}&nbsp;&nbsp;${res.show.tgl_out?`<a href="#" onclick="tampilMap('${res.show.lokasi_out}')">(<u><b class="text-dark">Lihat Peta</b></u>)</a>`:''}</td>
                                     </tr>
                                     <tr>
                                     <th class="border-fade-blue" scope="col">Keterlambatan</th>
