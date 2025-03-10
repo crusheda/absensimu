@@ -574,7 +574,7 @@
                                                                     } else {
                                                                         $("#btn-pulang").prop('disabled',true).removeClass('btn-danger').addClass('btn-secondary');
                                                                         $("#btn-masuk").prop('disabled',true).removeClass('btn-primary').addClass('btn-secondary');
-                                                                        pesanError(`Absensi hari ini sudah terisi namun TIDAK VALID. Mohon konfirmasi Admin.`);
+                                                                        pesanWarning(`Absensi masuk hari ini sudah terisi namun Jam Pulang TIDAK VALID. Silakan menunggu Jam Pulang yang sudah ditetapkan.`);
                                                                     }
                                                                 } else { // JIKA JADWAL ABSEN HARI SUDAH TERISI LENGKAP
                                                                     $("#btn-pulang").prop('disabled',true).removeClass('btn-danger').addClass('btn-secondary');
