@@ -529,15 +529,32 @@
                                                                 if (res.show.tgl_in != null && res.show.tgl_out == null) {
                                                                     now = new Date().toLocaleDateString('en-CA'); // YYYY-MM-DD
                                                                     dbPulang = new Date(res.show.ref_jam_pulang);
-                                                                    // console.log(th);
                                                                     console.log(dbPulang.toLocaleTimeString());
+                                                                    console.log(th);
+                                                                    console.log(dbPulang.getHours() - 1);
+                                                                    console.log(dbPulang.getHours() + 2);
+                                                                    console.log(tm);
+                                                                    console.log(dbPulang.getMinutes());
                                                                     dayOut = dbPulang.toLocaleDateString('en-CA'); // YYYY-MM-DD
                                                                     if (now == dayOut) {
                                                                         if (th >= dbPulang.getHours() - 1) {
-                                                                            if (th <= dbPulang.getHours() + 2 && tm <= dbPulang.getMinutes()) {
-                                                                                $("#btn-pulang").prop('disabled',false).removeClass('btn-secondary').addClass('btn-danger');
-                                                                                $("#btn-masuk").prop('disabled',true).removeClass('btn-primary').addClass('btn-secondary');
-                                                                                pesanWarning(`Silakan melakukan Absen Pulang dari Pukul ${dbPulang.toLocaleTimeString()} WIB sampai dengan maksimal 2 Jam setelahnya.`);
+                                                                            if (th <= dbPulang.getHours() + 2) {
+                                                                                if (th == dbPulang.getHours() + 2) {
+                                                                                    if (tm <= dbPulang.getMinutes()) {
+                                                                                        console.log('sampai sini');
+                                                                                        $("#btn-pulang").prop('disabled',false).removeClass('btn-secondary').addClass('btn-danger');
+                                                                                        $("#btn-masuk").prop('disabled',true).removeClass('btn-primary').addClass('btn-secondary');
+                                                                                        pesanWarning(`Silakan melakukan Absen Pulang dari Pukul ${dbPulang.toLocaleTimeString()} WIB sampai dengan maksimal 2 Jam setelahnya.`);
+                                                                                    } else {
+                                                                                        $("#btn-pulang").prop('disabled',true).removeClass('btn-danger').addClass('btn-secondary');
+                                                                                        $("#btn-masuk").prop('disabled',true).removeClass('btn-primary').addClass('btn-secondary');
+                                                                                        pesanError(`Absen Pulang telah terlewati (Absen Pulang seharusnya pada Pukul ${dbPulang.toLocaleTimeString()} sampai dengan 2 Jam setelahnya). Silakan melakukan Absensi kembali pada hari selanjutnya. Terima Kasih.`);
+                                                                                    }
+                                                                                } else {
+                                                                                    $("#btn-pulang").prop('disabled',false).removeClass('btn-secondary').addClass('btn-danger');
+                                                                                    $("#btn-masuk").prop('disabled',true).removeClass('btn-primary').addClass('btn-secondary');
+                                                                                    pesanWarning(`Silakan melakukan Absen Pulang dari Pukul ${dbPulang.toLocaleTimeString()} WIB sampai dengan maksimal 2 Jam setelahnya.`);
+                                                                                }
                                                                             } else {
                                                                                 $("#btn-pulang").prop('disabled',true).removeClass('btn-danger').addClass('btn-secondary');
                                                                                 $("#btn-masuk").prop('disabled',true).removeClass('btn-primary').addClass('btn-secondary');
