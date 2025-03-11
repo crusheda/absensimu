@@ -460,7 +460,7 @@
                                                         $("#btn-biasa").prop('hidden',false);
                                                         $("#hiddenButton1").prop('hidden',false);
                                                         // EXECUTE
-                                                        console.log(res);
+                                                        // console.log(res);
                                                         if (res.ijin == null) { // JIKA IJIN MASIH KOSONG
                                                             if (res.showMalam != null && res.show == null) { // JIKA MASIH ADA JAGA SHIFT YANG BELUM TERSELESAIKAN (KHUSUS LEWAT HARI)
                                                                 now = new Date().toLocaleDateString('en-CA'); // YYYY-MM-DD
@@ -468,20 +468,29 @@
                                                                 dayOut = dbPulang.toLocaleDateString('en-CA'); // YYYY-MM-DD
                                                                 dbMasuk = new Date(now+' '+res.shift.berangkat);
                                                                 dbShiftPulang = new Date(now+' '+res.shift.pulang);
-                                                                if (th >= dbPulang.getHours() - 1 && th < dbMasuk.getHours()) {
-                                                                    $("#btn-pulang").prop('disabled',false).removeClass('btn-secondary').addClass('btn-danger');
+                                                                console.log(res.shift);
+                                                                console.log(res.showMalam);
+                                                                console.log(res.show);
+                                                                if (th < dbPulang.getHours() - 1) {
+                                                                    $("#btn-pulang").prop('disabled',true).removeClass('btn-danger').addClass('btn-secondary');
                                                                     $("#btn-masuk").prop('disabled',true).removeClass('btn-primary').addClass('btn-secondary');
-                                                                    console.log('BISA ABSEN PULANG LEWAT HARI');
+                                                                    pesanError(`Absen Pulang Anda Hari ini (Pukul ${res.showMalam.ref_jam_pulang} WIB) masih terkunci, Silakan menunggu`);
                                                                 } else {
-                                                                    if (th >= dbMasuk.getHours() - 1 && th <= dbShiftPulang.getHours()) {
-                                                                        $("#btn-pulang").prop('disabled',true).removeClass('btn-danger').addClass('btn-secondary');
-                                                                        $("#btn-masuk").prop('disabled',false).removeClass('btn-secondary').addClass('btn-primary');
-                                                                        console.log('BISA ABSEN MASUK');
-                                                                    } else {
-                                                                        $("#btn-pulang").prop('disabled',true).removeClass('btn-danger').addClass('btn-secondary');
+                                                                    if (th >= dbPulang.getHours() - 1 && th < dbMasuk.getHours() - 1) {
+                                                                        $("#btn-pulang").prop('disabled',false).removeClass('btn-secondary').addClass('btn-danger');
                                                                         $("#btn-masuk").prop('disabled',true).removeClass('btn-primary').addClass('btn-secondary');
-                                                                        console.log('ABSEN MASUK HARI INI MASIH TERKUNCI');
-                                                                        pesanError(`Absen Masuk Anda Hari ini (Pukul ${res.shift.berangkat} WIB) masih terkunci, Silakan menunggu`);
+                                                                        console.log('BISA ABSEN PULANG LEWAT HARI');
+                                                                    } else {
+                                                                        if (th >= dbMasuk.getHours() - 1) { //  && th <= dbShiftPulang.getHours()
+                                                                            $("#btn-pulang").prop('disabled',true).removeClass('btn-danger').addClass('btn-secondary');
+                                                                            $("#btn-masuk").prop('disabled',false).removeClass('btn-secondary').addClass('btn-primary');
+                                                                            console.log('BISA ABSEN MASUK');
+                                                                        } else {
+                                                                            $("#btn-pulang").prop('disabled',true).removeClass('btn-danger').addClass('btn-secondary');
+                                                                            $("#btn-masuk").prop('disabled',true).removeClass('btn-primary').addClass('btn-secondary');
+                                                                            console.log('ABSEN MASUK HARI INI MASIH TERKUNCI');
+                                                                            pesanError(`Absen Masuk Anda Hari ini (Pukul ${res.shift.berangkat} WIB) masih terkunci, Silakan menunggu`);
+                                                                        }
                                                                     }
                                                                 }
                                                             } else { // JIKA JAGA SHIFT CLEAR SEMUA
@@ -538,7 +547,7 @@
                                                                         console.log(tm);
                                                                         console.log(dbPulang.getMinutes());
                                                                         dayOut = dbPulang.toLocaleDateString('en-CA'); // YYYY-MM-DD
-                                                                        if (now == dayOut) {
+                                                                        if (now == dayOut) { // ABSEN PULANG POSISI SAAT INI DI HARI YANG SAMA
                                                                             if (th >= dbPulang.getHours() - 1) {
                                                                                 if (th <= dbPulang.getHours() + 2) {
                                                                                     if (th == dbPulang.getHours() + 2) {
@@ -573,7 +582,7 @@
                                                                                     pesanWarning(`Absen Pulang hari ini akan tersedia mulai pada ${res.show.ref_jam_pulang}.`);
                                                                                 }
                                                                             }
-                                                                        } else {
+                                                                        } else { // ABSEN PULANG POSISI SAAT INI MASIH HARI YANG BERBEDA
                                                                             $("#btn-pulang").prop('disabled',true).removeClass('btn-danger').addClass('btn-secondary');
                                                                             $("#btn-masuk").prop('disabled',true).removeClass('btn-primary').addClass('btn-secondary');
                                                                             pesanWarning(`Absensi masuk hari ini sudah terisi namun Jam Pulang TIDAK VALID. Silakan menunggu Jam Pulang yang sudah ditetapkan.`);

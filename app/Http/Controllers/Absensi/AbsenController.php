@@ -78,8 +78,9 @@ class AbsenController extends Controller
                         ->first();
         $showMalam = absensi::where('pegawai_id',$request->user)
                         ->whereDate("ref_jam_pulang","=",$datenow)
-                        ->where("lewat_hari",'1') // SHIFT
-                        ->where("jenis",'1') // SHIFT
+                        ->where("tgl_out",null)
+                        ->where("lewat_hari",'1')
+                        ->where("jenis",'1')
                         ->orderBy("ref_jam_pulang","DESC")
                         ->first();
         $oncall = absensi::where('pegawai_id',$request->user)
@@ -93,7 +94,7 @@ class AbsenController extends Controller
                         ->orderBy("tgl_in","DESC")
                         ->first();
 
-        // print_r($showMalam);
+        // print_r($shift->shift);
         // die();
         $data = [
             'distance' => $distance,
