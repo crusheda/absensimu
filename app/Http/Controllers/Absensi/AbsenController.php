@@ -134,8 +134,8 @@ class AbsenController extends Controller
         // EXECUTE
         $callShift = $jadwal->$hit;
         // print_r($hit);
-        print_r($callShift);
-        die();
+        // print_r($callShift);
+        // die();
         // FIND SHIFT
         $shift = ref_shift::where('singkat',$callShift)->where('pegawai_id',$jadwal->id_atasan)->orderBy('updated_at','DESC')->first();
 
