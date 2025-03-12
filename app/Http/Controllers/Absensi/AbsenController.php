@@ -127,11 +127,15 @@ class AbsenController extends Controller
                                 ->where('kepegawaian_jadwal.bulan',$bulan)
                                 ->where('kepegawaian_jadwal.tahun',$tahun)
                                 ->select('kepegawaian_jadwal.pegawai_id as id_atasan','kepegawaian_jadwal.staf','kepegawaian_jadwal.bulan','kepegawaian_jadwal.tahun','kepegawaian_jadwal_detail.*')
+                                ->where('kepegawaian_jadwal_detail.deleted_at',null)
+                                ->orderBy('kepegawaian_jadwal_detail.updated_at','DESC')
                                 ->first();
 
         // EXECUTE
         $callShift = $jadwal->$hit;
-
+        // print_r($hit);
+        print_r($callShift);
+        die();
         // FIND SHIFT
         $shift = ref_shift::where('singkat',$callShift)->where('pegawai_id',$jadwal->id_atasan)->orderBy('updated_at','DESC')->first();
 
