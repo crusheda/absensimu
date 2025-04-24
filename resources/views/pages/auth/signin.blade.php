@@ -1,107 +1,62 @@
-<!DOCTYPE HTML>
-<html lang="en">
-<head>
-    <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
-    <meta name="mobile-web-app-capable" content="yes">
-    <meta name="mobile-web-app-status-bar-style" content="black-translucent">
-    <meta name="viewport" content="width=device-width, initial-scale=1, minimum-scale=1, maximum-scale=1, viewport-fit=cover" />
-    <title>Authentication | RS PKU Muhammadiyah Sukoharjo</title>
-    <link rel="stylesheet" type="text/css" href="{{ asset('styles/bootstrap.css') }}">
-    <link rel="stylesheet" type="text/css" href="{{ asset('fonts/bootstrap-icons.css') }}">
+@extends('layouts.index')
 
-    <link rel="preconnect" href="https://fonts.gstatic.com">
-    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@500;600;700;800&family=Roboto:wght@400;500;700&display=swap" rel="stylesheet">
-    <link rel="manifest" href="_manifest.json">
-    <meta id="theme-check" name="theme-color" content="#FFFFFF">
+@section('content')
+<div class="page-content pb-0">
+    <form method="POST" action="{{ route('login') }}">
+        @csrf
+        <div data-card-height="cover" class="card" style="height: 911px;">
+            <div class="card-top notch-clear">
+                <div class="d-flex">
+                    {{-- <a href="#" data-back-button="" class="me-auto icon icon-m"><i
+                            class="font-14 fa fa-arrow-left color-theme"></i></a> --}}
+                    <a href="#" data-toggle-theme="" class="show-on-theme-light ms-auto icon icon-m"><i
+                            class="font-12 fa fa-moon color-theme"></i></a>
+                    <a href="#" data-toggle-theme="" class="show-on-theme-dark ms-auto icon icon-m"><i
+                            class="font-12 fa fa-lightbulb color-yellow-dark"></i></a>
+                </div>
+            </div>
+            <div class="card-center">
+                <div class="ps-5 pe-5">
+                    <h1 class="text-center font-800 font-40 mb-1">E-Absensi</h1>
+                    <p class="color-highlight text-center font-12">RS PKU Muhammadiyah Sukoharjo</p>
 
-    <!-- Favicons Icon -->
-    <link rel="shortcut icon" href="{{ asset('images/logo/logo_new_light.png') }}">
-    <link rel="apple-touch-icon" sizes="76x76" href="{{ asset('images/logo/logo_new_light.png') }}">
-    <link rel="icon" type="image/png" sizes="96x96" href="{{ asset('images/logo/logo_new_light.png') }}">
-    <script src="{{ asset('js/jquery.min.js') }}"></script>
-</head>
+                    <div class="input-style no-borders has-icon validate-field">
+                        <i class="fa fa-user"></i>
+                        <input type="text" class="form-control validate-name" id="form1a" name="name" value="{{ old('name') }}" placeholder="Masukkan Username" autocomplete="name" required>
+                        <label for="form1a" class="color-blue-dark font-10 mt-1">Username</label>
+                        <i class="fa fa-times disabled invalid color-red-dark"></i>
+                        <i class="fa fa-check disabled valid color-green-dark"></i>
+                        <em>(Wajib)</em>
+                    </div>
 
-<body class="theme-light">
+                    <div class="input-style no-borders has-icon validate-field mt-4">
+                        <i class="fa fa-lock"></i>
+                        <input type="password" class="form-control validate-password" id="form3a" name="password" value="{{ old('password') }}" autocomplete="current-password" placeholder="Masukkan Password" required>
+                        <label for="form3a" class="color-blue-dark font-10 mt-1">Password</label>
+                        <i class="fa fa-times disabled invalid color-red-dark"></i>
+                        <i class="fa fa-check disabled valid color-green-dark"></i>
+                        <em>(Wajib)</em>
+                    </div>
 
-<div id="preloader">
-    <div class="spinner-border color-highlight" role="status"></div>
+                    <div class="d-flex mt-4 mb-4">
+                        <div class="w-50 font-11 pb-2 text-start"><a href="#">Butuh Bantuan?</a>
+                        </div>
+                        <div class="w-50 font-11 pb-2 text-end"><a href="https://simrsmu.com/lupapassword">Lupa Password</a>
+                        </div>
+                    </div>
+
+                    <button type="submit" class="btn btn-fluid btn-full btn-m shadow-large rounded-sm text-uppercase font-700 bg-highlight" style="width: 100%">Masuk</button>
+                    {{-- <div class="divider mt-4"></div>
+                    <a href="#"
+                        class="btn btn-icon btn-m btn-full shadow-l rounded-sm bg-facebook text-uppercase font-700 text-start"><i
+                            class="fab fa-facebook-f text-center bg-transparent"></i>Sign in with Facebook</a>
+                    <a href="#"
+                        class="btn btn-icon btn-m btn-full shadow-l rounded-sm bg-twitter text-uppercase font-700 text-start mt-2 "><i
+                            class="fab fa-twitter text-center bg-transparent"></i>Sign in with Twitter</a> --}}
+                </div>
+            </div>
+        </div>
+    </form>
 </div>
-
-<div id="page" class="" style="background: url('/images/wallpaper.jpg');background-repeat: no-repeat;background-size: 100% 100%;">
-
-	<!-- Main Sidebar-->
-        {{-- @include('inc.sidebar') --}}
-	<!-- Menu Highlights-->
-        @include('inc.highlight')
-
-    <!-- Your Page Content Goes Here-->
-    <div class="page-content">
-        <div class="card card-style mb-0 bg-transparent shadow-0 mx-0 rounded-0" style="height: 800px"> <!-- data-card-height="cover" -->
-			<div class="card-center">
-                <center><img src="{{ asset('/images/logo/logo_simrsmu_new_kop_31.png') }}" width="200" class="pt-3" alt=""></center>
-				<div class="">
-					<div class="content">
-                        <form method="POST" action="{{ route('login') }}">
-                            @csrf
-                            <h1 class="text-center font-800 font-30 mb-2">Masuk <b class="text-primary">E-Absensi</b></h1>
-                            <p class="text-center font-13 mt-n2 mb-3">Silakan masuk ke sistem menggunakan Akun <a href="https://simrsmu.com/"><b>Simrsmu</b></a></p>
-                            <div class="form-custom form-label form-icon mb-3">
-                                <i class="bi bi-person-circle font-14"></i>
-                                <input type="text" class="form-control rounded-xs" id="c1" name="name" value="{{ old('name') }}" placeholder="Masukkan Username" autocomplete="name" required/>
-                                <label for="c1" class="color-theme">Username</label>
-                                <span>(Wajib)</span>
-                            </div>
-                            <div class="form-custom form-label form-icon mb-3">
-                                <i class="bi bi-asterisk font-12"></i>
-                                <input type="password" class="form-control rounded-xs" id="c2" name="password" value="{{ old('password') }}" autocomplete="current-password" placeholder="Masukkan Password" required/>
-                                <label for="c2" class="color-theme">Password</label>
-                                <span>(Wajib)</span>
-                            </div>
-                            <div class="d-flex">
-                                <div>
-                                    {{-- <a href="https://simrsmu.com/lupapassword" class="color-theme opacity-30 font-12">Lupa Password</a> --}}
-                                    <a href="https://simrsmu.com/lupapassword" class='btn rounded-sm btn-m gradient-red text-uppercase font-700 mt-1 btn-full shadow-bg shadow-bg-s'><i class="bi bi-arrow-clockwise me-2"></i>Lupa Password</a>
-                                </div>
-                                <div class="ms-auto">
-                                    <button type="submit" class='btn rounded-sm btn-m gradient-green text-uppercase font-700 mt-1 btn-full shadow-bg shadow-bg-s'><i class="bi bi-box-arrow-in-left me-2"></i>Masuk</button>
-                                    {{-- <a href="page-register-2.html" class="color-theme opacity-30 font-12">~</a> --}}
-                                </div>
-                            </div>
-                        </form>
-					</div>
-				</div>
-			</div>
-		</div>
-
-    </div>
-	<!-- End of Page Content-->
-
-	{{-- <div class="offcanvas offcanvas-bottom rounded-m offcanvas-detached" id="menu-install-pwa-ios">
-	   <div class="content">
-			 <img src="{{ asset('images/logo/logo_new_light.png') }}" alt="img" width="80" class="rounded-l mx-auto my-4">
-		  <h1 class="text-center font-800 font-20">Add E-Absensi to Home Screen</h1>
-		  <p class="boxed-text-xl">
-			  Install E-Absensi on your home screen, and access it just like a regular app. Open your Safari menu and tap "Add to Home Screen".
-		  </p>
-		   <a href="#" class="pwa-dismiss close-menu gradient-blue shadow-bg shadow-bg-s btn btn-s btn-full text-uppercase font-700  mt-n2" data-bs-dismiss="offcanvas">Maybe Later</a>
-	   </div>
-   </div>
-
-   <div class="offcanvas offcanvas-bottom rounded-m offcanvas-detached" id="menu-install-pwa-android">
-	   <div class="content">
-		   <img src="{{ asset('images/logo/logo_new_light.png') }}" alt="img" width="80" class="rounded-m mx-auto my-4">
-		   <h1 class="text-center font-700 font-20">Install E-Absensi</h1>
-		   <p class="boxed-text-l">
-			   Install E-Absensi to your Home Screen to enjoy a unique and native experience.
-		   </p>
-		   <a href="#" class="pwa-install btn btn-m rounded-s text-uppercase font-900 gradient-highlight shadow-bg shadow-bg-s btn-full">Add to Home Screen</a><br>
-		   <a href="#" data-bs-dismiss="offcanvas" class="pwa-dismiss close-menu color-theme text-uppercase font-900 opacity-50 font-11 text-center d-block mt-n1">Maybe later</a>
-	   </div>
-   </div> --}}
-
-</div>
-<!--End of Page ID-->
-
-<script src="{{ asset('scripts/bootstrap.min.js') }}"></script>
-<script src="{{ asset('scripts/custom.js') }}"></script>
-</body>
+<!-- End of Page Content-->
+@endsection
