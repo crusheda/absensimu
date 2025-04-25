@@ -30,16 +30,16 @@ class RekapController extends Controller
         return view('pages.rekap.index')->with('list',$data);
     }
 
-    // public function show($id)
-    // {
-    //     $absensi = absensi::first();
+    public function detail($id)
+    {
+        $agent = new Agent();
 
-    //     $data = [
-    //         'absensi' => $absensi,
-    //     ];
+        $data = [
+            'agent' => $agent,
+        ];
 
-    //     return view('pages.rekap.detail')->with('list',$data);
-    // }
+        return view('pages.rekap.detail')->with('list',$data);
+    }
 
     // API ARERA -----------------------------------------------------------------------------------------
     function list($user)
@@ -53,7 +53,7 @@ class RekapController extends Controller
         return response()->json($data, 200);
     }
 
-    function detail($user,$id)
+    function showDetail($user,$id)
     {
         $show = absensi::where('id',$id)->where('pegawai_id',$user)->first();
 

@@ -8,7 +8,7 @@
     <link rel="stylesheet" type="text/css" href="{{ asset('new/styles/bootstrap.css') }}">
     <link href="https://fonts.googleapis.com/css?family=Roboto:300,300i,400,400i,500,500i,700,700i,900,900i|Source+Sans+Pro:300,300i,400,400i,600,600i,700,700i,900,900i&amp;display=swap" rel="stylesheet">
     <link rel="stylesheet" type="text/css" href="{{ asset('new/fonts/css/fontawesome-all.min.css') }}">
-    <link rel="manifest" href="_manifest.json" data-pwa-version="set_in_manifest_and_pwa_js">
+    <link rel="manifest" href="{{ asset('_manifest.json') }}" data-pwa-version="set_in_manifest_and_pwa_js">
 
     <!-- Favicons Icon -->
     <link rel="shortcut icon" href="{{ asset('images/logo/logo_new_light.png') }}">
@@ -21,6 +21,7 @@
     <link rel="stylesheet" class="page-highlight" type="text/css" href="{{ asset('new/styles/highlights/highlight_blue.css') }}">
     <link rel="stylesheet" href="{{ asset('css/leaflet.css') }}" crossorigin=""/>
     <link href="https://cdn.jsdelivr.net/npm/sweetalert2@11.15.5/dist/sweetalert2.min.css" rel="stylesheet">
+    <link class="gallery-s" rel="stylesheet" type="text/css" href="{{ asset('plugins/glightbox/glightbox.css') }}">
 
     <!-- Initialize JS -->
     <script src="https://cdnjs.cloudflare.com/ajax/libs/webcamjs/1.0.26/webcam.min.js"></script>
@@ -45,6 +46,8 @@
 
     <script src="{{ asset('js/leaflet.js') }}" crossorigin=""></script>
     <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11.15.5/dist/sweetalert2.all.min.js"></script>
+    <script type="text/javascript" class="gallery-p" src="{{ asset('plugins/glightbox/glightbox.js') }}"></script>
+    <script type="text/javascript" class="gallery-c" src="{{ asset('plugins/glightbox/glightbox-call.js') }}"></script>
     <script type="text/javascript" src="{{ asset('new/scripts/bootstrap.min.js') }}"></script>
     <script type="text/javascript" src="{{ asset('new/scripts/custom.js') }}"></script>
 
