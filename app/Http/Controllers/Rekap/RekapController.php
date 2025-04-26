@@ -56,8 +56,15 @@ class RekapController extends Controller
             $labels = [];
             $dataPerMonth = [];
 
+            if ($now->isoFormat('DD') > 20) {
+                $a = 2;
+                $b = 0;
+            } else {
+                $a = 3;
+                $b = 1;
+            }
             // Ambil tanggal 21 bulan lalu hingga 20 bulan ini untuk setiap bulan dalam 3 bulan terakhir
-            for ($i = 3; $i > 0; $i--) {
+            for ($i = $a; $i >= $b; $i--) {
                 // Mendapatkan tanggal 21 bulan ke-i
                 $startDate = $now->copy()->subMonths($i)->day(21)->startOfDay(); // Mulai dari tanggal 21
                 // Mendapatkan tanggal 20 bulan ke-i berikutnya

@@ -244,7 +244,7 @@
                         content += `<a class="external-link" href="/rekap/${item.id}">
                                         <i class="${ico} rounded-sm"></i>
                                         <span>${jenis}</span>
-                                        <strong class="font-12">${item.tgl_in}</strong>
+                                        <strong class="font-12">${formatDate(item.tgl_in)}</strong>
                                         <i class="fas fa-chevron-right"></i>
                                     </a>`;
                         $('#list-absensi').append(content);
@@ -254,6 +254,38 @@
                 }
             }
         })
+    }
+
+    function formatDate(datetime) {
+        // Parse datetime string menjadi objek Date
+        var date = new Date(datetime);
+
+        // Daftar hari dalam bahasa Indonesia
+        var days = ["Minggu", "Senin", "Selasa", "Rabu", "Kamis", "Jumat", "Sabtu"];
+
+        // Daftar bulan dalam bahasa Indonesia
+        var months = ["Januari", "Februari", "Maret", "April", "Mei", "Juni", "Juli", "Agustus", "September", "Oktober", "November", "Desember"];
+
+        // Format hari, tanggal, bulan, tahun, jam dan menit
+        var day = days[date.getDay()]; // Mendapatkan nama hari
+        var dayOfMonth = date.getDate(); // Mendapatkan tanggal
+        var month = months[date.getMonth()]; // Mendapatkan nama bulan
+        var year = date.getFullYear(); // Mendapatkan tahun
+        var hours = date.getHours(); // Mendapatkan jam
+        var minutes = date.getMinutes(); // Mendapatkan menit
+
+        // Tambahkan leading zero untuk jam dan menit jika kurang dari 10
+        hours = hours < 10 ? '0' + hours : hours;
+        // minutes = minutes < 10 ? '0' + minutes : minutes;
+
+        // Tambahkan leading zero untuk menit agar selalu dua digit
+        minutes = minutes < 10 ? '0' + minutes : minutes;
+
+        // Gabungkan menjadi format yang diinginkan
+        // var formattedDate = day + ', ' + dayOfMonth + ' ' + month + ' ' + year + ' ' + hours + ':' + minutes + ' WIB';
+        var formattedDate = day + ', ' + dayOfMonth + ' ' + month + ' ' + year + ' ' + hours + ':' + minutes + ' WIB';
+
+        return formattedDate;
     }
 </script>
 @endsection
