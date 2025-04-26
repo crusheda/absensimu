@@ -28,7 +28,11 @@ Route::post('kepegawaian/ijin', [\App\Http\Controllers\Absensi\AbsenController::
 Route::post('kepegawaian/berangkat', [\App\Http\Controllers\Absensi\AbsenController::class, 'executeBerangkat'])->name('kepegawaian.absensi.executeBerangkat');
 Route::post('kepegawaian/pulang', [\App\Http\Controllers\Absensi\AbsenController::class, 'executePulang'])->name('kepegawaian.absensi.executePulang');
 
-Route::get('kepegawaian/rekap/{user}', [\App\Http\Controllers\Rekap\RekapController::class, 'list'])->name('kepegawaian.rekap.list');
+Route::get('kepegawaian/rekap/{user}', [\App\Http\Controllers\Rekap\RekapController::class, 'showRekap'])->name('kepegawaian.rekap.showRekap');
+Route::get('kepegawaian/rekap/{user}/1', [\App\Http\Controllers\Rekap\RekapController::class, 'listWeek1'])->name('kepegawaian.rekap.week1');
+Route::get('kepegawaian/rekap/{user}/2', [\App\Http\Controllers\Rekap\RekapController::class, 'listWeek2'])->name('kepegawaian.rekap.week2');
+Route::get('kepegawaian/rekap/{user}/3', [\App\Http\Controllers\Rekap\RekapController::class, 'listMonth1'])->name('kepegawaian.rekap.month1');
+Route::get('kepegawaian/rekap/{user}/4', [\App\Http\Controllers\Rekap\RekapController::class, 'listMonth2'])->name('kepegawaian.rekap.month2');
 Route::get('kepegawaian/rekap/{user}/detail/{id}', [\App\Http\Controllers\Rekap\RekapController::class, 'showDetail'])->name('kepegawaian.rekap.detail');
 
 Route::get('kepegawaian/riwayat/{user}', [\App\Http\Controllers\Riwayat\RiwayatController::class, 'initRiwayat'])->name('kepegawaian.riwayat.initRiwayat');

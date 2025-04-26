@@ -29,9 +29,12 @@ Route::group(['middleware' => ['auth']], function () {
     Route::get('/rekap/{id}', [App\Http\Controllers\Rekap\RekapController::class, 'detail'])->name('rekap.detail');
     // Route::get('/riwayat', [App\Http\Controllers\Riwayat\RiwayatController::class, 'index'])->name('riwayat.index');
 
-    Route::get('/test', function () {
-        return view('pages.absensi.index_def');
-    });
+    // Route::get('/test', function () {
+    //     return view('pages.absensi.index_def');
+    // });
 });
 
+Route::fallback(function () {
+    return redirect()->route('dashboard'); // Mengarahkan ke dashboard
+});
 // Route::get('/manifest.json', [App\Http\Controllers\HomeController::class, 'manifest']);

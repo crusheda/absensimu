@@ -17,8 +17,14 @@
             </div>
             <div class="card-center">
                 <div class="ps-5 pe-5">
-                    <h1 class="text-center font-800 font-40 mb-1">E-Absensi</h1>
-                    <p class="color-highlight text-center font-12">RS PKU Muhammadiyah Sukoharjo</p>
+                    <div class="d-flex justify-content-center">
+                        <div class="me-3"><img src="{{ asset('images/logo/logo_clear_100kb.png') }}" width="50" alt=""></div>
+                        <div>
+
+                            <h1 class="font-800 font-40 mb-1">E-Absensi</h1>
+                            <p class="color-highlight font-12">RS PKU Muhammadiyah Sukoharjo</p>
+                        </div>
+                    </div>
 
                     <div class="input-style no-borders has-icon validate-field">
                         <i class="fa fa-user"></i>
@@ -45,7 +51,7 @@
                         </div>
                     </div>
 
-                    <button type="submit" class="btn btn-fluid btn-full btn-m shadow-large rounded-sm text-uppercase font-700 bg-highlight" style="width: 100%">Masuk</button>
+                    <button type="submit" class="btn btn-fluid btn-full btn-m shadow-large rounded-sm text-uppercase font-700 bg-highlight" style="width: 100%">Masuk <i class="fas fa-sign-in-alt ms-1"></i></button>
                     {{-- <div class="divider mt-4"></div>
                     <a href="#"
                         class="btn btn-icon btn-m btn-full shadow-l rounded-sm bg-facebook text-uppercase font-700 text-start"><i

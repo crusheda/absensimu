@@ -72,8 +72,10 @@
     <div class="card card-style bg-transparent shadow-0 rounded-0 no-click" data-card-height="250" style="height: 250px;"></div>
 
     <div class="card card-style mx-0 mb-3 mt-4">
+        {{-- <div class="divider"></div> --}}
         <div class="divider mx-auto mt-3 bg-gray-dark opacity-30 rounded-s mb-n1" style="height:5px; width:50px;"></div>
-        <div class="content">
+        <div class="content mb-2">
+            <div id="alerts"></div>
             <div class="d-flex">
                 <div class="align-self-center">
                     {{-- <h2 class="mb-0">Table of Contents</h2> --}}
@@ -83,8 +85,6 @@
                 </div>
             </div>
         </div>
-
-        {{-- <div class="divider"></div> --}}
 
         <div class="content mb-0 mt-0">
             <div id="chapter-2" class="d-flex">
@@ -104,7 +104,7 @@
             </p>
         </div>
 
-        <div class="divider mt-3 mb-3"></div>
+        <div class="divider mt-2 mb-2"></div>
 
         <div class="content mt-0 mb-4">
             {{-- PHOTO --}}
@@ -115,7 +115,9 @@
         </div>
 
     </div>
+
     <div class="card card-style mt-0 mb-3">
+        <div id="loading-btn"><h5 class="pt-3 text-dark"><center><i class="fa fa-sync fa-spin me-1"></i> Memuat Tombol</center></h5></div>
         <div class="content libur cammapnone m-2" id="hiddenCard">
             <div id="hiddenButton1" hidden> {{-- SELAIN ONCALL --}}
                 <center>
@@ -143,10 +145,11 @@
                 </center>
             </div>
             <center>
-                <button type="button" class="btn btn-warning" style="width:100%" onclick="showIjin()" id="btn-ijin" disabled hidden><i class="ti ti-stethoscope"></i> Pengajuan Ijin Sakit</button>
+                <button type="button" class="btn btn-warning text-white text-uppercase font-900 btn-m btn-full rounded-sm shadow-xl" style="width:100%" onclick="showIjin()" id="btn-ijin" disabled hidden><i class="fas fa-stethoscope me-1"></i> Pengajuan Ijin</button>
                 <div class="btn-group" style="width:100%" id="prosesijin" hidden>
-                    <button type="button" class="btn btn-dark text-uppercase font-900 btn-m btn-full rounded-sm shadow-xl" onclick="batalProsesIjin()" id="btn-batal-proses-ijin"><i class="ti ti-arrow-back"></i> Batal</button>
-                    <button type="button" class="btn btn-info text-uppercase font-900 btn-m btn-full rounded-sm shadow-xl" onclick="prosesIjin()" id="btn-proses-ijin"><i class="ti ti-send"></i> Kirim Surat Ijin</button>
+                    <button type="button" class="btn btn-dark text-uppercase font-900 btn-m btn-full rounded-sm shadow-xl" onclick="batalProsesIjin()" id="btn-batal-proses-ijin"><i class="fa fa-times me-1"></i> Batal</button>
+                    <a href="#" class="icon icon-m rounded-s opacity-40 color-theme ms-2 me-2 mt-2"><i class="fa fa-minus"></i></a>
+                    <button type="button" class="btn btn-info text-white text-uppercase font-900 btn-m btn-full rounded-sm shadow-xl" onclick="prosesIjin()" id="btn-proses-ijin">Kirim Surat Ijin <i class="fas fa-paper-plane ms-1"></i></button>
                 </div>
             </center>
         </div>
@@ -336,6 +339,7 @@
                             dataType: 'json',
                             success: function(res) {
                                 $('#meter-gps').text(res.distance);
+                                $('#loading-btn').empty();
                                 // init(res);
                                 // --------------------------------------
                                 if (res.jadwal != null) { // JIKA SUDAH MENAMBAH JADWAL & TELAH DIVALIDASI OLEH KEPEGAWAIAN
@@ -392,6 +396,7 @@
                                                     } else {
                                                         $("#btn-ijin").prop('disabled',true).removeClass('btn-secondary btn-warning').addClass('btn-secondary');
                                                         console.log('IJIN SUDAH TERISI UNTUK HARI INI');
+                                                        pesanSukses('Absensi Hari ini telah terisi dengan Ijin. Silakan melakukan Absensi kembali pada hari selanjutnya. Terima Kasih.');
                                                     }
                                                     $("#prosesijin").prop('hidden',true);
                                                     console.log('TITIK LOKASI GPS LEBIH DARI 30 METER');
@@ -576,6 +581,7 @@
                                                         } else {
                                                             $("#btn-pulang").prop('disabled',true).removeClass('btn-danger').addClass('btn-secondary');
                                                             $("#btn-masuk").prop('disabled',true).removeClass('btn-primary').addClass('btn-secondary');
+                                                            console.log('IJIN SUDAH TERISI YAA');
                                                             pesanSukses('Absensi Hari ini telah terisi dengan Ijin. Silakan melakukan Absensi kembali pada hari selanjutnya. Terima Kasih.');
                                                         }
                                                     }
@@ -599,10 +605,13 @@
                                                 $("#hiddenButton2").prop('hidden',true); // ABSEN + ONCALL
                                                 $("#btn-ijin").prop('hidden',false);
                                                 if (res.show == null && res.ijin == null) {
-                                                    $("#btn-ijin").prop('disabled',false).removeClass('btn-secondary btn-warning').addClass('btn-warning');
+                                                    $("#btn-ijin").prop('disabled',true).removeClass('btn-secondary btn-warning').addClass('btn-secondary');
+                                                    console.log('IJIN BELUM TERISI UNTUK HARI INI DAN HARI INI LIBUR');
+                                                    pesanWarning('Jadwal Hari ini adalah LIBUR. Silakan melakukan Absensi kembali pada hari selanjutnya. Terima Kasih.');
                                                 } else {
                                                     $("#btn-ijin").prop('disabled',true).removeClass('btn-secondary btn-warning').addClass('btn-secondary');
                                                     console.log('IJIN SUDAH TERISI UNTUK HARI INI');
+                                                    pesanSukses('Absensi Hari ini telah terisi dengan Ijin. Silakan melakukan Absensi kembali pada hari selanjutnya. Terima Kasih.');
                                                 }
                                                 $("#prosesijin").prop('hidden',true);
                                                 console.log('TITIK LOKASI GPS LEBIH DARI 30 METER');
@@ -1086,13 +1095,13 @@
 
     function showIjin() {
         $("#webcam").prop('hidden',false);
-        $("#hiddenButton").prop('hidden',true);
+        // $("#hiddenButton").prop('hidden',true);
         $("#hiddenButton1").prop('hidden',true);
         $("#hiddenButton2").prop('hidden',true);
-        $("#map").prop('hidden',true);
+        // $("#map").prop('hidden',true);
         $("#btn-ijin").prop('hidden',true);
         $("#prosesijin").prop('hidden',false);
-        $("#btn-gps").prop('hidden',true);
+        // $("#btn-gps").prop('hidden',true);
         Swal.fire({
             title: `Pesan Lanjutan!`,
             html: 'Silakan foto surat ijin dokter lalu tekan tombol <b class="text-info"><u>KIRIM</u></b>',
@@ -1155,13 +1164,14 @@
                                     timerProgressBar: true,
                                     backdrop: `rgba(26,27,41,0.8)`,
                                 });
-                                $("#webcam").prop('hidden',true);
+                                // $("#webcam").prop('hidden',true);
                                 $("#prosesijin").prop('hidden',true);
                                 $("#btn-ijin").prop('hidden',false);
-                                map.remove();
-                                $("#map").prop('hidden',false);
+                                // map.remove();
+                                // $("#map").prop('hidden',false);
                                 refreshMap(); // PESAN BERHASIL KIRIM MASIH TERTUMPUK DENGAN PESAN JARAK MAP (refreshMap)
-                                $("#btn-gps").prop('hidden',false);
+                                startFrontCamera();
+                                // $("#btn-gps").prop('hidden',false);
                             }
                         }
                     })
@@ -1198,13 +1208,14 @@
     }
 
     function batalProsesIjin() {
-        $("#webcam").prop('hidden',true);
+        // $("#webcam").prop('hidden',true);
         $("#prosesijin").prop('hidden',true);
         $("#btn-ijin").prop('hidden',false);
-        map.remove();
-        $("#map").prop('hidden',false);
+        // map.remove();
+        // $("#map").prop('hidden',false);
         refreshMap();
-        $("#btn-gps").prop('hidden',false);
+        startFrontCamera();
+        // $("#btn-gps").prop('hidden',false);
     }
 
     function showSelfi() {
@@ -1308,57 +1319,49 @@
 
     // TEXT MESSAGE
     function pesanError(message) {
-        $("#alerts").empty().append(`<div class="card card-style bg-red-dark alert-dismissible show shadow-bg shadow-bg-m fade p-0 rounded-m">
+        $("#alerts").empty().append(`<div class="card bg-red-dark alert-dismissible show shadow-bg shadow-bg-m fade p-0 mb-3 rounded-m">
                                     <div class="content my-3">
                                         <div class="d-flex">
                                             <div class="align-self-center">
                                                 <i class="bi bi-exclamation-triangle font-36 color-white d-block"></i>
                                             </div>
                                             <div class="align-self-center">
-                                                <p class="color-white mb-0 font-500 font-14 ps-3 pe-4 line-height-s">
+                                                <p style="text-align: justify;" class="color-white mb-0 font-500 font-13 ps-3 pe-4 line-height-s">
                                                     Perhatian! <br> ${message}
                                                 </p>
-                                            </div>
-                                            <div class="ms-auto">
-                                                <button type="button" class="btn-close opacity-20 font-11 mt-n2 me-n2" data-bs-dismiss="alert" aria-label="Close"></button>
                                             </div>
                                         </div>
                                     </div>
                                 </div>`);
     }
     function pesanWarning(message) {
-        $("#alerts").empty().append(`<div class="card card-style bg-brown-dark alert-dismissible show shadow-bg shadow-bg-m fade p-0 rounded-m">
+        $("#alerts").empty().append(`<div class="card bg-brown-dark alert-dismissible show shadow-bg shadow-bg-m fade p-0 mb-3 rounded-m">
                                     <div class="content my-3">
                                         <div class="d-flex">
                                             <div class="align-self-center">
                                                 <i class="bi bi-exclamation-triangle font-36 color-white d-block"></i>
                                             </div>
                                             <div class="align-self-center">
-                                                <p class="color-white mb-0 font-500 font-14 ps-3 pe-4 line-height-s">
+                                                <p style="text-align: justify;" class="color-white mb-0 font-500 font-13 ps-3 pe-4 line-height-s">
                                                     ${message}
                                                 </p>
-                                            </div>
-                                            <div class="ms-auto">
-                                                <button type="button" class="btn-close opacity-20 font-11 mt-n2 me-n2" data-bs-dismiss="alert" aria-label="Close"></button>
                                             </div>
                                         </div>
                                     </div>
                                 </div>`);
     }
     function pesanSukses(message) {
-        $("#alerts").empty().append(`<div class="card card-style bg-blue-dark alert-dismissible show shadow-bg shadow-bg-m fade p-0 rounded-m">
+        console.log(message);
+        $("#alerts").empty().append(`<div class="card bg-blue-dark alert-dismissible show shadow-bg shadow-bg-m fade p-0 mb-3 rounded-m">
                                     <div class="content my-3">
                                         <div class="d-flex">
                                             <div class="align-self-center">
                                                 <i class="bi bi-exclamation-triangle font-36 color-white d-block"></i>
                                             </div>
                                             <div class="align-self-center">
-                                                <p class="color-white mb-0 font-500 font-14 ps-3 pe-4 line-height-s">
+                                                <p style="text-align: justify;" class="color-white mb-0 font-500 font-13 ps-3 pe-4 line-height-s">
                                                     ${message}
                                                 </p>
-                                            </div>
-                                            <div class="ms-auto">
-                                                <button type="button" class="btn-close opacity-20 font-11 mt-n2 me-n2" data-bs-dismiss="alert" aria-label="Close"></button>
                                             </div>
                                         </div>
                                     </div>

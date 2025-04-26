@@ -42,6 +42,7 @@
     </div>
 
     <div class="content">
+        <h6 class="mt-n2 mb-3 text-muted px-2"><i class="fas fa-history me-1 color-highlight"></i> Bulan {{ \Carbon\Carbon::now()->translatedFormat('M y') }}</h6>
         <div class="d-flex text-center px-2">
             <div class="me-auto">
                 <a href="#" data-menu="menu-add-funds" class="icon icon-xxl bg-theme color-blue-dark shadow-l rounded-m">

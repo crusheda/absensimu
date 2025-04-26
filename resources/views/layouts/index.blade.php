@@ -50,6 +50,8 @@
     <script type="text/javascript" class="gallery-c" src="{{ asset('plugins/glightbox/glightbox-call.js') }}"></script>
     <script type="text/javascript" src="{{ asset('new/scripts/bootstrap.min.js') }}"></script>
     <script type="text/javascript" src="{{ asset('new/scripts/custom.js') }}"></script>
+    <script type="text/javascript" class="charts-js-plugin-p" src="{{ asset('plugins/charts/charts.js') }}"></script>
+    <script type="text/javascript" class="charts-js-plugin-c" src="{{ asset('plugins/charts/charts-call-graphs.js') }}"></script>
 
     <div class="menu-hider"></div>
     <p class="offline-message bg-red-dark color-white">No internet connection detected</p>

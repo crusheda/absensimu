@@ -1,8 +1,8 @@
 <div class="header header-fixed header-logo-center">
     @if (request()->routeIs('rekap.index') || request()->routeIs('rekap.detail'))
-        <a href="#" class="header-title font-20">Rekap Absensi</a>
+        <a href="#" class="header-title font-900">Rekap Absensi</a>
     @else
-        <a href="#" id="clock" class="header-title font-20"></a>
+        <a href="#" id="clock" class="header-title font-900"></a>
     @endif
     <a href="#" data-back-button class="header-icon header-icon-1" style="padding-top: 20px"><i class="fas fa-arrow-left"></i></a>
     @if (request()->routeIs('absensi.index'))
