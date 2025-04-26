@@ -4,7 +4,7 @@
 <div class="page-content pb-0">
     <form method="POST" action="{{ route('login') }}">
         @csrf
-        <div data-card-height="cover" class="card" style="height: 911px;">
+        <div data-card-height="cover" class="card" style="height: 100vh;">
             <div class="card-top notch-clear">
                 <div class="d-flex">
                     {{-- <a href="#" data-back-button="" class="me-auto icon icon-m"><i
