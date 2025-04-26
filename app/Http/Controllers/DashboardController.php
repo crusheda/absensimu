@@ -70,7 +70,7 @@ class DashboardController extends Controller
 
         $shift = null;
         $nama_shift = null;
-        // print_r($getJadwal);
+        // print_r($absenOne);
         // die();
         if ($getJadwal) {
             if ($getJadwal->progress == 2) {

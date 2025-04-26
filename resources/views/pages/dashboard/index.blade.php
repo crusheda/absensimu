@@ -66,7 +66,7 @@
                         @endif
                     </i>
                 </a>
-                <span class="font-10 font-500 color-theme d-block">Terlambat</span>
+                <span class="font-10 font-500 color-theme d-block">Absen 1x/hr</span>
             </div>
             <div class="m-auto">
                 <a href="#" data-menu="menu-transaction-transfer" class="icon icon-xxl bg-theme color-red-dark shadow-l rounded-m">
@@ -78,7 +78,7 @@
                         @endif
                     </i>
                 </a>
-                <span class="font-10 font-500 color-theme d-block">Absen 1x/hr</span>
+                <span class="font-10 font-500 color-theme d-block">Terlambat</span>
             </div>
             <div class="ms-auto">
                 <a href="#" data-menu="menu-transaction-1" class="icon icon-xxl bg-theme color-green-dark shadow-l rounded-m">
