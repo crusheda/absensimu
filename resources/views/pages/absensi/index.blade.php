@@ -99,7 +99,7 @@
                     <i class="fa fa-camera fa-1x color-blue-dark"></i>
                 </div> --}}
             </div>
-            <p>
+            <p style="text-align: justify;">
                 Foto selfi hanya digunakan sebagai bukti bahwa sudah melakukan Absensi pada Jam Kerja dan berlokasi di radius yang sudah ditetapkan (30 Meter dari area Finger)
             </p>
         </div>

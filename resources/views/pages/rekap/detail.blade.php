@@ -64,7 +64,7 @@
             </div>
             <div class="divider mt-2 mb-3"></div>
             <h5>Keterangan</h5>
-            <p id="keterangan"></p>
+            <p id="keterangan" style="text-align: justify;"></p>
         </div>
     </div>
 
