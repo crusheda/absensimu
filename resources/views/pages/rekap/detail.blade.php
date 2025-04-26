@@ -173,7 +173,7 @@
                                 </a>
                                 <center>Berangkat</center>
                             </div>
-                            <div class="col-2"></div>s`;
+                            <div class="col-2"></div>`;
                 }
                 $('#foto').empty().append(foto);
                 lightbox.reload();
