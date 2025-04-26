@@ -2,7 +2,7 @@
 
 @section('content')
 <div class="page-content pb-0">
-    <form method="POST" action="{{ route('login') }}">
+    <form method="POST" action="{{ route('login') }}" class="mb-0">
         @csrf
         <div data-card-height="cover" class="card" style="height: 100vh;">
             <div class="card-top notch-clear">

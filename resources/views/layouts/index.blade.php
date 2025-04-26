@@ -35,7 +35,7 @@
 
     <div id="page" data-swup="0" style="min-height: 100%;">
 
-        @yield('content');
+        @yield('content')
 
     </div>
 
@@ -57,20 +57,6 @@
     <p class="offline-message bg-red-dark color-white">No internet connection detected</p>
     <p class="online-message bg-green-dark color-white">You are back online</p>
     <script>
-        // (() => {
-        //     window.addoncropExtensions = window.addoncropExtensions || [];
-        //     window.addoncropExtensions.push({
-        //         mode: 'emulator',
-        //         emulator: 'Foxified',
-        //         extension: {
-        //             id: 44,
-        //             name: 'YouTube Downloader by Addoncrop',
-        //             version: '17.5.2',
-        //             date: 'November 29, 2024',
-        //         },
-        //         flixmateConnected: false,
-        //     });
-        // })();
         window.onload = displayClock();
         function displayClock() {
             var now = new Date();
