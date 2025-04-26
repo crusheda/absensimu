@@ -33,7 +33,7 @@
         <div class="spinner-border color-highlight" role="status"></div>
     </div>
 
-    <div id="page" data-swup="0">
+    <div id="page" data-swup="0" style="min-height: 100%;">
 
         @yield('content');
 
@@ -57,20 +57,45 @@
     <p class="offline-message bg-red-dark color-white">No internet connection detected</p>
     <p class="online-message bg-green-dark color-white">You are back online</p>
     <script>
-        (() => {
-            window.addoncropExtensions = window.addoncropExtensions || [];
-            window.addoncropExtensions.push({
-                mode: 'emulator',
-                emulator: 'Foxified',
-                extension: {
-                    id: 44,
-                    name: 'YouTube Downloader by Addoncrop',
-                    version: '17.5.2',
-                    date: 'November 29, 2024',
-                },
-                flixmateConnected: false,
-            });
-        })();
+        // (() => {
+        //     window.addoncropExtensions = window.addoncropExtensions || [];
+        //     window.addoncropExtensions.push({
+        //         mode: 'emulator',
+        //         emulator: 'Foxified',
+        //         extension: {
+        //             id: 44,
+        //             name: 'YouTube Downloader by Addoncrop',
+        //             version: '17.5.2',
+        //             date: 'November 29, 2024',
+        //         },
+        //         flixmateConnected: false,
+        //     });
+        // })();
+        window.onload = displayClock();
+        function displayClock() {
+            var now = new Date();
+            var hours = now.getHours();
+            var minutes = now.getMinutes();
+            var seconds = now.getSeconds();
+
+            // Tambahkan leading zero
+            hours = hours < 10 ? '0' + hours : hours;
+            minutes = minutes < 10 ? '0' + minutes : minutes;
+            seconds = seconds < 10 ? '0' + seconds : seconds;
+
+            // Tentukan pagi/sore/malam
+            var waktu = '';
+            if (now.getHours() < 12) {
+                waktu = 'Pagi';
+            } else if (now.getHours() < 18) {
+                waktu = 'Sore';
+            } else {
+                waktu = 'Malam';
+            }
+
+            $('#clock').text(hours + ':' + minutes + ':' + seconds + ' ' + waktu);
+            setTimeout(displayClock, 1000);
+        }
     </script>
 </body>
 

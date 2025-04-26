@@ -35,6 +35,7 @@ class RekapController extends Controller
         $agent = new Agent();
 
         $data = [
+            'id' => $id,
             'agent' => $agent,
         ];
 
@@ -280,7 +281,9 @@ class RekapController extends Controller
 
     function showDetail($user,$id)
     {
-        $show = absensi::where('id',$id)->where('pegawai_id',$user)->first();
+        $show = absensi::where('id',$id)
+                        // ->where('pegawai_id',$user)
+                        ->first();
 
         $data = [
             'show' => $show,

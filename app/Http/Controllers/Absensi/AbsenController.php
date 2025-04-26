@@ -407,7 +407,7 @@ class AbsenController extends Controller
         $data->lokasi_in = $request->lokasi;
         $data->lokasi_out = null;
         $data->terlambat = null;
-        $data->keterangan = null;
+        $data->keterangan = $request->keterangan;
         $data->lewat_hari = $request->lewat_hari;
         $data->save();
 

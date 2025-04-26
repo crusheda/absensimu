@@ -52,8 +52,8 @@
 
     <div class="card card-style mt-0 mb-4">
         <div class="content m-0 mb-n3 text-center">
-            <h5 class="font-900 text-center p-1 mt-2 mb-n2">Filter Data</h5>
-            <div class="input-style input-style-always-active has-borders no-icon p-3">
+            <h5 class="font-900 text-center p-1 mt-2 mb-n2"><i class="fas fa-filter me-1 color-highlight"></i> Filter Data</h5>
+            <div class="input-style input-style-always-active has-borders no-icon p-3" style="margin-bottom: 0px">
                 <select id="filter_select" class="border-1" onchange="filter()">
                     {{-- <option value="1" disabled="" selected="">Select Time Frame</option> --}}
                     {{-- <option value="2" selected="">1 Bulan Absensi</option> --}}
@@ -68,6 +68,7 @@
                 </select>
                 <span><i class="fa fa-chevron-down mt-2 me-3"></i></span>
             </div>
+            {{-- <p>asdassdas</p> --}}
         </div>
     </div>
 
@@ -105,6 +106,7 @@
 
     <div class="card card-style mt-0">
         <div class="content mb-0 mt-0">
+            <h5 class="font-14 font-700 p-1 mt-2 mb-n2"><i class="fas fa-sort-amount-down me-1 color-highlight"></i> Data diurutkan dari absensi terakhir</h5>
             <div class="list-group list-custom-large" id="list-absensi"></div>
         </div>
     </div>
@@ -213,41 +215,43 @@
                 $("#tepatWaktu").empty().text(res.tepatWaktu+'x');
                 $("#terlambat").empty().text(res.terlambat+'x');
                 $("#absenOne").empty().text(res.absenOne+'x');
-                res.show.forEach(item => {
-                    content = ``;
-                    var updet = new Date(item.updated_at).toLocaleDateString("sv-SE");
-                    var date = new Date().toLocaleDateString("sv-SE");
-                    // JENIS
-                    if (item.jenis == 1) {
-                        if (item.tgl_out != null) {
-                            if (item.terlambat == 1) {
-                                ico = 'fas fa-times bg-red-dark';
-                                jenis = 'Shift <b class="color-highlight">'+item.nm_shift+'</b> (<b class="color-red-dark">Terlambat</b>)';
+                if (res.show) {
+                    res.show.forEach(item => {
+                        content = ``;
+                        // JENIS
+                        if (item.jenis == 1) {
+                            if (item.tgl_out != null) {
+                                if (item.terlambat == 1) {
+                                    ico = 'fas fa-times bg-red-dark';
+                                    jenis = 'Shift <b class="color-highlight">'+item.nm_shift+'</b> (<b class="color-red-dark">Terlambat</b>)';
+                                } else {
+                                    ico = 'fas fa-check bg-mint-dark';
+                                    jenis = 'Shift <b class="color-highlight">'+item.nm_shift+'</b> (<b class="color-mint-dark">Tepat Waktu</b>)';
+                                }
                             } else {
-                                ico = 'fas fa-check bg-mint-dark';
-                                jenis = 'Shift <b class="color-highlight">'+item.nm_shift+'</b> (<b class="color-mint-dark">Tepat Waktu</b>)';
+                                ico = 'fas fa-question bg-pink-dark';
+                                jenis = 'Shift <b class="color-highlight">'+item.nm_shift+'</b> (<b class="color-yellow-dark">Absen 1x</b>)';
                             }
                         } else {
-                            ico = 'fas fa-question bg-pink-dark';
-                            jenis = 'Shift <b class="color-highlight">'+item.nm_shift+'</b> (<b class="color-yellow-dark">Absen 1x</b>)';
+                            if (item.jenis == 3) {
+                                ico = 'fas fa-stethoscope bg-yellow-dark';
+                                jenis = 'Ijin/Tidak Masuk';
+                            } else {
+                                ico = 'fas fa-phone-volume bg-blue-dark';
+                                jenis = 'Jaga OnCall';
+                            }
                         }
-                    } else {
-                        if (item.jenis == 3) {
-                            ico = 'fas fa-stethoscope bg-yellow-dark';
-                            jenis = 'Ijin/Tidak Masuk';
-                        } else {
-                            ico = 'fas fa-phone-volume bg-blue-dark';
-                            jenis = 'Jaga OnCall';
-                        }
-                    }
-                    content += `<a class="external-link" href="/rekap/${item.id}">
-                                    <i class="${ico} rounded-sm"></i>
-                                    <span>${jenis}</span>
-                                    <strong class="font-12">${item.tgl_in}</strong>
-                                    <i class="fas fa-chevron-right"></i>
-                                </a>`;
-                    $('#list-absensi').append(content);
-                })
+                        content += `<a class="external-link" href="/rekap/${item.id}">
+                                        <i class="${ico} rounded-sm"></i>
+                                        <span>${jenis}</span>
+                                        <strong class="font-12">${item.tgl_in}</strong>
+                                        <i class="fas fa-chevron-right"></i>
+                                    </a>`;
+                        $('#list-absensi').append(content);
+                    })
+                } else {
+                    $('#list-absensi').append(`<center><i style="font-size: 12px" class="fas fa-calendar-times align-middle me-1 color-red-dark"></i> Data Absensi Tidak Ditemukan</center>`);
+                }
             }
         })
     }

@@ -146,10 +146,17 @@
             </div>
             <center>
                 <button type="button" class="btn btn-warning text-white text-uppercase font-900 btn-m btn-full rounded-sm shadow-xl" style="width:100%" onclick="showIjin()" id="btn-ijin" disabled hidden><i class="fas fa-stethoscope me-1"></i> Pengajuan Ijin</button>
-                <div class="btn-group" style="width:100%" id="prosesijin" hidden>
-                    <button type="button" class="btn btn-dark text-uppercase font-900 btn-m btn-full rounded-sm shadow-xl" onclick="batalProsesIjin()" id="btn-batal-proses-ijin"><i class="fa fa-times me-1"></i> Batal</button>
-                    <a href="#" class="icon icon-m rounded-s opacity-40 color-theme ms-2 me-2 mt-2"><i class="fa fa-minus"></i></a>
-                    <button type="button" class="btn btn-info text-white text-uppercase font-900 btn-m btn-full rounded-sm shadow-xl" onclick="prosesIjin()" id="btn-proses-ijin">Kirim Surat Ijin <i class="fas fa-paper-plane ms-1"></i></button>
+                <div id="prosesijin" hidden>
+                    <div class="input-style has-borders no-icon mt-1 mb-4">
+                        <textarea id="ket_ijin" placeholder="Tuliskan Keterangan Ijin"></textarea>
+                        <label for="ket_ijin" class="color-highlight">Keterangan Ijin</label>
+                        <em class="mt-n3">(Wajib)</em>
+                    </div>
+                    <div class="btn-group" style="width:100%">
+                        <button type="button" class="btn btn-dark text-uppercase font-900 btn-m btn-full rounded-sm shadow-xl" onclick="batalProsesIjin()" id="btn-batal-proses-ijin"><i class="fa fa-times me-1"></i> Batal</button>
+                        <a href="#" class="icon icon-m rounded-s opacity-40 color-theme ms-2 me-2 mt-2"><i class="fa fa-minus"></i></a>
+                        <button type="button" class="btn btn-info text-white text-uppercase font-900 btn-m btn-full rounded-sm shadow-xl" onclick="prosesIjin()" id="btn-proses-ijin">Kirim Surat Ijin <i class="fas fa-paper-plane ms-1"></i></button>
+                    </div>
                 </div>
             </center>
         </div>
@@ -228,7 +235,7 @@
     var map;
     let isMobile = /iPhone|iPad|iPod|Android/i.test(navigator.userAgent);
     let facing = isMobile ? 'user' : 'environment'; // default: kamera depan di HP, belakang di desktop
-    var setcam = 1;
+    // var setcam = 1;
     $(document).ready(function() {
         Webcam.set({
             // width: window.innerWidth,
@@ -1102,9 +1109,10 @@
         $("#btn-ijin").prop('hidden',true);
         $("#prosesijin").prop('hidden',false);
         // $("#btn-gps").prop('hidden',true);
+        $('#ket_ijin').val('');
         Swal.fire({
             title: `Pesan Lanjutan!`,
-            html: 'Silakan foto surat ijin dokter lalu tekan tombol <b class="text-info"><u>KIRIM</u></b>',
+            html: 'Silakan foto surat ijin lalu tekan tombol <b class="text-info"><u>KIRIM</u></b>',
             icon: `warning`,
             showConfirmButton: false,
             showCancelButton: false,
@@ -1125,56 +1133,72 @@
             dataType: 'json',
             success: function(res) {
                 if (res.code == 200) { // JIKA SYARAT ABSEN TERPENUHI
-                    // INIT
-                    Webcam.snap( function(data_uri) {
-                        $("#image-capture").val(data_uri);
-                    } );
-                    var save = new FormData();
-                    save.append('image',$("#image-capture").val());
-                    save.append('lokasi',$("#lokasi").val());
-                    save.append('lewat_hari',res.lewat_hari);
-                    save.append('kd_shift',res.kd_shift);
-                    save.append('nm_shift',res.nm_shift);
-                    save.append('berangkat',res.berangkat);
-                    save.append('pulang',res.pulang);
-                    save.append('pegawai',"{{ Auth::user()->id }}");
-                    // SAVING DATA
-                    $.ajax({
-                        headers: {
-                            'X-CSRF-TOKEN': $('meta[name="csrf-token"]').attr('content')
-                        },
-                        url: "{{route('kepegawaian.absensi.executeIjin')}}",
-                        method: 'POST',
-                        data: save,
-                        cache: false,
-                        contentType: false,
-                        processData: false,
-                        dataType: 'json',
-                        success: function(ex) {
-                            if (ex.code == 200) {
-                                Swal.fire({
-                                    title: `Pesan Berhasil!`,
-                                    text: ex.message,
-                                    icon: `success`,
-                                    showConfirmButton: false,
-                                    showCancelButton: false,
-                                    allowOutsideClick: false,
-                                    allowEscapeKey: false,
-                                    timer: 3000,
-                                    timerProgressBar: true,
-                                    backdrop: `rgba(26,27,41,0.8)`,
-                                });
-                                // $("#webcam").prop('hidden',true);
-                                $("#prosesijin").prop('hidden',true);
-                                $("#btn-ijin").prop('hidden',false);
-                                // map.remove();
-                                // $("#map").prop('hidden',false);
-                                refreshMap(); // PESAN BERHASIL KIRIM MASIH TERTUMPUK DENGAN PESAN JARAK MAP (refreshMap)
-                                startFrontCamera();
-                                // $("#btn-gps").prop('hidden',false);
+                    if ($('#ket_ijin').val().trim() != '') {
+                        // INIT
+                        Webcam.snap( function(data_uri) {
+                            $("#image-capture").val(data_uri);
+                        } );
+                        var save = new FormData();
+                        save.append('image',$("#image-capture").val());
+                        save.append('lokasi',$("#lokasi").val());
+                        save.append('lewat_hari',res.lewat_hari);
+                        save.append('kd_shift',res.kd_shift);
+                        save.append('nm_shift',res.nm_shift);
+                        save.append('berangkat',res.berangkat);
+                        save.append('pulang',res.pulang);
+                        save.append('keterangan',$('#ket_ijin').val());
+                        save.append('pegawai',"{{ Auth::user()->id }}");
+                        // SAVING DATA
+                        $.ajax({
+                            headers: {
+                                'X-CSRF-TOKEN': $('meta[name="csrf-token"]').attr('content')
+                            },
+                            url: "{{route('kepegawaian.absensi.executeIjin')}}",
+                            method: 'POST',
+                            data: save,
+                            cache: false,
+                            contentType: false,
+                            processData: false,
+                            dataType: 'json',
+                            success: function(ex) {
+                                if (ex.code == 200) {
+                                    Swal.fire({
+                                        title: `Pesan Berhasil!`,
+                                        text: ex.message,
+                                        icon: `success`,
+                                        showConfirmButton: false,
+                                        showCancelButton: false,
+                                        allowOutsideClick: false,
+                                        allowEscapeKey: false,
+                                        timer: 3000,
+                                        timerProgressBar: true,
+                                        backdrop: `rgba(26,27,41,0.8)`,
+                                    });
+                                    // $("#webcam").prop('hidden',true);
+                                    $("#prosesijin").prop('hidden',true);
+                                    $("#btn-ijin").prop('hidden',false);
+                                    // map.remove();
+                                    // $("#map").prop('hidden',false);
+                                    refreshMap(); // PESAN BERHASIL KIRIM MASIH TERTUMPUK DENGAN PESAN JARAK MAP (refreshMap)
+                                    startFrontCamera();
+                                    // $("#btn-gps").prop('hidden',false);
+                                }
                             }
-                        }
-                    })
+                        })
+                    } else {
+                        Swal.fire({
+                            title: `Pesan Error`,
+                            text: 'Silakan masukkan keterangan ijin pada input yang sudah disediakan',
+                            icon: `warning`,
+                            showConfirmButton: false,
+                            showCancelButton: false,
+                            allowOutsideClick: false,
+                            allowEscapeKey: false,
+                            timer: 3000,
+                            timerProgressBar: true,
+                            backdrop: `rgba(26,27,41,0.8)`,
+                        });
+                    }
                 } else { // JIKA SYARAT ABSEN TIDAK TERPENUHI
                     Swal.fire({
                         title: `Pesan Error`,
@@ -1262,13 +1286,6 @@
 
     function startFrontCamera() {
         Webcam.reset('#webcam');
-        var flip = false;
-        if (setcam == 1) {
-            flip = true;
-            setcam = 2;
-        } else {
-            setcam = 1;
-        }
         Webcam.set({
             // width: window.innerWidth,
             // height: window.innerHeight,
@@ -1276,7 +1293,26 @@
             height: 480,
             image_format: 'jpeg',
             jpeg_quality: 90,
-            flip_horiz: flip,
+            flip_horiz: false,
+            constraints: {
+                facingMode: facing,
+                width: { ideal: 640 },
+                height: { ideal: 480 }
+            }
+        });
+        Webcam.attach('#webcam');
+    }
+
+    function startFrontCameraFlip() {
+        Webcam.reset('#webcam');
+        Webcam.set({
+            // width: window.innerWidth,
+            // height: window.innerHeight,
+            width: 640,
+            height: 480,
+            image_format: 'jpeg',
+            jpeg_quality: 90,
+            flip_horiz: true,
             constraints: {
                 facingMode: facing,
                 width: { ideal: 640 },

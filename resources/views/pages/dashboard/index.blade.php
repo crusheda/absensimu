@@ -42,7 +42,7 @@
     </div>
 
     <div class="content">
-        <h6 class="mt-n2 mb-3 text-muted px-2"><i class="fas fa-history me-1 color-highlight"></i> Bulan {{ \Carbon\Carbon::now()->translatedFormat('M y') }}</h6>
+        <h6 class="mt-n2 mb-3 color-dark-dark px-2"><i class="fas fa-history me-1 color-highlight"></i> Bulan {{ \Carbon\Carbon::now()->translatedFormat('M y') }} (Bulan Ini)</h6>
         <div class="d-flex text-center px-2">
             <div class="me-auto">
                 <a href="#" data-menu="menu-add-funds" class="icon icon-xxl bg-theme color-blue-dark shadow-l rounded-m">
@@ -95,7 +95,7 @@
         </div>
     </div>
 
-    <div class="card card-style">
+    <div class="card card-style mb-3">
         <div class="content mb-0 mt-2 pt-1">
             <div class="d-flex pb-2 mb-1">
                 <div class="align-self-center">
@@ -107,59 +107,39 @@
                         <i class="fa fa-arrow-right font-10 ps-2"></i></a>
                 </div>
             </div>
-            {{-- <a href="#" data-menu="menu-transaction-1" class="d-flex mb-3">
+        </div>
+    </div>
+
+    <div class="card card-style">
+        <div class="content mb-0 mt-2 pt-1">
+            <div class="d-flex pb-2 mb-1">
                 <div class="align-self-center">
-                    <img src="new/images/pictures/faces/4s.png" width="40" class="rounded-xl me-3">
+                    <h4 class="font-700 text-uppercase font-12 color-mint-dark opacity-70 mb-0">Tata Cara Absensi</h4>
                 </div>
-                <div class="align-self-center">
-                    <h1 class="mb-n2 font-16">John Doe</h1>
-                    <p class="font-11 opacity-60">Payment Sent</p>
+                <div class="align-self-center ms-auto">
+                    <a href="#" data-menu="menu-unavailable" class="border-0 font-11 opacity-30 color-theme font-800 text-center d-block">Lihat Selengkapnya
+                        <i class="fa fa-arrow-right font-10 ps-2"></i></a>
                 </div>
-                <div class="align-self-center ms-auto text-end">
-                    <h2 class="mb-n1 font-18 color-red-dark">$530.24</h2>
-                    <p class="font-12 opacity-50">15th July 2025</p>
-                </div>
-            </a>
-            <a href="#" data-menu="menu-transaction-2" class="d-flex mb-3">
-                <div class="align-self-center">
-                    <img src="new/images/pictures/faces/4s.png" width="40" class="rounded-xl me-3">
-                </div>
-                <div class="align-self-center">
-                    <h1 class="mb-n2 font-16">Sans Dude</h1>
-                    <p class="font-11 opacity-60">Payment Received</p>
-                </div>
-                <div class="align-self-center ms-auto text-end">
-                    <h2 class="mb-n1 font-18 color-green-dark">$30.15</h2>
-                    <p class="font-12 opacity-50">15th July 2025</p>
-                </div>
-            </a>
-            <a href="#" data-menu="menu-transaction-3" class="d-flex mb-3">
-                <div class="align-self-center">
-                    <img src="new/images/pictures/faces/4s.png" width="40" class="rounded-xl me-3">
-                </div>
-                <div class="align-self-center">
-                    <h1 class="mb-n2 font-16">Harry Gray</h1>
-                    <p class="font-11 opacity-60">Payment Request</p>
-                </div>
-                <div class="align-self-center ms-auto text-end">
-                    <h2 class="mb-n1 font-18 color-blue-dark">$140.21</h2>
-                    <p class="font-12 opacity-50">15th July 2025</p>
-                </div>
-            </a> --}}
+            </div>
         </div>
     </div>
 
 </div>
 <!-- End of Page Content-->
+<div id="menu-unavailable" class="menu menu-box-bottom menu-box-detached rounded-m" data-menu-height="230" style="display: block; height: 230px;">
+    <div class="menu-title">
+        <h1>Oops!</h1>
+        <a href="#" class="close-menu mt-4"><i class="fa fa-times font-16"></i></a>
+    </div>
+    <div class="divider divider-margins mt-3"></div>
+    <div class="content mt-n2 mb-n4">
+        <p class="mb-3 font-500">
+            Fitur ini masih dalam tahap pengembangan. Mohon tunggu update selanjutnya. Terima Kasih. 😊
+        </p>
+        <a href="#" class="close-menu btn btn-m text-uppercase font-700 btn-full bg-dark-dark rounded-sm mt-4 mb-4">Tutup</a>
+    </div>
+</div>
 
 @include('inc.setting');
 
-<script>
-    window.onload = displayClock();
-    function displayClock() {
-        var display = new Date().toLocaleTimeString();
-        $('#clock').text(display);
-        setTimeout(displayClock, 1000);
-    }
-</script>
 @endsection
