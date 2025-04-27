@@ -27,11 +27,15 @@
             <p class="color-white opacity-80 font-15">{{ $list['shift']==null?'Hubungi Admin Jadwal':$list['shift'] }}</p>
         </div>
         <div class="card-top mt-4 mx-3">
-            <img src="https://simrsmu.com/storage/{{ str_replace('public/', '', $list['foto_profil']->filename) }}" class="float-start border border-white bg-yellow-light rounded-circle me-n3" width="35" height="35">
+            @if ($list['foto_profil'])
+                <img src="https://simrsmu.com/storage/{{ str_replace('public/', '', $list['foto_profil']->filename) }}" class="float-start border border-white bg-yellow-light rounded-circle me-n3" width="35" height="35">
+            @else
+                <img src="images/user.png" class="float-start border border-white bg-yellow-light rounded-circle me-n3" width="35" height="35">
+            @endif
             {{-- <img src="new/images/avatars/2s.png" class="float-start border border-white bg-blue-dark rounded-circle me-n3" width="35">
             <img src="new/images/avatars/4s.png" class="float-start border border-white bg-mint-dark rounded-circle me-n3" width="35">
             <img src="new/images/avatars/5s.png" class="float-start border border-white bg-highlight rounded-circle me-n3" width="35"> --}}
-            <span href="#" class="float-start color-white pt-1 ps-4 font-12 font-500 mt-n2">Status Pegawai<p class="mt-n1 mb-0 color-white">{{ $list['statuspgw']->nama_status?$list['statuspgw']->nama_status:'-' }}</p></span>
+            <span href="#" class="float-start color-white pt-1 ps-4 font-12 font-500 mt-n2">Status Pegawai<p class="mt-n1 mb-0 color-white">{{ $list['statuspgw']?$list['statuspgw']->nama_status:'-' }}</p></span>
         </div>
         <div class="card-top">
             <strong class="float-end text-center">
