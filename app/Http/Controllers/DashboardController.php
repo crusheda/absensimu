@@ -6,6 +6,8 @@ use App\Http\Controllers\Controller;
 use Illuminate\Http\Request;
 use App\Models\profil_rs;
 use App\Models\users;
+use App\Models\users_foto;
+use App\Models\users_status;
 use App\Models\absensi;
 use App\Models\jadwal;
 use App\Models\jadwal_detail;
@@ -25,6 +27,15 @@ class DashboardController extends Controller
         $year = $now->isoFormat('YYYY');
         $tgl = $now->isoFormat('D');
         $hit = "tgl".$tgl;
+        $foto_profil = users_foto::where('user_id',Auth::user()->id)->whereNull('deleted_at')->first();
+        $statuspgw = users_status::join('referensi','referensi.id','=','users_status.ref_id')
+                                ->select('referensi.deskripsi AS nama_status')
+                                ->where('users_status.pegawai_id',Auth::user()->id)
+                                ->where('users_status.status',1)
+                                ->whereNull('users_status.deleted_at')
+                                ->where('referensi.status',1)
+                                ->whereNull('referensi.deleted_at')
+                                ->first();
         $hadir = DB::table('kepegawaian_absensi')
                         ->where('pegawai_id',Auth::user()->id)
                         ->where('jenis',1)
@@ -104,14 +115,57 @@ class DashboardController extends Controller
 
         $data = [
             'agent' => $agent,
+            'foto_profil' => $foto_profil,
+            'statuspgw' => $statuspgw,
             'hadir' => $hadir,
             'absenOne' => $absenOne,
             'terlambat' => $terlambat,
             'ijin' => $ijin,
             'nama_shift' => $nama_shift,
             'shift' => $shift,
+            'tgl' => $tgl,
+            'bulan' => $now->isoFormat('MMM'),
         ];
 
         return view('pages.dashboard.index')->with('list',$data);
+    }
+
+    // API
+    function show($user)
+    {
+        $now = Carbon::now();
+        $bln = $now->isoFormat('MM');
+        $thn = $now->isoFormat('YYYY');
+        $nama_bulan = $now->isoFormat('MMMM');
+        $staf = ref_users::whereJsonContains('staf', $user)->select('pegawai_id')->first();
+
+        $show = jadwal::join('users as pegawai', 'pegawai.id', '=', 'kepegawaian_jadwal.pegawai_id') // Join untuk pegawai_id
+                        ->leftJoin('users_foto as foto_user', 'foto_user.user_id', '=', 'pegawai.id') // Join untuk foto atasan
+                        ->join('users as verif_user', 'verif_user.id', '=', 'kepegawaian_jadwal.verif') // Join untuk verif
+                        ->join('users as valid_user', 'valid_user.id', '=', 'kepegawaian_jadwal.valid') // Join untuk valid
+                        ->join('referensi_jadwal_users', 'referensi_jadwal_users.pegawai_id', '=', 'kepegawaian_jadwal.pegawai_id')
+                        ->select(
+                            'kepegawaian_jadwal.*',
+                            'foto_user.filename as foto_pegawai',
+                            'referensi_jadwal_users.unit',
+                            'pegawai.nama as nama_pegawai', // Nama dari pegawai_id
+                            'verif_user.nama as nama_verif', // Nama dari verif
+                            'valid_user.nama as nama_valid' // Nama dari valid
+                        )
+                        ->whereNull('foto_user.deleted_at')
+                        ->where('kepegawaian_jadwal.bulan', $bln)
+                        ->where('kepegawaian_jadwal.tahun', $thn)
+                        ->where('kepegawaian_jadwal.pegawai_id', $staf->pegawai_id)
+                        ->whereNull('kepegawaian_jadwal.deleted_at')
+                        ->orderBy('kepegawaian_jadwal.updated_at', 'DESC')
+                        ->first();
+
+        $data = [
+            'bulan' => $nama_bulan,
+            'tahun' => $thn,
+            'show' => $show,
+        ];
+
+        return response()->json($data, 200);
     }
 }

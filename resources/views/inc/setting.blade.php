@@ -25,6 +25,13 @@
                 <span class="badge bg-highlight color-white">Baru</span>
                 <i class="fa fa-angle-right"></i>
             </a> --}}
+            <a href="{{ route('jadwal.index') }}">
+                <i class="fa font-14 fa-calendar-alt bg-mint-dark rounded-s"></i>
+                <span>Jadwal Dinas</span>
+                <strong>Lihat Seluruh Jadwal Dinas Anda</strong>
+                <span class="badge bg-highlight color-white">Baru</span>
+                <i class="fa fa-angle-right"></i>
+            </a>
             <a data-menu="menu-backgrounds" href="#">
                 <i class="fa font-14 fa-cog bg-blue-dark rounded-s"></i>
                 <span>Warna Latar Belakang</span>

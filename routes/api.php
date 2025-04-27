@@ -18,6 +18,8 @@ Route::middleware('auth:sanctum')->get('/user', function (Request $request) {
     return $request->user();
 });
 
+Route::get('kepegawaian/dashboard/{user}', [\App\Http\Controllers\DashboardController::class, 'show'])->name('kepegawaian.dashboard.show');
+
 Route::post('kepegawaian/absensi/init', [\App\Http\Controllers\Absensi\AbsenController::class, 'init'])->name('kepegawaian.absensi.init');
 Route::post('kepegawaian/absensi/distance', [\App\Http\Controllers\Absensi\AbsenController::class, 'getDistance'])->name('kepegawaian.absensi.getDistance');
 Route::get('kepegawaian/absensi/validate/jadwal/{user}/pulang', [\App\Http\Controllers\Absensi\AbsenController::class, 'validatePulang'])->name('kepegawaian.absensi.validatePulang');
@@ -34,6 +36,8 @@ Route::get('kepegawaian/rekap/{user}/2', [\App\Http\Controllers\Rekap\RekapContr
 Route::get('kepegawaian/rekap/{user}/3', [\App\Http\Controllers\Rekap\RekapController::class, 'listMonth1'])->name('kepegawaian.rekap.month1');
 Route::get('kepegawaian/rekap/{user}/4', [\App\Http\Controllers\Rekap\RekapController::class, 'listMonth2'])->name('kepegawaian.rekap.month2');
 Route::get('kepegawaian/rekap/{user}/detail/{id}', [\App\Http\Controllers\Rekap\RekapController::class, 'showDetail'])->name('kepegawaian.rekap.detail');
+
+Route::get('kepegawaian/jadwal/{user}/{bln}/{thn}', [\App\Http\Controllers\Jadwal\JadwalController::class, 'show'])->name('kepegawaian.jadwal.show');
 
 Route::get('kepegawaian/riwayat/{user}', [\App\Http\Controllers\Riwayat\RiwayatController::class, 'initRiwayat'])->name('kepegawaian.riwayat.initRiwayat');
 Route::get('kepegawaian/riwayat/{user}/{id}', [\App\Http\Controllers\Riwayat\RiwayatController::class, 'showRiwayat'])->name('kepegawaian.riwayat.showRiwayat');

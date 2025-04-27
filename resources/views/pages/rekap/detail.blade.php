@@ -89,6 +89,9 @@
     </div>
 
 </div>
+
+@include('inc.setting');
+
 <script>
     var map_in;
     var map_out;

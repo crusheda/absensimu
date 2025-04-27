@@ -2,7 +2,11 @@
     @if (request()->routeIs('rekap.index') || request()->routeIs('rekap.detail'))
         <a href="#" class="header-title font-900">Rekap Absensi</a>
     @else
-        <a href="#" id="clock" class="header-title font-18 font-900"></a>
+        @if (request()->routeIs('absensi.index'))
+            <a href="#" id="clock" class="header-title font-18 font-900"></a>
+        @else
+            <a href="#" class="header-title font-900">Jadwal Pegawai</a>
+        @endif
     @endif
     <a href="#" data-back-button class="header-icon header-icon-1" style="padding-top: 20px"><i class="fas fa-arrow-left"></i></a>
     @if (request()->routeIs('absensi.index'))

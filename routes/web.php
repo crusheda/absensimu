@@ -27,6 +27,7 @@ Route::group(['middleware' => ['auth']], function () {
     Route::get('/absensi', [App\Http\Controllers\Absensi\AbsenController::class, 'index'])->name('absensi.index');
     Route::get('/rekap', [App\Http\Controllers\Rekap\RekapController::class, 'index'])->name('rekap.index');
     Route::get('/rekap/{id}', [App\Http\Controllers\Rekap\RekapController::class, 'detail'])->name('rekap.detail');
+    Route::get('/jadwal', [App\Http\Controllers\Jadwal\JadwalController::class, 'index'])->name('jadwal.index');
     // Route::get('/riwayat', [App\Http\Controllers\Riwayat\RiwayatController::class, 'index'])->name('riwayat.index');
 
     // Route::get('/test', function () {

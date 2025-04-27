@@ -6,7 +6,6 @@
 
 @include('inc.footerbar')
 
-
 <div class="page-content header-clear-medium pb-5">
 
     <div class="content mb-2 mt-0">

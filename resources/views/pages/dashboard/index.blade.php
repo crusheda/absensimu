@@ -14,7 +14,7 @@
             </div>
             <div class="align-self-center ms-auto">
                 <a href="#" data-menu="menu-settings" class="icon icon-m color-white rounded-m shadow-l rounded-m ms-2">
-                    <img src="{{ asset('images/logo/logo_clear_100kb.png') }}" width="40" alt="">
+                    <img src="{{ asset('images/logo/logo_clear_100kb.png') }}" width="40" class="shadow-xl rounded-circle">
                 </a>
             </div>
         </div>
@@ -26,9 +26,24 @@
             <h1 class="color-white font-25">Jadwal Hari Ini<br>{!! $list['shift']==null?'<b class="color-red-dark">Tidak Ditemukan</b>':'<b class="color-highlight">'.$list['nama_shift'].'</b>' !!}</h1>
             <p class="color-white opacity-80 font-15">{{ $list['shift']==null?'Hubungi Admin Jadwal':$list['shift'] }}</p>
         </div>
-        <div class="card-top p-3">
-            {{-- <span class="badge bg-blue-dark color-white p-2 float-end">s</span> --}}
+        <div class="card-top mt-4 mx-3">
+            <img src="https://simrsmu.com/storage/{{ str_replace('public/', '', $list['foto_profil']->filename) }}" class="float-start border border-white bg-yellow-light rounded-circle me-n3" width="35" height="35">
+            {{-- <img src="new/images/avatars/2s.png" class="float-start border border-white bg-blue-dark rounded-circle me-n3" width="35">
+            <img src="new/images/avatars/4s.png" class="float-start border border-white bg-mint-dark rounded-circle me-n3" width="35">
+            <img src="new/images/avatars/5s.png" class="float-start border border-white bg-highlight rounded-circle me-n3" width="35"> --}}
+            <span href="#" class="float-start color-white pt-1 ps-4 font-12 font-500 mt-n2">Status Pegawai<p class="mt-n1 mb-0 color-white">{{ $list['statuspgw']->nama_status?$list['statuspgw']->nama_status:'-' }}</p></span>
         </div>
+        <div class="card-top">
+            <strong class="float-end text-center">
+                <div class="bg-theme rounded-sm color-theme shadow-xl text-center m-3 overflow-hidden">
+                    <span class="bg-red-dark font-12 d-block mb-2 px-3 line-height-xs py-1 text-uppercase">{{ $list['bulan'] }}</span>
+                    <span class="font-23 font-800 d-block mb-n3 line-height-s">{{ $list['tgl'] }}</span><br>
+                </div>
+            </strong>
+        </div>
+        {{-- <div class="card-top p-3">
+            <span class="badge bg-blue-dark color-white p-2 float-end">s</span>
+        </div> --}}
         <div class="card-bottom m-3">
             <h5 class="color-white float-start">{{ \Carbon\Carbon::now()->isoFormat('dddd, D MMMM Y') }}</h5>
             <h5 class="color-white float-end"><a id="clock"></a></h5>
@@ -41,7 +56,7 @@
         <div class="card-overlay bg-black opacity-80"></div>
     </div>
 
-    <div class="content">
+    <div class="content mb-3">
         <h6 class="mt-n2 mb-3 color-dark-dark px-2"><i class="fas fa-history me-1 color-highlight"></i> Bulan {{ \Carbon\Carbon::now()->translatedFormat('M y') }} (Bulan Ini)</h6>
         <div class="d-flex text-center px-2">
             <div class="me-auto">
@@ -95,6 +110,10 @@
         </div>
     </div>
 
+    <div class="divider-icon divider-margins bg-secondary mb-4"><i class="fa font-17 color-dark-dark fa-calendar-alt"></i></div>
+
+    <div id="btn-jadwal"></div>
+
     <div class="card card-style mb-3">
         <div class="content mb-0 mt-2 pt-1">
             <div class="d-flex pb-2 mb-1">
@@ -141,5 +160,44 @@
 </div>
 
 @include('inc.setting');
+
+<script>
+    $(document).ready(function() {
+        cardJadwal();
+    })
+
+    function cardJadwal() {
+        user = "{{ Auth::user()->id }}";
+        $.ajax({
+            url: "/api/kepegawaian/dashboard/"+user,
+            type: 'GET',
+            dataType: 'json',
+            success: function(res) {
+                if (res.show) {
+                    $('#btn-jadwal').empty().append(`<div class="card card-style mb-3">
+                                                <div class="content m-3">
+                                                    <div class="d-flex">
+                                                        <div class="align-self-center">
+                                                            <img src="${res.show.foto_pegawai?'https://simrsmu.com/storage/'+res.show.foto_pegawai.replace('public/', ''):'images/user.png'}" width="60" height="60">
+                                                        </div>
+                                                        <div class="align-self-center ps-3">
+                                                            <h5 class="mb-n1">Jadwal <b class="color-red-dark">${res.bulan} ${res.tahun}</b></h5>
+                                                            <p class="mb-1 font-10">Ditambahkan Oleh <b>${res.show.nama_pegawai}</b> (<b class="color-highlight">Admin Jadwal</b>)</p>
+                                                            ${res.show.nama_verif?'<p class="mt-n3 mb-1 font-10">Diverifikasi Oleh <b>'+res.show.nama_verif+'</b>':''}
+                                                            ${res.show.nama_valid?'<p class="mt-n3 mb-0 font-10">Divalidasi Oleh <b>'+res.show.nama_valid+'</b>':''}
+                                                        </div>
+                                                        <div class="align-self-center ms-auto ps-3">
+                                                            <a href="{{ route('jadwal.index') }}" class="btn btn-xs rounded-s bg-highlight font-800 text-uppercase"><i class="fa fa-calendar-check me-1"></i> Lihat</a>
+                                                        </div>
+                                                    </div>
+                                                </div>
+                                            </div>`);
+                } else {
+
+                }
+            }
+        });
+    }
+</script>
 
 @endsection
