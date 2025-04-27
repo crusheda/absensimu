@@ -182,9 +182,9 @@
                                                         </div>
                                                         <div class="align-self-center ps-3">
                                                             <h5 class="mb-n1">Jadwal <b class="color-red-dark">${res.bulan} ${res.tahun}</b></h5>
-                                                            <p class="mb-1 font-10">Ditambahkan Oleh <b>${res.show.nama_pegawai}</b> (<b class="color-highlight">Admin Jadwal</b>)</p>
-                                                            ${res.show.nama_verif?'<p class="mt-n3 mb-1 font-10">Diverifikasi Oleh <b>'+res.show.nama_verif+'</b>':''}
-                                                            ${res.show.nama_valid?'<p class="mt-n3 mb-0 font-10">Divalidasi Oleh <b>'+res.show.nama_valid+'</b>':''}
+                                                            <p class="mb-1 font-10">Diperbarui Oleh :</p>
+                                                            <p class="mt-n3 mb-1 font-10"><b>${res.show.nama_pegawai}</b> (<b class="color-highlight">Admin Jadwal</b>)</p>
+                                                            <p class="mt-n3 mb-1 font-10">${formatDate(res.show.updated_at)}</p>
                                                         </div>
                                                         <div class="align-self-center ms-auto ps-3">
                                                             <a href="{{ route('jadwal.index') }}" class="btn btn-xs rounded-s bg-highlight font-800 text-uppercase"><i class="fa fa-calendar-check me-1"></i> Lihat</a>
@@ -192,11 +192,30 @@
                                                     </div>
                                                 </div>
                                             </div>`);
+                                            // ${res.show.nama_verif?'<p class="mt-n3 mb-1 font-10">Diverifikasi Oleh <b>'+res.show.nama_verif+'</b>':''}
+                                            // ${res.show.nama_valid?'<p class="mt-n3 mb-0 font-10">Divalidasi Oleh <b>'+res.show.nama_valid+'</b>':''}
                 } else {
 
                 }
             }
         });
+    }
+
+    // Fungsi format tanggal
+    function formatDate(dateString) {
+        const options = {
+            weekday: 'long',
+            year: 'numeric',
+            month: 'long',
+            day: 'numeric',
+            hour: '2-digit',
+            minute: '2-digit',
+            // second: '2-digit',
+            timeZoneName: 'short'
+        };
+
+        const date = new Date(dateString); // Mengonversi string ke objek Date
+        return date.toLocaleString('id-ID', options); // Menggunakan locale Indonesia dan opsi format
     }
 </script>
 
