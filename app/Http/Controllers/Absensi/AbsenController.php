@@ -289,7 +289,7 @@ class AbsenController extends Controller
         // JIKA TOLERANSI KETERLAMBATAN = 10 MENIT DIHITUNG DARI JAM MULAI MASUK
         // $toleransi = Carbon::parse('00:10:00')->isoFormat('HH:mm:ss');
 
-        // print_r($request->all());
+        // print_r($request->lokasi);
         // die();
         $img = $request->image;
         if ($img) {

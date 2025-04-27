@@ -68,6 +68,7 @@
 
 <div class="page-content pb-4 mt-5">
 
+    <input type="text" class="form-control" id="lokasi" hidden>
     <div class="card position-fixed w-100 rounded-0" data-card-height="350" style="height: 350px;" id="map"></div>
     <div class="card card-style bg-transparent shadow-0 rounded-0 no-click" data-card-height="250" style="height: 250px;"></div>
 
@@ -401,9 +402,15 @@
                                                     if (res.show == null && res.ijin == null) {
                                                         $("#btn-ijin").prop('disabled',false).removeClass('btn-secondary btn-warning').addClass('btn-warning');
                                                     } else {
-                                                        $("#btn-ijin").prop('disabled',true).removeClass('btn-secondary btn-warning').addClass('btn-secondary');
-                                                        console.log('IJIN SUDAH TERISI UNTUK HARI INI');
-                                                        pesanSukses('Absensi Hari ini telah terisi dengan Ijin. Silakan melakukan Absensi kembali pada hari selanjutnya. Terima Kasih.');
+                                                        if (res.show != null && res.ijin == null) {
+                                                            $("#btn-ijin").prop('disabled',true).removeClass('btn-secondary btn-warning').addClass('btn-secondary');
+                                                            console.log('SUDAH ABSEN MASUK TAPI BELUM ABSEN PULANG');
+                                                            pesanWarning('Absensi Hari ini belum terselesaikan. Silakan kembali ke lokasi Absensi untuk melakukan Absen Pulang pada waktu yang sudah ditentukan.');
+                                                        } else {
+                                                            $("#btn-ijin").prop('disabled',true).removeClass('btn-secondary btn-warning').addClass('btn-secondary');
+                                                            console.log('IJIN SUDAH TERISI UNTUK HARI INI YA');
+                                                            pesanSukses('Absensi Hari ini telah terisi dengan Ijin. Silakan melakukan Absensi kembali pada hari selanjutnya. Terima Kasih.');
+                                                        }
                                                     }
                                                     $("#prosesijin").prop('hidden',true);
                                                     console.log('TITIK LOKASI GPS LEBIH DARI 30 METER');
@@ -616,9 +623,17 @@
                                                     console.log('IJIN BELUM TERISI UNTUK HARI INI DAN HARI INI LIBUR');
                                                     pesanWarning('Jadwal Hari ini adalah LIBUR. Silakan melakukan Absensi kembali pada hari selanjutnya. Terima Kasih.');
                                                 } else {
-                                                    $("#btn-ijin").prop('disabled',true).removeClass('btn-secondary btn-warning').addClass('btn-secondary');
-                                                    console.log('IJIN SUDAH TERISI UNTUK HARI INI');
-                                                    pesanSukses('Absensi Hari ini telah terisi dengan Ijin. Silakan melakukan Absensi kembali pada hari selanjutnya. Terima Kasih.');
+                                                    if (res.show != null && res.ijin == null) {
+                                                        console.log(res.show);
+                                                        console.log(res.ijin);
+                                                        $("#btn-ijin").prop('disabled',true).removeClass('btn-secondary btn-warning').addClass('btn-secondary');
+                                                        console.log('SUDAH ABSEN MASUK TAPI BELUM ABSEN PULANG');
+                                                        pesanWarning('Absensi Hari ini belum terselesaikan. Silakan kembali ke lokasi Absensi untuk melakukan Absen Pulang.');
+                                                    } else {
+                                                        $("#btn-ijin").prop('disabled',true).removeClass('btn-secondary btn-warning').addClass('btn-secondary');
+                                                        console.log('IJIN SUDAH TERISI UNTUK HARI INI 2');
+                                                        pesanSukses('Absensi Hari ini telah terisi dengan Ijin. Silakan melakukan Absensi kembali pada hari selanjutnya. Terima Kasih.');
+                                                    }
                                                 }
                                                 $("#prosesijin").prop('hidden',true);
                                                 console.log('TITIK LOKASI GPS LEBIH DARI 30 METER');
