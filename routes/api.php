@@ -37,6 +37,15 @@ Route::get('kepegawaian/rekap/{user}/3', [\App\Http\Controllers\Rekap\RekapContr
 Route::get('kepegawaian/rekap/{user}/4', [\App\Http\Controllers\Rekap\RekapController::class, 'listMonth2'])->name('kepegawaian.rekap.month2');
 Route::get('kepegawaian/rekap/{user}/detail/{id}', [\App\Http\Controllers\Rekap\RekapController::class, 'showDetail'])->name('kepegawaian.rekap.detail');
 
+// ENDPOINT BUKTI FOTO
+Route::get('/kepegawaian/detail/foto/{filename}', function ($filename) {
+    $path = storage_path('app/' . $filename);
+
+    if (!file_exists($path)) abort(404);
+
+    return response()->file($path);
+});
+
 Route::get('kepegawaian/jadwal/{user}/{bln}/{thn}', [\App\Http\Controllers\Jadwal\JadwalController::class, 'show'])->name('kepegawaian.jadwal.show');
 
 Route::get('kepegawaian/riwayat/{user}', [\App\Http\Controllers\Riwayat\RiwayatController::class, 'initRiwayat'])->name('kepegawaian.riwayat.initRiwayat');
