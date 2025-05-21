@@ -9,6 +9,7 @@
         "felipedamacenoteodoro/laravel-whatsapp-notification-channel": "*",
         "fruitcake/laravel-cors": "^2.0",
         "guzzlehttp/guzzle": "^7.0.1",
+        "intervention/image": "*",
         "jenssegers/agent": "^2.6",
         "laravel/framework": "^8.75",
         "laravel/sanctum": "^2.11",

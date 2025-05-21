@@ -14,6 +14,7 @@ use App\Models\ref_users;
 use Jenssegers\Agent\Agent;
 use Carbon\Carbon;
 use Auth,Validator,Redirect,Response,File,Storage;
+use Intervention\Image\Facades\Image;
 
 class RekapController extends Controller
 {
@@ -44,17 +45,23 @@ class RekapController extends Controller
 
     function showFotoDetail($id, $status)
     {
-        // 0 : pulang;
-        // 1 : berangkat;
-        $push = absensi::where('id',$id)->first();
-        if ($status == 0) {
-            $path = storage_path('app/' . $push->path_out);
-        } else {
-            $path = storage_path('app/' . $push->path_in);
-        }
+        // 0 : pulang; 1 : berangkat
+        $push = absensi::where('id', $id)->firstOrFail();
+
+        $path = storage_path('app/' . ($status == 0 ? $push->path_out : $push->path_in));
+
         if (!file_exists($path)) abort(404);
-        return response()->file($path);
+
+        // Resize gambar ke 500x500 (atau sesuaikan)
+        $image = Image::make($path)->resize(500, 500, function ($constraint) {
+            $constraint->aspectRatio(); // Jaga proporsi
+            $constraint->upsize();      // Hindari memperbesar gambar kecil
+        });
+
+        // Kirim sebagai response gambar
+        return $image->response(); // default JPEG, bisa pakai ->encode('png') dll
     }
+
     // API ARERA -----------------------------------------------------------------------------------------
     function showRekap($user)
     {
