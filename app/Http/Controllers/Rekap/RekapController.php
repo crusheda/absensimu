@@ -42,6 +42,19 @@ class RekapController extends Controller
         return view('pages.rekap.detail')->with('list',$data);
     }
 
+    function showFotoDetail($id, $status)
+    {
+        // 0 : pulang;
+        // 1 : berangkat;
+        $push = absensi::where('id',$id)->first();
+        if ($status == 0) {
+            $path = storage_path('app/' . $push->path_out);
+        } else {
+            $path = storage_path('app/' . $push->path_in);
+        }
+        if (!file_exists($path)) abort(404);
+        return response()->file($push);
+    }
     // API ARERA -----------------------------------------------------------------------------------------
     function showRekap($user)
     {

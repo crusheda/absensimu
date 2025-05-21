@@ -36,6 +36,7 @@ Route::get('kepegawaian/rekap/{user}/2', [\App\Http\Controllers\Rekap\RekapContr
 Route::get('kepegawaian/rekap/{user}/3', [\App\Http\Controllers\Rekap\RekapController::class, 'listMonth1'])->name('kepegawaian.rekap.month1');
 Route::get('kepegawaian/rekap/{user}/4', [\App\Http\Controllers\Rekap\RekapController::class, 'listMonth2'])->name('kepegawaian.rekap.month2');
 Route::get('kepegawaian/rekap/{user}/detail/{id}', [\App\Http\Controllers\Rekap\RekapController::class, 'showDetail'])->name('kepegawaian.rekap.detail');
+Route::get('kepegawaian/detail/foto/{id}/{status}', [\App\Http\Controllers\Rekap\RekapController::class, 'showFotoDetail'])->name('kepegawaian.rekap.detailFoto');
 
 // ENDPOINT BUKTI FOTO
 Route::get('/kepegawaian/detail/foto/{filename}', function ($filename) {
