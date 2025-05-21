@@ -53,7 +53,7 @@ class RekapController extends Controller
             $path = storage_path('app/' . $push->path_in);
         }
         if (!file_exists($path)) abort(404);
-        return response()->file($push);
+        return response()->file($path);
     }
     // API ARERA -----------------------------------------------------------------------------------------
     function showRekap($user)
