@@ -164,7 +164,7 @@
                             </div>
                             <div class="col-6">
                                 <a href="/storage/${res.show.path_out.substring(7,1000)}" class="default-link glightbox" data-gallery="gallery-1" title="Foto Absen Masuk/Berangkat">
-                                    <img src="/storage/${res.show.path_out.substring(7,1000)}" data-src="/storage/${res.show.path_out.substring(7,1000)}" class="preload-img shadow-s img-fluid rounded-s entered loaded" alt="img" data-ll-status="loaded">
+                                    <img src="/storage/${res.show.path_out.substring(7,1000)}" data-src="/storage/${res.show.path_out.substring(7,1000)}" class="preload-img shadow-s img-fluid rounded-s entered loaded" alt="img" data-ll-status="loaded" style="width:100%; aspect-ratio: 2/3; object-fit: cover;">
                                 </a>
                                 <center>Pulang</center>
                             </div>`;
