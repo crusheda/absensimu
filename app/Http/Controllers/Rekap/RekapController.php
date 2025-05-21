@@ -53,10 +53,11 @@ class RekapController extends Controller
         if (!file_exists($path)) abort(404);
 
         // Resize gambar ke 500x500 (atau sesuaikan)
-        $image = Image::make($path)->resize(500, 500, function ($constraint) {
-            $constraint->aspectRatio(); // Jaga proporsi
-            $constraint->upsize();      // Hindari memperbesar gambar kecil
-        });
+        $image = Image::make($path)->resize(500, 600); // PAKSA 500x500
+        // $image = Image::make($path)->resize(500, 500, function ($constraint) {
+        //     $constraint->aspectRatio(); // Jaga proporsi
+        //     $constraint->upsize();      // Hindari memperbesar gambar kecil
+        // });
 
         // Kirim sebagai response gambar
         return $image->response(); // default JPEG, bisa pakai ->encode('png') dll
