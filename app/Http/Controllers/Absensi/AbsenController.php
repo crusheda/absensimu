@@ -133,18 +133,16 @@ class AbsenController extends Controller
 
         // EXECUTE
         $callShift = $jadwal->$hit;
-        // print_r($hit);
-        // print_r($callShift);
-        // die();
+
         // FIND SHIFT
         $shift = ref_shift::where('singkat',$callShift)->where('pegawai_id',$jadwal->id_atasan)->orderBy('updated_at','DESC')->first();
 
         $jam_masuk = Carbon::parse($shift->berangkat)->isoFormat('HH:mm:ss');
         $jam_pulang = Carbon::parse($shift->pulang)->isoFormat('HH:mm:ss');
         if ($jam_pulang > $jam_masuk) {
-            $lewat_hari = 0;
+            $lewat_hari = 0; // TIDAK LEWAT HARI
         } else {
-            $lewat_hari = 1;
+            $lewat_hari = 1; // LEWAT HARI / KHUSUS (MALAM)
         }
         if ($oncall==1) { // JIKA USER BISA ONCALL / MEMPUNYAI PERMISSION = absensi_oncall
             // VALIDATING JAM MASUK
@@ -174,7 +172,7 @@ class AbsenController extends Controller
         } else { // JIKA USER TIDAK ADA PERMISSION = absensi_oncall
             // VALIDATING JAM MASUK
             if ($shift->pulang > $shift->berangkat) { // KECUALI MALAM ATAU LEWAT HARI
-                if ($time >= Carbon::parse($shift->berangkat)->subHour()->isoFormat('HH:mm:ss') && $time <= $shift->pulang) { // DALAM JAM KERJA (MIN 1 JAM SEBELUM JAM MASUK)
+                if ($time >= Carbon::parse($shift->berangkat)->subHour()->isoFormat('HH:mm:ss') && $time <= Carbon::parse($shift->pulang)->isoFormat('HH:mm:ss')) { // DALAM JAM KERJA (MIN 1 JAM SEBELUM JAM MASUK)
                     return Response::json(array(
                         'message' => 'Anda berada di Waktu Masuk Kerja!',
                         'lewat_hari' => $lewat_hari,
@@ -289,8 +287,6 @@ class AbsenController extends Controller
         // JIKA TOLERANSI KETERLAMBATAN = 10 MENIT DIHITUNG DARI JAM MULAI MASUK
         // $toleransi = Carbon::parse('00:10:00')->isoFormat('HH:mm:ss');
 
-        // print_r($request->lokasi);
-        // die();
         $img = $request->image;
         if ($img) {
             $title = uniqid() . '.png';
@@ -322,48 +318,35 @@ class AbsenController extends Controller
                                 ->where('ref_jam_pulang',$request->pulang)
                                 // ->limit(30)
                                 ->first();
-
-            // $tahun = Carbon::now()->isoFormat('YYYY');
-            // $bulan = Carbon::now()->isoFormat('MM');
-            // $tgl = Carbon::now()->isoFormat('D');
-            // $hit = "tgl".$tgl;etail::join('kepegawaian_jadwal','kepegawaian_jadwal_detail.id_jadwal','=','kepegawaian_jadwal.id')
-            //                 ->select('kepegawaian_jadwal_detail.'.$hit,'kepegawaian_jadwal.pegawai_id as atasan','kepegawaian_jadwal.staf as bawahan','kepegawaian_jadwal.progress')
-            //                 ->where('kepegawaian_jadwal_detail.pegawai_id',$request->pegawai)
-            //                 ->where('kepegawaian_jadwal.deleted_at',null)
-            //                 ->where('kepegawaian_jadwal.bulan',$bulan)
-            //                 ->where('kepegawaian_jadwal.tahun',$tahun)
-            //                 ->whereIn('kepegawaian_jadwal.progress',[2,3])
-            //                 ->orderBy('kepegawaian_jadwal_detail.id','DESC')
-            //                 ->first();
-
             if ($validasi) {
-                return Response::json(array(
-                    'message' => 'Absen masuk terdeteksi duplikat dengan sebelumnya, silakan melihat Rekap Data Absensi',
-                    'code' => 400,
-                ));
-            } else {
-                $data = new absensi;
-                $data->jenis = 1;
-                $data->pegawai_id = $request->pegawai;
-                $data->kd_shift = $request->kd_shift;
-                $data->nm_shift = $request->nm_shift;
-                $data->ref_jam_masuk = $request->berangkat;
-                $data->ref_jam_pulang = $request->pulang;
-                $data->keterlambatan = $diff;
-                $data->tgl_in = Carbon::now();
-                $data->foto_in = $title;
-                // $data->title_in = $path;
-                $data->path_in = $path;
-                $data->lokasi_in = $request->lokasi;
-                $data->terlambat = $terlambat;
-                $data->lewat_hari = $request->lewat_hari;
-                $data->save();
-
-                return Response::json(array(
-                    'message' => 'Absen masuk berhasil, selamat beraktifitas',
-                    'code' => 200,
-                ));
+                $validasi->delete();
+                // return Response::json(array(
+                //     'message' => 'Absen masuk terdeteksi duplikat dengan sebelumnya, silakan melihat Rekap Data Absensi',
+                //     'code' => 400,
+                // ));
             }
+
+            $data = new absensi;
+            $data->jenis = 1;
+            $data->pegawai_id = $request->pegawai;
+            $data->kd_shift = $request->kd_shift;
+            $data->nm_shift = $request->nm_shift;
+            $data->ref_jam_masuk = $request->berangkat;
+            $data->ref_jam_pulang = $request->pulang;
+            $data->keterlambatan = $diff;
+            $data->tgl_in = Carbon::now();
+            $data->foto_in = $title;
+            // $data->title_in = $path;
+            $data->path_in = $path;
+            $data->lokasi_in = $request->lokasi;
+            $data->terlambat = $terlambat;
+            $data->lewat_hari = $request->lewat_hari;
+            $data->save();
+
+            return Response::json(array(
+                'message' => 'Absen masuk berhasil, selamat beraktifitas',
+                'code' => 200,
+            ));
         } else {
             return Response::json(array(
                 'message' => 'Hasil selfi kamera tidak ditemukan, pastikan kamera Anda dalam kondisi Normal. Apabila masih belum dapat melakukan Absensi, silakan menghubungi Admin. Terima Kasih.',

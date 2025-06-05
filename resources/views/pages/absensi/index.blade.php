@@ -267,8 +267,8 @@
             // navigator.geolocation.getCurrentPosition(showPosition);
             var lat,long;// Creating a promise out of the function
             let getLocationPromise = new Promise((resolve, reject) => {
-                if(navigator.geolocation) {
-                    navigator.geolocation.getCurrentPosition(function (position) {
+                navigator.geolocation.getCurrentPosition(
+                    function (position) {
                         lat = position.coords.latitude
                         long = position.coords.longitude
                         map = L.map('map',{
@@ -311,12 +311,49 @@
                         // Resolving the values which I need
                         resolve({latitude: lat,
                                 longitude: long})
-                    })
+                    },
 
-                } else {
-                    reject("Browser Anda tidak support Geolocation API. Silakan mengganti browser!")
-                }
-            })
+                    // Fungsi error handler
+                    function (error) {
+                        let message = "Terjadi kesalahan saat mengakses lokasi.";
+                        switch (error.code) {
+                            case error.PERMISSION_DENIED:
+                                message = "Akses lokasi ditolak. Silakan izinkan akses GPS pada pengaturan Browser/Android Anda.";
+                                break;
+                            case error.POSITION_UNAVAILABLE:
+                                message = "Informasi lokasi tidak tersedia.";
+                                break;
+                            case error.TIMEOUT:
+                                message = "Permintaan lokasi melebihi batas waktu.";
+                                break;
+                            default:
+                                message = "Kesalahan tidak diketahui.";
+                                break;
+                        }
+                        Swal.fire({
+                            title: `Maaf!!`,
+                            html: message,
+                            icon: `error`,
+                            showConfirmButton: false,
+                            showCancelButton: false,
+                            allowOutsideClick: true,
+                            allowEscapeKey: false,
+                            timer: 5000,
+                            timerProgressBar: true,
+                            backdrop: `rgba(26,27,41,0.8)`,
+                        });
+                        $('#loading-btn').empty().append(`<h5 class="pt-3 text-danger"><center>${message}</center></h5>`);
+                        reject(error);
+                    },
+
+                    // Opsi tambahan (opsional)
+                    {
+                        enableHighAccuracy: true,
+                        timeout: 10000, // 10 detik timeout
+                        maximumAge: 0
+                    }
+                );
+            });
 
             // navigator.permissions.query({ name: 'geolocation' }).then(res => {
             //     if(res.state != "granted"){ // IZIN MAP / GPS DITOLAK
@@ -478,16 +515,18 @@
                                                                         $("#btn-pulang").prop('disabled',false).removeClass('btn-secondary').addClass('btn-danger');
                                                                         $("#btn-masuk").prop('disabled',true).removeClass('btn-primary').addClass('btn-secondary');
                                                                         console.log('BISA ABSEN PULANG LEWAT HARI');
+                                                                        pesanWarning('Silakan melakukan Absensi Pulang. Terima Kasih.');
                                                                     } else {
                                                                         if (th >= dbMasuk.getHours() - 1) { //  && th <= dbShiftPulang.getHours()
                                                                             $("#btn-pulang").prop('disabled',true).removeClass('btn-danger').addClass('btn-secondary');
                                                                             $("#btn-masuk").prop('disabled',false).removeClass('btn-secondary').addClass('btn-primary');
                                                                             console.log('BISA ABSEN MASUK');
+                                                                            pesanWarning('Silakan melakukan Absensi Masuk hari ini. Terima Kasih.');
                                                                         } else {
                                                                             $("#btn-pulang").prop('disabled',true).removeClass('btn-danger').addClass('btn-secondary');
                                                                             $("#btn-masuk").prop('disabled',true).removeClass('btn-primary').addClass('btn-secondary');
                                                                             console.log('ABSEN MASUK HARI INI MASIH TERKUNCI');
-                                                                            pesanError(`Absen Masuk Anda Hari ini (Pukul ${res.shift.berangkat} WIB) masih terkunci, Silakan menunggu`);
+                                                                            pesanError(`Absen Masuk Anda Hari ini (Pukul ${res.shift.berangkat} WIB) masih terkunci, Silakan menunggu.`);
                                                                         }
                                                                     }
                                                                 }
@@ -497,11 +536,9 @@
                                                                     const tomorrow = new Date();
                                                                     tomorrow.setDate(tomorrow.getDate() + 1);
                                                                     const thisT = tomorrow.toLocaleDateString('en-CA');
+                                                                    dbMasuk = new Date(thisD+' '+res.shift.berangkat);
+                                                                    dbPulang = new Date(thisD+' '+res.shift.pulang);
                                                                     if (res.shift.pulang > res.shift.berangkat) { // JIKA ABSENSI TIDAK LEWAT HARI
-                                                                        dbMasuk = new Date(thisD+' '+res.shift.berangkat);
-                                                                        dbPulang = new Date(thisD+' '+res.shift.pulang);
-                                                                        // console.log(dbMasuk);
-                                                                        // console.log(dbPulang);
                                                                         if (th >= dbPulang.getHours()) { // Jika Jam Absen Masuk Lebih dari sama dgn Jam pulang
                                                                             $("#btn-pulang").prop('disabled',true).removeClass('btn-danger').addClass('btn-secondary');
                                                                             $("#btn-masuk").prop('disabled',true).removeClass('btn-primary').addClass('btn-secondary');
@@ -512,6 +549,7 @@
                                                                                 $("#btn-pulang").prop('disabled',true).removeClass('btn-danger').addClass('btn-secondary');
                                                                                 $("#btn-masuk").prop('disabled',false).removeClass('btn-secondary').addClass('btn-primary');
                                                                                 console.log('BISA ABSEN MASUK');
+                                                                                pesanWarning('Silakan melakukan Absensi Masuk hari ini. Terima Kasih.');
                                                                             } else { // JIKA ABSENSI DILUAR ANTARA JAM MASUK DAN JAM PULANG
                                                                                 $("#btn-pulang").prop('disabled',true).removeClass('btn-danger').addClass('btn-secondary');
                                                                                 $("#btn-masuk").prop('disabled',true).removeClass('btn-primary').addClass('btn-secondary');
@@ -520,19 +558,14 @@
                                                                             }
                                                                         }
                                                                     } else { // JIKA ABSENSI MASUK LEWAT HARI (MALAM ke PAGI)
-                                                                        dbMasuk = new Date(thisD+' '+res.shift.berangkat).toLocaleDateString('en-CA');
-                                                                        dbMasukOri = new Date(thisD+' '+res.shift.berangkat);
-                                                                        if (thisD == dbMasuk) {
-                                                                            if (th >= dbMasukOri.getHours() - 1) {
-                                                                                $("#btn-pulang").prop('disabled',true).removeClass('btn-danger').addClass('btn-secondary');
-                                                                                $("#btn-masuk").prop('disabled',false).removeClass('btn-secondary').addClass('btn-primary');
-                                                                            } else {
-                                                                                $("#btn-pulang").prop('disabled',true).removeClass('btn-danger').addClass('btn-secondary');
-                                                                                $("#btn-masuk").prop('disabled',true).removeClass('btn-primary').addClass('btn-secondary');
-                                                                            }
+                                                                        if (th >= dbMasuk.getHours() - 1) {
+                                                                            $("#btn-pulang").prop('disabled',true).removeClass('btn-danger').addClass('btn-secondary');
+                                                                            $("#btn-masuk").prop('disabled',false).removeClass('btn-secondary').addClass('btn-primary');
+                                                                            pesanWarning('Silakan melakukan Absensi Masuk hari ini sampai batas waktu tengah malam nanti (Pukul 00:00 WIB). Terima Kasih.');
                                                                         } else {
                                                                             $("#btn-pulang").prop('disabled',true).removeClass('btn-danger').addClass('btn-secondary');
                                                                             $("#btn-masuk").prop('disabled',true).removeClass('btn-primary').addClass('btn-secondary');
+                                                                            pesanError(`Jam Absen Masuk saat ini TIDAK pada/antara jam masuk yang ditetapkan (yaitu -1 jam sebelum Referensi Jam Masuk) sampai dengan tengah malam di hari yang sama.`);
                                                                         }
                                                                     }
                                                                 } else { // ABSEN PULANG
@@ -825,7 +858,7 @@
                 // } // END OF NAVIGATOR GEOLOCATION PERMISSION
             // }); // END OF NAVIGATOR GEOLOCATION PERMISSION
         } else {
-            alert("Browser Anda Tidak Support.");
+            alert("Browser Anda tidak support Geolocation API. Silakan mengganti browser!");
         }
     }
 
@@ -969,25 +1002,9 @@
                         dataType: 'json',
                         success: function(ex) {
                             if (ex.code == 200) {
-                                // const Toast = Swal.mixin({
-                                //     toast: true,
-                                //     position: "center",
-                                //     showConfirmButton: false,
-                                //     timer: 3000,
-                                //     timerProgressBar: true,
-                                //     didOpen: (toast) => {
-                                //         toast.onmouseenter = Swal.stopTimer;
-                                //         toast.onmouseleave = Swal.resumeTimer;
-                                //     }
-                                // });
-                                // Toast.fire({
-                                //     icon: "success",
-                                //     title: `Pesan Berhasil!`,
-                                //     text: ex.message
-                                // });
                                 refreshMap();
                                 Swal.fire({
-                                    title: `Pesan Berhasil!`,
+                                    title: `Yeaayyy!!`,
                                     text: ex.message,
                                     icon: `success`,
                                     showConfirmButton: false,
@@ -1000,7 +1017,7 @@
                                 });
                             } else {
                                 Swal.fire({
-                                    title: `Pesan Error!`,
+                                    title: `Maaf!!`,
                                     text: ex.message,
                                     icon: `error`,
                                     showConfirmButton: false,
@@ -1016,7 +1033,7 @@
                     })
                 } else { // JIKA SYARAT ABSEN TIDAK TERPENUHI
                     Swal.fire({
-                        title: `Pesan Error`,
+                        title: `Maaf!!`,
                         text: res.message,
                         icon: `warning`,
                         showConfirmButton: false,

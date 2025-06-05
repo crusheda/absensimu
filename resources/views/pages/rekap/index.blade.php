@@ -106,7 +106,7 @@
     <div class="card card-style mt-0">
         <div class="content mb-0 mt-0">
             <h5 class="font-14 font-700 p-1 mt-2 mb-n2"><i class="fas fa-sort-amount-down me-1 color-highlight"></i> Data diurutkan dari absensi terakhir</h5>
-            <div class="list-group list-custom-large" id="list-absensi"></div>
+            <div class="list-group list-custom-large" id="list-absensi"><center class="mt-n2 mb-n2"><i style="font-size: 12px" class="fa fa-sync-alt fa-spin align-middle me-1"></i> Memuat data...</center></div>
         </div>
     </div>
 
@@ -199,7 +199,7 @@
 
     function filter() {
         $("#list-absensi").empty().append(`
-            <center><i style="font-size: 12px" class="fa fa-sync-alt fa-spin align-middle me-1"></i> Memuat data...</center>
+            <center class="mt-n2 mb-n2"><i style="font-size: 12px" class="fa fa-sync-alt fa-spin align-middle me-1"></i> Memuat data...</center>
         `);
         $("#tepatWaktu").empty().append(`<i style="font-size: 24px" class="fa fa-sync-alt fa-spin fa-1x mt-2"></i>`);
         $("#terlambat").empty().append(`<i style="font-size: 24px" class="fa fa-sync-alt fa-spin fa-1x mt-2"></i>`);
@@ -214,7 +214,7 @@
                 $("#tepatWaktu").empty().text(res.tepatWaktu+'x');
                 $("#terlambat").empty().text(res.terlambat+'x');
                 $("#absenOne").empty().text(res.absenOne+'x');
-                if (res.show) {
+                if (res.show.length > 0) {
                     res.show.forEach(item => {
                         content = ``;
                         // JENIS
@@ -249,7 +249,7 @@
                         $('#list-absensi').append(content);
                     })
                 } else {
-                    $('#list-absensi').append(`<center><i style="font-size: 12px" class="fas fa-calendar-times align-middle me-1 color-red-dark"></i> Data Absensi Tidak Ditemukan</center>`);
+                    $('#list-absensi').append(`<center class="mt-n2 mb-n2"><i style="font-size: 12px" class="fas fa-calendar-times align-middle me-1 color-red-dark"></i> Data Absensi Tidak Ditemukan</center>`);
                 }
             }
         })

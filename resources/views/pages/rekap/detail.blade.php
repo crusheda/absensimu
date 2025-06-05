@@ -6,6 +6,18 @@
 
 @include('inc.footerbar')
 
+<style>
+    .glightbox-content img {
+        max-height: 90vh;
+        width: auto;
+        height: auto;
+        object-fit: contain;
+    }
+    .glightbox-container {
+        overflow: hidden;
+    }
+</style>
+
 <div class="page-content header-clear-medium">
 
     {{-- <div class="content">
@@ -97,7 +109,17 @@
     var map_out;
     $(document).ready(function() {
         var lightbox = GLightbox({
-            selector: '.glightbox'
+            selector: '.glightbox',
+            openEffect: 'zoom',      // Efek pembukaan (opsional)
+            closeEffect: 'fade',     // Efek penutupan (opsional)
+            zoomable: true,          // Aktifkan zoom
+            touchNavigation: true,   // Navigasi via swipe
+            autoplayVideos: false,   // Aman untuk konten gambar
+            moreText: 'Lihat Selengkapnya',
+            plyr: {
+                css: '',             // Untuk konten video
+                js: ''
+            }
         });
         refresh();
     })
@@ -157,22 +179,22 @@
                 foto = ``;
                 if (res.show.path_out) {
                     foto += `<div class="col-6">
-                                <a href="/storage/${res.show.path_in.substring(7,1000)}" class="default-link glightbox" data-gallery="gallery-1" title="Foto Absen Masuk/Berangkat">
-                                    <img src="/storage/${res.show.path_in.substring(7,1000)}" data-src="/storage/${res.show.path_in.substring(7,1000)}" class="preload-img shadow-s img-fluid rounded-s entered loaded" alt="img" data-ll-status="loaded" style="width:100%; aspect-ratio: 2/3; object-fit: cover;">
+                                <a href="https://absensi.simrsmu.com/api/kepegawaian/detail/foto/${res.show.id}/1" class="default-link glightbox" data-type="image" data-gallery="gallery-1" title="Foto Absen Masuk/Berangkat">
+                                    <img src="https://absensi.simrsmu.com/api/kepegawaian/detail/foto/${res.show.id}/1" class="preload-img shadow-s img-fluid rounded-s entered loaded" alt="img" data-ll-status="loaded" style="width:100%; aspect-ratio: 2/3; object-fit: cover;">
                                 </a>
                                 <center>Berangkat</center>
                             </div>
                             <div class="col-6">
-                                <a href="/storage/${res.show.path_out.substring(7,1000)}" class="default-link glightbox" data-gallery="gallery-1" title="Foto Absen Masuk/Berangkat">
-                                    <img src="/storage/${res.show.path_out.substring(7,1000)}" data-src="/storage/${res.show.path_out.substring(7,1000)}" class="preload-img shadow-s img-fluid rounded-s entered loaded" alt="img" data-ll-status="loaded" style="width:100%; aspect-ratio: 2/3; object-fit: cover;">
+                                <a href="https://absensi.simrsmu.com/api/kepegawaian/detail/foto/${res.show.id}/0" class="default-link glightbox" data-type="image" data-gallery="gallery-1" title="Foto Absen Keluar/Pulang">
+                                    <img src="https://absensi.simrsmu.com/api/kepegawaian/detail/foto/${res.show.id}/0" class="preload-img shadow-s img-fluid rounded-s entered loaded" alt="img" data-ll-status="loaded" style="width:100%; aspect-ratio: 2/3; object-fit: cover;">
                                 </a>
                                 <center>Pulang</center>
                             </div>`;
                 } else {
                     foto += `<div class="col-2"></div>
                             <div class="col-8 text-center">
-                                <a href="/storage/${res.show.path_in.substring(7,1000)}" class="default-link glightbox" data-gallery="gallery-1" title="Foto Absen Masuk/Berangkat">
-                                    <img src="/storage/${res.show.path_in.substring(7,1000)}" data-src="/storage/${res.show.path_in.substring(7,1000)}" class="preload-img shadow-s img-fluid rounded-s entered loaded" alt="img" data-ll-status="loaded" style="width:100%; aspect-ratio: 2/3; object-fit: cover;">
+                                <a href="https://absensi.simrsmu.com/api/kepegawaian/detail/foto/${res.show.id}/1" class="default-link glightbox" data-type="image" data-gallery="gallery-1" title="Foto Absen Masuk/Berangkat">
+                                    <img src="https://absensi.simrsmu.com/api/kepegawaian/detail/foto/${res.show.id}/1" data-src="https://absensi.simrsmu.com/api/kepegawaian/detail/foto/${res.show.id}/1" class="preload-img shadow-s img-fluid rounded-s entered loaded" alt="img" data-ll-status="loaded" style="width:100%; aspect-ratio: 2/3; object-fit: cover;">
                                 </a>
                                 <center>Berangkat</center>
                             </div>
