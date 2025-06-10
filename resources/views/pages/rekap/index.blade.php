@@ -54,20 +54,20 @@
             <h5 class="font-900 text-center p-1 mt-2 mb-n2"><i class="fas fa-filter me-1 color-highlight"></i> Filter Data</h5>
             <div class="input-style input-style-always-active has-borders no-icon p-3" style="margin-bottom: 0px">
                 <select id="filter_select" class="border-1" onchange="filter()">
-                    {{-- <option value="1" disabled="" selected="">Select Time Frame</option> --}}
-                    {{-- <option value="2" selected="">1 Bulan Absensi</option> --}}
                     <option value="1">1 Minggu Terakhir</option>
                     <option value="2">2 Minggu Terakhir</option>
-                    <option value="3">21 {{ \Carbon\Carbon::now()->subMonth()->isoFormat('MMMM YYYY') }} - 20 {{ \Carbon\Carbon::now()->isoFormat('MMMM YYYY') }}</option>
+                    <option value="3">21 {{ \Carbon\Carbon::now()->subMonth(2)->isoFormat('MMMM YYYY') }} - 20 {{ \Carbon\Carbon::now()->subMonth(1)->isoFormat('MMMM YYYY') }}</option>
+                    <option value="4">21 {{ \Carbon\Carbon::now()->subMonth()->isoFormat('MMMM YYYY') }} - 20 {{ \Carbon\Carbon::now()->isoFormat('MMMM YYYY') }}</option>
                     @if (\Carbon\Carbon::now()->isoFormat('DD') > 20)
-                        <option value="4">
+                        <option value="5">
                             21 {{ \Carbon\Carbon::now()->isoFormat('MMMM YYYY') }} - Saat ini
                         </option>
                     @endif
+                    <option value="6">3 Bulan Terakhir</option>
+                    <option value="7">Tahun {{ \Carbon\Carbon::now()->isoFormat('YYYY') }}</option>
                 </select>
                 <span><i class="fa fa-chevron-down mt-2 me-3"></i></span>
             </div>
-            {{-- <p>asdassdas</p> --}}
         </div>
     </div>
 

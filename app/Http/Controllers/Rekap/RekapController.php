@@ -152,7 +152,7 @@ class RekapController extends Controller
     {
         $show = Absensi::where('pegawai_id', $user)
                         ->whereBetween('tgl_in', [Carbon::now()->subWeek(), Carbon::now()])
-                        ->where('jenis',1)
+                        // ->where('jenis',1)
                         ->orderBy('tgl_in', 'DESC')
                         ->get();
         $tepatWaktu = Absensi::where('pegawai_id', $user)
@@ -190,7 +190,7 @@ class RekapController extends Controller
     {
         $show = Absensi::where('pegawai_id', $user)
                         ->whereBetween('tgl_in', [Carbon::now()->subDays(14), Carbon::now()])
-                        ->where('jenis',1)
+                        // ->where('jenis',1)
                         ->orderBy('tgl_in', 'DESC')
                         ->get();
         $tepatWaktu = Absensi::where('pegawai_id', $user)
@@ -225,6 +225,54 @@ class RekapController extends Controller
     }
 
     function listMonth1($user)
+    {
+        // Batas awal: 21 dua bulan lalu (April)
+        $startDate = Carbon::now()->subMonths(2)->day(21)->startOfDay();
+
+        // Batas akhir: 20 satu bulan lalu (Mei)
+        $endDate = Carbon::now()->subMonth()->day(20)->endOfDay();
+
+        $tepatWaktu = Absensi::where('pegawai_id', $user)
+            ->whereBetween('tgl_in', [$startDate, $endDate])
+            ->where('jenis',1)
+            ->whereNotNull('tgl_out')
+            ->where('terlambat',0)
+            ->orderBy('tgl_in', 'DESC')
+            ->count();
+
+        $terlambat = Absensi::where('pegawai_id', $user)
+            ->whereBetween('tgl_in', [$startDate, $endDate])
+            ->where('jenis',1)
+            ->whereNotNull('tgl_out')
+            ->where('terlambat',1)
+            ->orderBy('tgl_in', 'DESC')
+            ->count();
+
+        $absenOne = Absensi::where('pegawai_id', $user)
+            ->whereBetween('tgl_in', [$startDate, $endDate])
+            ->where('jenis',1)
+            ->whereNull('tgl_out')
+            ->orderBy('tgl_in', 'DESC')
+            ->count();
+
+        $show = Absensi::where('pegawai_id', $user)
+            ->whereBetween('tgl_in', [$startDate, $endDate])
+            ->orderBy('tgl_in', 'DESC')
+            ->get();
+
+        $data = [
+            'startDate' => $startDate->toDateString(),
+            'endDate' => $endDate->toDateString(),
+            'show' => $show,
+            'tepatWaktu' => $tepatWaktu,
+            'terlambat' => $terlambat,
+            'absenOne' => $absenOne,
+        ];
+
+        return response()->json($data, 200);
+    }
+
+    function listMonth2($user)
     {
         // Batas awal: tanggal 21 bulan lalu
         $startDate = Carbon::now()->subMonth()->day(21)->startOfDay();
@@ -266,7 +314,7 @@ class RekapController extends Controller
         return response()->json($data, 200);
     }
 
-    function listMonth2($user)
+    function listMonth3($user)
     {
         // tanggal 20 bulan ini sampai dengan saat ini
         $startDate = Carbon::now()->day(20)->endOfDay();
@@ -296,6 +344,145 @@ class RekapController extends Controller
                         ->whereBetween('tgl_in', [$startDate, $endDate])
                         ->orderBy('tgl_in', 'DESC')
                         ->get();
+
+        $data = [
+            'show' => $show,
+            'tepatWaktu' => $tepatWaktu,
+            'terlambat' => $terlambat,
+            'absenOne' => $absenOne,
+        ];
+
+        return response()->json($data, 200);
+    }
+
+    function listThreeMonths($user)
+    {
+        $now = Carbon::now();
+
+        if ($now->day < 21) {
+            // Kalau hari ini sebelum tanggal 21, akhir periode adalah tanggal 20 bulan ini
+            $endDate = $now->copy()->day(20);
+        } else {
+            // Kalau hari ini tanggal 21 ke atas, akhir periode adalah tanggal 20 bulan depan
+            $endDate = $now->copy()->addMonth()->day(20);
+        }
+
+        // Tanggal awal = 3 bulan sebelum tanggal akhir, tapi dimulai dari tanggal 21
+        $startDate = $endDate->copy()->subMonths(3)->addDay(); // dari 21 tiga bulan lalu
+
+        // Query seperti biasa:
+        $show = Absensi::where('pegawai_id', $user)
+            ->whereBetween('tgl_in', [$startDate, $endDate])
+            ->orderBy('tgl_in', 'DESC')
+            ->get();
+
+        $tepatWaktu = Absensi::where('pegawai_id', $user)
+            ->whereBetween('tgl_in', [$startDate, $endDate])
+            ->where('jenis', 1)
+            ->whereNotNull('tgl_out')
+            ->where('terlambat', 0)
+            ->count();
+
+        $terlambat = Absensi::where('pegawai_id', $user)
+            ->whereBetween('tgl_in', [$startDate, $endDate])
+            ->where('jenis', 1)
+            ->whereNotNull('tgl_out')
+            ->where('terlambat', 1)
+            ->count();
+
+        $absenOne = Absensi::where('pegawai_id', $user)
+            ->whereBetween('tgl_in', [$startDate, $endDate])
+            ->where('jenis', 1)
+            ->whereNull('tgl_out')
+            ->count();
+
+        $data = [
+            'startDate' => $startDate->toDateString(),
+            'endDate' => $endDate->toDateString(),
+            'show' => $show,
+            'tepatWaktu' => $tepatWaktu,
+            'terlambat' => $terlambat,
+            'absenOne' => $absenOne,
+        ];
+
+        return response()->json($data, 200);
+    }
+
+    // function listThreeMonths($user)
+    // {
+    //     $startDate = Carbon::now()->subMonths(3);
+    //     $endDate = Carbon::now();
+
+    //     $show = Absensi::where('pegawai_id', $user)
+    //                     ->whereBetween('tgl_in', [$startDate, $endDate])
+    //                     ->orderBy('tgl_in', 'DESC')
+    //                     ->get();
+
+    //     $tepatWaktu = Absensi::where('pegawai_id', $user)
+    //         ->whereBetween('tgl_in', [$startDate, $endDate])
+    //         ->where('jenis', 1)
+    //         ->whereNotNull('tgl_out')
+    //         ->where('terlambat', 0)
+    //         ->orderBy('tgl_in', 'DESC')
+    //         ->count();
+
+    //     $terlambat = Absensi::where('pegawai_id', $user)
+    //         ->whereBetween('tgl_in', [$startDate, $endDate])
+    //         ->where('jenis', 1)
+    //         ->whereNotNull('tgl_out')
+    //         ->where('terlambat', 1)
+    //         ->orderBy('tgl_in', 'DESC')
+    //         ->count();
+
+    //     $absenOne = Absensi::where('pegawai_id', $user)
+    //         ->whereBetween('tgl_in', [$startDate, $endDate])
+    //         ->where('jenis', 1)
+    //         ->whereNull('tgl_out')
+    //         ->orderBy('tgl_in', 'DESC')
+    //         ->count();
+
+    //     $data = [
+    //         'show' => $show,
+    //         'tepatWaktu' => $tepatWaktu,
+    //         'terlambat' => $terlambat,
+    //         'absenOne' => $absenOne,
+    //     ];
+
+    //     return response()->json($data, 200);
+    // }
+
+    function listThisYear($user)
+    {
+        $startDate = Carbon::now()->startOfYear(); // 1 Januari tahun ini
+        $endDate = Carbon::now()->endOfYear();     // 31 Desember tahun ini
+
+        $show = Absensi::where('pegawai_id', $user)
+                        ->whereBetween('tgl_in', [$startDate, $endDate])
+                        ->orderBy('tgl_in', 'DESC')
+                        ->get();
+
+        $tepatWaktu = Absensi::where('pegawai_id', $user)
+            ->whereBetween('tgl_in', [$startDate, $endDate])
+            ->where('jenis', 1)
+            ->whereNotNull('tgl_out')
+            ->where('terlambat', 0)
+            ->orderBy('tgl_in', 'DESC')
+            ->count();
+
+        $terlambat = Absensi::where('pegawai_id', $user)
+            ->whereBetween('tgl_in', [$startDate, $endDate])
+            ->where('jenis', 1)
+            ->whereNotNull('tgl_out')
+            ->where('terlambat', 1)
+            ->orderBy('tgl_in', 'DESC')
+            ->count();
+
+        $absenOne = Absensi::where('pegawai_id', $user)
+            ->whereBetween('tgl_in', [$startDate, $endDate])
+            ->where('jenis', 1)
+            ->whereNull('tgl_out')
+            ->orderBy('tgl_in', 'DESC')
+            ->count();
 
         $data = [
             'show' => $show,
