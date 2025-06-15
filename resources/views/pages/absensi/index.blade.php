@@ -435,7 +435,7 @@
                                                     $("#btn-masuk").prop('disabled',true).removeClass('btn-primary').addClass('btn-secondary');
                                                     if (res.show == null && res.ijin == null) {
                                                         $("#btn-ijin").prop('disabled',false).removeClass('btn-secondary btn-warning').addClass('btn-warning');
-                                                        pesanWarning('Silakan mendekat ke radius Absensi untuk melakukan Absensi Masuk pada hari ini. Terima Kasih.');
+                                                        pesanWarning('Silakan mendekat ke radius Absensi untuk melakukan Absensi Masuk pada hari ini. Absensi Masuk dapat dilakukan mulai (-1 Jam) sebelum jam masuk sampai sebelum jam pulang. Terima Kasih.');
                                                     } else {
                                                         $("#btn-ijin").prop('disabled',true).removeClass('btn-secondary btn-warning').addClass('btn-secondary');
                                                         if (res.show != null && res.ijin == null) {
@@ -1249,7 +1249,7 @@
         // map.remove();
         // $("#map").prop('hidden',false);
         refreshMap();
-        startFrontCamera();
+        startFrontCameraFlip();
         // $("#btn-gps").prop('hidden',false);
     }
 
