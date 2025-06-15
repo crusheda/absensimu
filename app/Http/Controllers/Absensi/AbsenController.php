@@ -277,6 +277,22 @@ class AbsenController extends Controller
         // JIKA TOLERANSI KETERLAMBATAN = 10 MENIT DIHITUNG DARI JAM MULAI MASUK
         // $toleransi = Carbon::parse('00:10:00')->isoFormat('HH:mm:ss');
 
+        // Deteksi user-agent mencurigakan
+        $userAgent = $request->header('User-Agent');
+
+        if (!preg_match('/Mobile|Android|iPhone|iPad|iPod/i', $userAgent)) {
+            return Response::json(array(
+                'message' => 'Absensi hanya diperbolehkan menggunakan perangkat mobile (Android/IOS) !!',
+                'code' => 403,
+            ));
+        }
+        // if (preg_match('/Genymotion|Xposed|Magisk/i', $userAgent)) {
+        //     return Response::json(array(
+        //         'message' => 'Perangkat tidak valid untuk absensi',
+        //         'code' => 403,
+        //     ));
+        // }
+
         $img = $request->image;
         if ($img) {
             $title = uniqid() . '.png';
@@ -312,6 +328,8 @@ class AbsenController extends Controller
 
             $data = new absensi;
             $data->jenis = 1;
+            $data->ip_in = $this->getClientIp();
+            $data->user_agent = $userAgent;
             $data->pegawai_id = $request->pegawai;
             $data->kd_shift = $request->kd_shift;
             $data->nm_shift = $request->nm_shift;
@@ -344,6 +362,22 @@ class AbsenController extends Controller
         // JIKA TOLERANSI KETERLAMBATAN = 10 MENIT DIHITUNG DARI JAM MULAI MASUK
         // $toleransi = Carbon::parse('00:10:00')->isoFormat('HH:mm:ss');
 
+        // Deteksi user-agent mencurigakan
+        $userAgent = $request->header('User-Agent');
+
+        if (!preg_match('/Mobile|Android|iPhone|iPad|iPod/i', $userAgent)) {
+            return Response::json(array(
+                'message' => 'Absensi hanya diperbolehkan menggunakan perangkat mobile (Android/IOS) !!',
+                'code' => 403,
+            ));
+        }
+        // if (preg_match('/Genymotion|Xposed|Magisk/i', $userAgent)) {
+        //     return Response::json(array(
+        //         'message' => 'Perangkat tidak valid untuk absensi',
+        //         'code' => 403,
+        //     ));
+        // }
+
         $img = $request->image;
         $title = uniqid() . '.png';
         $folderPath = "public/files/kepegawaian/absensi/ijin/";
@@ -360,6 +394,8 @@ class AbsenController extends Controller
 
         $data = new absensi;
         $data->jenis = 3;
+        $data->ip_in = $this->getClientIp();
+        $data->user_agent = $userAgent;
         $data->pegawai_id = $request->pegawai;
         $data->kd_shift = $request->kd_shift;
         $data->nm_shift = $request->nm_shift;
@@ -389,6 +425,22 @@ class AbsenController extends Controller
 
     function executePulang(Request $request)
     {
+        // Deteksi user-agent mencurigakan
+        $userAgent = $request->header('User-Agent');
+
+        if (!preg_match('/Mobile|Android|iPhone|iPad|iPod/i', $userAgent)) {
+            return Response::json(array(
+                'message' => 'Absensi hanya diperbolehkan menggunakan perangkat mobile (Android/IOS) !!',
+                'code' => 403,
+            ));
+        }
+        // if (preg_match('/Genymotion|Xposed|Magisk/i', $userAgent)) {
+        //     return Response::json(array(
+        //         'message' => 'Perangkat tidak valid untuk absensi',
+        //         'code' => 403,
+        //     ));
+        // }
+
         $now = Carbon::now();
         $datenow = $now->isoFormat('YYYY-MM-DD');
 
@@ -431,6 +483,7 @@ class AbsenController extends Controller
             $jam_pulang = new Carbon();
             $diffKerja = $jam_berangkat->diff($jam_pulang)->format('%H:%I:%S');
 
+            $data->ip_out = $this->getClientIp();
             $data->tgl_out = Carbon::now();
             $data->lembur = $diffLembur;
             $data->selisih_jam = $diffKerja;
@@ -488,4 +541,28 @@ class AbsenController extends Controller
         $meters = $kilometers * 1000;
         return compact('meters');
     }
+
+    function getClientIp()
+    {
+        foreach ([
+            'HTTP_CLIENT_IP',
+            'HTTP_X_FORWARDED_FOR',
+            'HTTP_X_FORWARDED',
+            'HTTP_X_CLUSTER_CLIENT_IP',
+            'HTTP_FORWARDED_FOR',
+            'HTTP_FORWARDED',
+            'REMOTE_ADDR'
+        ] as $key) {
+            if ($ip = request()->server($key)) {
+                foreach (explode(',', $ip) as $part) {
+                    $part = trim($part);
+                    if (filter_var($part, FILTER_VALIDATE_IP)) {
+                        return $part;
+                    }
+                }
+            }
+        }
+        return request()->ip(); // fallback
+}
+
 }
