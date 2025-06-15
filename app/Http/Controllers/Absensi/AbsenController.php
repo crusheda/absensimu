@@ -158,8 +158,8 @@ class AbsenController extends Controller
                             'nm_shift' => $shift->shift,
                             // 'berangkat' => Carbon::parse($today.' '.$shift->berangkat)->toDateTimeString(),
                             // 'pulang' => Carbon::parse($today.' '.$shift->pulang)->toDateTimeString(),
-                            'berangkat' => Carbon::createFromFormat('Y-m-d H:i:s', $today . ' ' . $shift->berangkat),
-                            'pulang' => Carbon::createFromFormat('Y-m-d H:i:s', $today . ' ' . $shift->pulang),
+                            'berangkat' => Carbon::createFromFormat('Y-m-d H:i:s', $today . ' ' . $shift->berangkat, 'Asia/Jakarta')->format('Y-m-d H:i:s'),
+                            'pulang' => Carbon::createFromFormat('Y-m-d H:i:s', $today . ' ' . $shift->pulang, 'Asia/Jakarta')->format('Y-m-d H:i:s'),
                             'code' => 200,
                         ));
                     } else {
@@ -180,8 +180,8 @@ class AbsenController extends Controller
                             'lewat_hari' => $lewat_hari,
                             'kd_shift' => $shift->singkat,
                             'nm_shift' => $shift->shift,
-                            'berangkat' => Carbon::createFromFormat('Y-m-d H:i:s', $today . ' ' . $shift->berangkat),
-                            'pulang' => Carbon::createFromFormat('Y-m-d H:i:s', $tommorow . ' ' . $shift->pulang),
+                            'berangkat' => Carbon::createFromFormat('Y-m-d H:i:s', $today . ' ' . $shift->berangkat, 'Asia/Jakarta')->format('Y-m-d H:i:s'),
+                            'pulang' => Carbon::createFromFormat('Y-m-d H:i:s', $tommorow . ' ' . $shift->pulang, 'Asia/Jakarta')->format('Y-m-d H:i:s'),
                             'code' => 200,
                         ));
                     } else {
@@ -234,8 +234,8 @@ class AbsenController extends Controller
             'lewat_hari' => 0,
             'kd_shift' => $shift->singkat,
             'nm_shift' => $shift->shift,
-            'berangkat' => Carbon::createFromFormat('Y-m-d H:i:s', $today . ' ' . $shift->berangkat),
-            'pulang' => Carbon::createFromFormat('Y-m-d H:i:s', $today . ' ' . $shift->pulang),
+            'berangkat' => Carbon::createFromFormat('Y-m-d H:i:s', $today . ' ' . $shift->berangkat, 'Asia/Jakarta')->format('Y-m-d H:i:s'),
+            'pulang' => Carbon::createFromFormat('Y-m-d H:i:s', $today . ' ' . $shift->pulang, 'Asia/Jakarta')->format('Y-m-d H:i:s'),
             'code' => 200,
         ));
     }
@@ -301,11 +301,13 @@ class AbsenController extends Controller
                 $terlambat = 0; // DISIPLIN
             }
 
+            $jamMasuk = Carbon::parse($request->berangkat)->format('Y-m-d H:i:s');
+            $jamPulang = Carbon::parse($request->pulang)->format('Y-m-d H:i:s');
             $validasi = absensi::where('pegawai_id',$request->pegawai)
                                 ->where('jenis',1)
                                 ->where('kd_shift',$request->kd_shift)
-                                ->where('ref_jam_masuk',$request->berangkat)
-                                ->where('ref_jam_pulang',$request->pulang)
+                                ->where('ref_jam_masuk',$jamMasuk)
+                                ->where('ref_jam_pulang',$jamPulang)
                                 ->delete();
 
             $data = new absensi;
@@ -313,8 +315,8 @@ class AbsenController extends Controller
             $data->pegawai_id = $request->pegawai;
             $data->kd_shift = $request->kd_shift;
             $data->nm_shift = $request->nm_shift;
-            $data->ref_jam_masuk = $request->berangkat;
-            $data->ref_jam_pulang = $request->pulang;
+            $data->ref_jam_masuk = $jamMasuk;
+            $data->ref_jam_pulang = $jamPulang;
             $data->keterlambatan = $diff;
             $data->tgl_in = Carbon::now();
             $data->foto_in = $title;
@@ -353,13 +355,16 @@ class AbsenController extends Controller
         $path = $folderPath . $title;
         Storage::put($path, $image_base64);
 
+            $jamMasuk = Carbon::parse($request->berangkat)->format('Y-m-d H:i:s');
+            $jamPulang = Carbon::parse($request->pulang)->format('Y-m-d H:i:s');
+
         $data = new absensi;
         $data->jenis = 3;
         $data->pegawai_id = $request->pegawai;
         $data->kd_shift = $request->kd_shift;
         $data->nm_shift = $request->nm_shift;
-        $data->ref_jam_masuk = $request->berangkat;
-        $data->ref_jam_pulang = $request->pulang;
+        $data->ref_jam_masuk = $jamMasuk;
+        $data->ref_jam_pulang = $jamPulang;
         $data->keterlambatan = null;
         $data->lembur = null;
         $data->tgl_in = Carbon::now();

@@ -889,6 +889,8 @@
             dataType: 'json',
             success: function(res) {
                 if (res.code == 200) { // JIKA SYARAT ABSEN TERPENUHI
+                    console.log(res);
+                    console.log(res.pulang);
                     // INIT
                     Webcam.snap( function(data_uri) {
                         $("#image-capture").val(data_uri);
