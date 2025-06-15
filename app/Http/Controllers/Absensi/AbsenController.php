@@ -134,84 +134,74 @@ class AbsenController extends Controller
         // EXECUTE
         $callShift = $jadwal->$hit;
 
-        // FIND SHIFT
-        $shift = ref_shift::where('singkat',$callShift)->where('pegawai_id',$jadwal->id_atasan)->orderBy('updated_at','DESC')->first();
+        if ($callShift) {
+            // FIND SHIFT
+            $shift = ref_shift::where('singkat',$callShift)->where('pegawai_id',$jadwal->id_atasan)->orderBy('updated_at','DESC')->first();
 
-        $jam_masuk = Carbon::parse($shift->berangkat)->isoFormat('HH:mm:ss');
-        $jam_pulang = Carbon::parse($shift->pulang)->isoFormat('HH:mm:ss');
-        if ($jam_pulang > $jam_masuk) {
-            $lewat_hari = 0; // TIDAK LEWAT HARI
-        } else {
-            $lewat_hari = 1; // LEWAT HARI / KHUSUS (MALAM)
-        }
-        if ($oncall==1) { // JIKA USER BISA ONCALL / MEMPUNYAI PERMISSION = absensi_oncall
-            // VALIDATING JAM MASUK
-            if ($shift->pulang > $shift->berangkat) {
-                if ($time >= Carbon::parse($shift->berangkat)->subHour()->isoFormat('HH:mm:ss') && $time <= $shift->pulang) { // DALAM JAM KERJA (MIN 1 JAM SEBELUM JAM MASUK)
-                    return Response::json(array(
-                        'message' => 'Anda berada di Waktu Masuk Kerja!',
-                        'lewat_hari' => $lewat_hari,
-                        'kd_shift' => $shift->singkat,
-                        'nm_shift' => $shift->shift,
-                        'berangkat' => Carbon::parse($today.' '.$shift->berangkat)->isoFormat('YYYY-MM-DD HH:mm:ss'),
-                        'pulang' => Carbon::parse($today.' '.$shift->pulang)->isoFormat('YYYY-MM-DD HH:mm:ss'),
-                        'code' => 200,
-                    ));
+            if ($shift) {
+                $jam_masuk = Carbon::parse($shift->berangkat)->isoFormat('HH:mm:ss');
+                $jam_pulang = Carbon::parse($shift->pulang)->isoFormat('HH:mm:ss');
+
+                if ($jam_pulang > $jam_masuk) {
+                    $lewat_hari = 0; // TIDAK LEWAT HARI
                 } else {
-                    return Response::json(array(
-                        'message' => 'Absen Masuk belum tersedia!',
-                        'code' => 400,
-                    ));
+                    $lewat_hari = 1; // LEWAT HARI / KHUSUS (MALAM)
+                }
+
+                // VALIDATING JAM MASUK
+                if ($shift->pulang > $shift->berangkat) { // KECUALI MALAM ATAU LEWAT HARI
+                    if ($time >= Carbon::parse($shift->berangkat)->subHour()->isoFormat('HH:mm:ss') && $time <= Carbon::parse($shift->pulang)->isoFormat('HH:mm:ss')) { // DALAM JAM KERJA (MIN 1 JAM SEBELUM JAM MASUK)
+                        return Response::json(array(
+                            'message' => 'Anda berada di Waktu Masuk Kerja!',
+                            'lewat_hari' => $lewat_hari,
+                            'kd_shift' => $shift->singkat,
+                            'nm_shift' => $shift->shift,
+                            // 'berangkat' => Carbon::parse($today.' '.$shift->berangkat)->toDateTimeString(),
+                            // 'pulang' => Carbon::parse($today.' '.$shift->pulang)->toDateTimeString(),
+                            'berangkat' => Carbon::createFromFormat('Y-m-d H:i:s', $today . ' ' . $shift->berangkat),
+                            'pulang' => Carbon::createFromFormat('Y-m-d H:i:s', $today . ' ' . $shift->pulang),
+                            'code' => 200,
+                        ));
+                    } else {
+                        return Response::json(array(
+                            'message' => 'Absen Masuk belum tersedia!',
+                            'code' => 400,
+                        ));
+                    }
+                } else { // KHUSUS JAGA LEWAT HARI (SHIFT MALAM)
+                    $now = Carbon::now();
+                    $today = Carbon::now()->isoFormat('YYYY-MM-DD');
+                    $tomorow = Carbon::now()->addDay(1)->isoFormat('YYYY-MM-DD');
+                    $convBerangkat = Carbon::parse($today.' '.$shift->berangkat)->subHour(); // MULAI ABSENSI MINIMAL 1 JAM SEBELUM JAM MASUK
+                    $convPulang = Carbon::parse($tomorow.' '.$shift->pulang);
+                    if ($now >= $convBerangkat && $now <= $convPulang) { // DALAM JAM KERJA
+                        return Response::json(array(
+                            'message' => 'Anda berada di Waktu Masuk Kerja!',
+                            'lewat_hari' => $lewat_hari,
+                            'kd_shift' => $shift->singkat,
+                            'nm_shift' => $shift->shift,
+                            'berangkat' => Carbon::createFromFormat('Y-m-d H:i:s', $today . ' ' . $shift->berangkat),
+                            'pulang' => Carbon::createFromFormat('Y-m-d H:i:s', $tommorow . ' ' . $shift->pulang),
+                            'code' => 200,
+                        ));
+                    } else {
+                        return Response::json(array(
+                            'message' => 'Absen Masuk belum tersedia!',
+                            'code' => 400,
+                        ));
+                    }
                 }
             } else {
                 return Response::json(array(
-                    'message' => 'Absen Masuk belum tersedia!',
+                    'message' => 'Shfit tidak valid. Silakan menghubung Admin Jadwal untuk memastikan Nama Referensi Shift sudah benar dan Valid!',
                     'code' => 400,
                 ));
             }
-        } else { // JIKA USER TIDAK ADA PERMISSION = absensi_oncall
-            // VALIDATING JAM MASUK
-            if ($shift->pulang > $shift->berangkat) { // KECUALI MALAM ATAU LEWAT HARI
-                if ($time >= Carbon::parse($shift->berangkat)->subHour()->isoFormat('HH:mm:ss') && $time <= Carbon::parse($shift->pulang)->isoFormat('HH:mm:ss')) { // DALAM JAM KERJA (MIN 1 JAM SEBELUM JAM MASUK)
-                    return Response::json(array(
-                        'message' => 'Anda berada di Waktu Masuk Kerja!',
-                        'lewat_hari' => $lewat_hari,
-                        'kd_shift' => $shift->singkat,
-                        'nm_shift' => $shift->shift,
-                        'berangkat' => Carbon::parse($today.' '.$shift->berangkat)->isoFormat('YYYY-MM-DD HH:mm:ss'),
-                        'pulang' => Carbon::parse($today.' '.$shift->pulang)->isoFormat('YYYY-MM-DD HH:mm:ss'),
-                        'code' => 200,
-                    ));
-                } else {
-                    return Response::json(array(
-                        'message' => 'Absen Masuk belum tersedia!',
-                        'code' => 400,
-                    ));
-                }
-            } else { // KHUSUS JAGA LEWAT HARI (SHIFT MALAM)
-                $now = Carbon::now();
-                $today = Carbon::now()->isoFormat('YYYY-MM-DD');
-                $tomorow = Carbon::now()->addDay(1)->isoFormat('YYYY-MM-DD');
-                $convBerangkat = Carbon::parse($today.' '.$shift->berangkat)->subHour(); // MULAI ABSENSI MINIMAL 1 JAM SEBELUM JAM MASUK
-                $convPulang = Carbon::parse($tomorow.' '.$shift->pulang);
-                if ($now >= $convBerangkat && $now <= $convPulang) { // DALAM JAM KERJA
-                    return Response::json(array(
-                        'message' => 'Anda berada di Waktu Masuk Kerja!',
-                        'lewat_hari' => $lewat_hari,
-                        'kd_shift' => $shift->singkat,
-                        'nm_shift' => $shift->shift,
-                        'berangkat' => Carbon::parse($today.' '.$shift->berangkat)->isoFormat('YYYY-MM-DD HH:mm:ss'),
-                        'pulang' => Carbon::parse($tommorow.' '.$shift->pulang)->isoFormat('YYYY-MM-DD HH:mm:ss'),
-                        'code' => 200,
-                    ));
-                } else {
-                    return Response::json(array(
-                        'message' => 'Absen Masuk belum tersedia!',
-                        'code' => 400,
-                    ));
-                }
-            }
-
+        } else {
+            return Response::json(array(
+                'message' => 'Jadwal tidak valid. Konfirmasi dengan Administrator!',
+                'code' => 400,
+            ));
         }
     }
 
@@ -244,8 +234,8 @@ class AbsenController extends Controller
             'lewat_hari' => 0,
             'kd_shift' => $shift->singkat,
             'nm_shift' => $shift->shift,
-            'berangkat' => Carbon::parse($today.' '.$shift->berangkat)->isoFormat('YYYY-MM-DD HH:mm:ss'),
-            'pulang' => Carbon::parse($today.' '.$shift->pulang)->isoFormat('YYYY-MM-DD HH:mm:ss'),
+            'berangkat' => Carbon::createFromFormat('Y-m-d H:i:s', $today . ' ' . $shift->berangkat),
+            'pulang' => Carbon::createFromFormat('Y-m-d H:i:s', $today . ' ' . $shift->pulang),
             'code' => 200,
         ));
     }
@@ -316,15 +306,7 @@ class AbsenController extends Controller
                                 ->where('kd_shift',$request->kd_shift)
                                 ->where('ref_jam_masuk',$request->berangkat)
                                 ->where('ref_jam_pulang',$request->pulang)
-                                // ->limit(30)
-                                ->first();
-            if ($validasi) {
-                $validasi->delete();
-                // return Response::json(array(
-                //     'message' => 'Absen masuk terdeteksi duplikat dengan sebelumnya, silakan melihat Rekap Data Absensi',
-                //     'code' => 400,
-                // ));
-            }
+                                ->delete();
 
             $data = new absensi;
             $data->jenis = 1;
@@ -417,8 +399,22 @@ class AbsenController extends Controller
             $path = $folderPath . $title;
             Storage::put($path, $image_base64);
 
+            // VALIDASI DUPLIKASI DATA
+            $validate = absensi::where('pegawai_id',$request->pegawai)->whereDate("ref_jam_pulang","=",$datenow)->whereNull('deleted_at')->orderBy('updated_at','DESC')->get();
+            if ($validate->count() > 1) {
+                // Ambil data pertama dan buang sisanya
+                $validate->slice(1)->each->delete();
+            }
+
             // GET DATA TO UPDATE
-            $data = absensi::where('pegawai_id',$request->pegawai)->whereDate("ref_jam_pulang","=",$datenow)->orderBy("ref_jam_pulang","DESC")->first();
+            // Ambil data pertama dari hasil yang sudah diambil
+            $data = $validate->first();
+            if (!$data) {
+                return Response::json([
+                    'message' => 'Data absensi tidak ditemukan.',
+                    'code' => 404,
+                ]);
+            }
 
             // PERHITUNGAN LEMBUR JAM PULANG
             $jam_pulang_seharusnya = new Carbon($data->ref_jam_pulang); // ->isoFormat('YYYY-MM-DD H:mm:ss')
