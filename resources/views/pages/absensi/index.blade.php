@@ -231,6 +231,7 @@
             height: 480,
             image_format: 'jpeg',
             jpeg_quality: 90,
+            flip_horiz: true,
             constraints: {
                 facingMode: facing,
                 width: { ideal: 640 },
