@@ -59,7 +59,7 @@ class AbsenController extends Controller
                                 ->whereNull('kepegawaian_jadwal.deleted_at');
                         })
                         ->select('kepegawaian_jadwal_detail.'.$hit,'kepegawaian_jadwal.pegawai_id as atasan','kepegawaian_jadwal.staf as bawahan','kepegawaian_jadwal.progress')
-                        ->whereJsonContains('kepegawaian_jadwal.staf', $request->user)
+                        // ->whereJsonContains('kepegawaian_jadwal.staf', $request->user)
                         ->where('kepegawaian_jadwal_detail.pegawai_id',$request->user)
                         ->where('kepegawaian_jadwal.bulan',$bulan)
                         ->where('kepegawaian_jadwal.tahun',$tahun)
@@ -67,6 +67,7 @@ class AbsenController extends Controller
                         ->whereNull('kepegawaian_jadwal_detail.deleted_at')
                         ->orderBy('kepegawaian_jadwal_detail.id','DESC')
                         ->first();
+
         if (!empty($jadwal) || $jadwal != null) {
             $shift = ref_shift::leftJoin('referensi_jadwal_users', function($join) {
                         $join->on('referensi_jadwal_users.pegawai_id', '=', 'referensi_jadwal_shift.pegawai_id')
@@ -136,22 +137,50 @@ class AbsenController extends Controller
         $tgl = Carbon::now()->isoFormat('D');
         $hit = "tgl".$tgl;
 
-        $jadwal = jadwal_detail::join('kepegawaian_jadwal','kepegawaian_jadwal.id','=','kepegawaian_jadwal_detail.id_jadwal')
-                                ->where('kepegawaian_jadwal_detail.pegawai_id',$user)
-                                ->where('kepegawaian_jadwal.bulan',$bulan)
-                                ->where('kepegawaian_jadwal.tahun',$tahun)
-                                ->select('kepegawaian_jadwal.pegawai_id as id_atasan','kepegawaian_jadwal.staf','kepegawaian_jadwal.bulan','kepegawaian_jadwal.tahun','kepegawaian_jadwal_detail.*')
-                                ->where('kepegawaian_jadwal_detail.deleted_at',null)
-                                ->orderBy('kepegawaian_jadwal_detail.updated_at','DESC')
-                                ->first();
+        // $jadwal = jadwal_detail::join('kepegawaian_jadwal','kepegawaian_jadwal.id','=','kepegawaian_jadwal_detail.id_jadwal')
+        //                         ->where('kepegawaian_jadwal_detail.pegawai_id',$user)
+        //                         ->where('kepegawaian_jadwal.bulan',$bulan)
+        //                         ->where('kepegawaian_jadwal.tahun',$tahun)
+        //                         ->select('kepegawaian_jadwal.pegawai_id as id_atasan','kepegawaian_jadwal.staf','kepegawaian_jadwal.bulan','kepegawaian_jadwal.tahun','kepegawaian_jadwal_detail.*')
+        //                         ->where('kepegawaian_jadwal_detail.deleted_at',null)
+        //                         ->orderBy('kepegawaian_jadwal_detail.updated_at','DESC')
+        //                         ->first();
+
+        $jadwal = jadwal_detail::leftJoin('kepegawaian_jadwal', function($join) {
+                            $join->on('kepegawaian_jadwal.id', '=', 'kepegawaian_jadwal_detail.id_jadwal')
+                                ->whereNull('kepegawaian_jadwal.deleted_at');
+                        })
+                        ->select('kepegawaian_jadwal.pegawai_id as id_atasan','kepegawaian_jadwal.staf','kepegawaian_jadwal.bulan','kepegawaian_jadwal.tahun','kepegawaian_jadwal_detail.*')
+                        // ->whereJsonContains('kepegawaian_jadwal.staf', $user)
+                        ->where('kepegawaian_jadwal_detail.pegawai_id',$user)
+                        ->where('kepegawaian_jadwal.bulan',$bulan)
+                        ->where('kepegawaian_jadwal.tahun',$tahun)
+                        ->whereNull('kepegawaian_jadwal_detail.deleted_at')
+                        ->orderBy('kepegawaian_jadwal_detail.id','DESC')
+                        ->first();
 
         // EXECUTE
         $callShift = $jadwal->$hit;
 
         if ($callShift) {
             // FIND SHIFT
-            $shift = ref_shift::where('singkat',$callShift)->where('pegawai_id',$jadwal->id_atasan)->orderBy('updated_at','DESC')->first();
+            $shift = ref_shift::leftJoin('referensi_jadwal_users', function($join) {
+                        $join->on('referensi_jadwal_users.pegawai_id', '=', 'referensi_jadwal_shift.pegawai_id')
+                            ->whereNull('referensi_jadwal_users.deleted_at');
+                    })
+                    ->select('referensi_jadwal_shift.*')
+                    ->whereRaw("
+                        FIND_IN_SET(?,
+                            REPLACE(REPLACE(REPLACE(referensi_jadwal_users.staf, '\"', ''), '[', ''), ']', '')
+                        )
+                    ", [$jadwal->id_atasan])
+                    ->where('referensi_jadwal_shift.singkat',$callShift)
+                    ->where('referensi_jadwal_shift.deleted_at',null)
+                    ->first();
+            // $shift = ref_shift::where('singkat',$callShift)->where('pegawai_id',$jadwal->id_atasan)->orderBy('updated_at','DESC')->first();
 
+            // print_r($shift);
+            // die();
             if ($shift) {
                 $jam_masuk = Carbon::parse($shift->berangkat)->isoFormat('HH:mm:ss');
                 $jam_pulang = Carbon::parse($shift->pulang)->isoFormat('HH:mm:ss');
@@ -229,18 +258,37 @@ class AbsenController extends Controller
         $tgl = Carbon::now()->isoFormat('D');
         $hit = "tgl".$tgl;
 
-        $jadwal = jadwal_detail::join('kepegawaian_jadwal','kepegawaian_jadwal.id','=','kepegawaian_jadwal_detail.id_jadwal')
-                                ->where('kepegawaian_jadwal_detail.pegawai_id',$user)
-                                ->where('kepegawaian_jadwal.bulan',$bulan)
-                                ->where('kepegawaian_jadwal.tahun',$tahun)
-                                ->select('kepegawaian_jadwal.pegawai_id as id_atasan','kepegawaian_jadwal.staf','kepegawaian_jadwal.bulan','kepegawaian_jadwal.tahun','kepegawaian_jadwal_detail.*')
-                                ->first();
+        $jadwal = jadwal_detail::leftJoin('kepegawaian_jadwal', function($join) {
+                            $join->on('kepegawaian_jadwal.id', '=', 'kepegawaian_jadwal_detail.id_jadwal')
+                                ->whereNull('kepegawaian_jadwal.deleted_at');
+                        })
+                        ->select('kepegawaian_jadwal.pegawai_id as id_atasan','kepegawaian_jadwal.staf','kepegawaian_jadwal.bulan','kepegawaian_jadwal.tahun','kepegawaian_jadwal_detail.*')
+                        // ->whereJsonContains('kepegawaian_jadwal.staf', $user)
+                        ->where('kepegawaian_jadwal_detail.pegawai_id',$user)
+                        ->where('kepegawaian_jadwal.bulan',$bulan)
+                        ->where('kepegawaian_jadwal.tahun',$tahun)
+                        ->whereNull('kepegawaian_jadwal_detail.deleted_at')
+                        ->orderBy('kepegawaian_jadwal_detail.id','DESC')
+                        ->first();
 
         // EXECUTE
         $callShift = $jadwal->$hit;
 
         // FIND SHIFT
-        $shift = ref_shift::where('singkat',$callShift)->where('pegawai_id',$jadwal->id_atasan)->orderBy('updated_at','DESC')->first();
+        $shift = ref_shift::leftJoin('referensi_jadwal_users', function($join) {
+                    $join->on('referensi_jadwal_users.pegawai_id', '=', 'referensi_jadwal_shift.pegawai_id')
+                        ->whereNull('referensi_jadwal_users.deleted_at');
+                })
+                ->select('referensi_jadwal_shift.*')
+                ->whereRaw("
+                    FIND_IN_SET(?,
+                        REPLACE(REPLACE(REPLACE(referensi_jadwal_users.staf, '\"', ''), '[', ''), ']', '')
+                    )
+                ", [$jadwal->id_atasan])
+                ->where('referensi_jadwal_shift.singkat',$callShift)
+                ->where('referensi_jadwal_shift.deleted_at',null)
+                ->first();
+        // $shift = ref_shift::where('singkat',$callShift)->where('pegawai_id',$jadwal->id_atasan)->orderBy('updated_at','DESC')->first();
 
         // VALIDATING
         return Response::json(array(
