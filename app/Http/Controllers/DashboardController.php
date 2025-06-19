@@ -152,13 +152,17 @@ class DashboardController extends Controller
         $bln = $now->isoFormat('MM');
         $thn = $now->isoFormat('YYYY');
         $nama_bulan = $now->isoFormat('MMMM');
-        $staf = ref_users::whereJsonContains('staf', $user)->select('pegawai_id')->first();
+        // $staf = ref_users::whereJsonContains('staf', $user)->value('pegawai_id');
 
         $show = jadwal::join('users as pegawai', 'pegawai.id', '=', 'kepegawaian_jadwal.pegawai_id') // Join untuk pegawai_id
                         ->leftJoin('users_foto as foto_user', 'foto_user.user_id', '=', 'pegawai.id') // Join untuk foto atasan
                         ->join('users as verif_user', 'verif_user.id', '=', 'kepegawaian_jadwal.verif') // Join untuk verif
                         ->join('users as valid_user', 'valid_user.id', '=', 'kepegawaian_jadwal.valid') // Join untuk valid
-                        ->join('referensi_jadwal_users', 'referensi_jadwal_users.pegawai_id', '=', 'kepegawaian_jadwal.pegawai_id')
+                        ->join('referensi_jadwal_users', function ($join) {
+                            $join->on(DB::raw('JSON_CONTAINS(referensi_jadwal_users.staf, JSON_QUOTE(CAST(kepegawaian_jadwal.pegawai_id AS CHAR)))'), '=', DB::raw('1'))
+                                ->whereNull('referensi_jadwal_users.deleted_at');
+                        })
+                        // ->join('referensi_jadwal_users', 'referensi_jadwal_users.pegawai_id', '=', 'kepegawaian_jadwal.pegawai_id')
                         ->select(
                             'kepegawaian_jadwal.*',
                             'foto_user.filename as foto_pegawai',
@@ -170,11 +174,14 @@ class DashboardController extends Controller
                         ->whereNull('foto_user.deleted_at')
                         ->where('kepegawaian_jadwal.bulan', $bln)
                         ->where('kepegawaian_jadwal.tahun', $thn)
-                        ->where('kepegawaian_jadwal.pegawai_id', $staf->pegawai_id)
+                        ->whereJsonContains('kepegawaian_jadwal.staf', $user)
+                        // ->where('kepegawaian_jadwal.pegawai_id', $staf->pegawai_id)
                         ->whereNull('kepegawaian_jadwal.deleted_at')
                         ->orderBy('kepegawaian_jadwal.updated_at', 'DESC')
                         ->first();
 
+        // print_r($show);
+        // die();
         $data = [
             'bulan' => $nama_bulan,
             'tahun' => $thn,

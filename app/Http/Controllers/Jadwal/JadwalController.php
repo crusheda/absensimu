@@ -37,7 +37,7 @@ class JadwalController extends Controller
 
     function show($user,$bln,$thn)
     {
-        $staf = ref_users::whereJsonContains('staf', $user)->value('pegawai_id');
+        // $staf = ref_users::whereJsonContains('staf', $user)->value('pegawai_id');
         // $pegawaiIndukIds = $ref->pegawai_id;
         $show = jadwal::join('users', 'users.id', '=', 'kepegawaian_jadwal.pegawai_id')
             ->select('kepegawaian_jadwal.*', 'users.nama as nama_pegawai')
