@@ -53,20 +53,34 @@ class AbsenController extends Controller
         $bulan = Carbon::now()->isoFormat('MM');
         $tgl = Carbon::now()->isoFormat('D');
         $hit = "tgl".$tgl;
-        // $datenow = "2025-01-02";
-        // print_r($datenow);
-        // die();
-        $jadwal = jadwal_detail::join('kepegawaian_jadwal','kepegawaian_jadwal_detail.id_jadwal','=','kepegawaian_jadwal.id')
+
+        $jadwal = jadwal_detail::leftJoin('kepegawaian_jadwal', function($join) {
+                            $join->on('kepegawaian_jadwal.id', '=', 'kepegawaian_jadwal_detail.id_jadwal')
+                                ->whereNull('kepegawaian_jadwal.deleted_at');
+                        })
                         ->select('kepegawaian_jadwal_detail.'.$hit,'kepegawaian_jadwal.pegawai_id as atasan','kepegawaian_jadwal.staf as bawahan','kepegawaian_jadwal.progress')
+                        ->whereJsonContains('kepegawaian_jadwal.staf', $request->user)
                         ->where('kepegawaian_jadwal_detail.pegawai_id',$request->user)
-                        ->where('kepegawaian_jadwal.deleted_at',null)
                         ->where('kepegawaian_jadwal.bulan',$bulan)
                         ->where('kepegawaian_jadwal.tahun',$tahun)
                         ->whereIn('kepegawaian_jadwal.progress',[2,3])
+                        ->whereNull('kepegawaian_jadwal_detail.deleted_at')
                         ->orderBy('kepegawaian_jadwal_detail.id','DESC')
                         ->first();
         if (!empty($jadwal) || $jadwal != null) {
-            $shift = ref_shift::where('pegawai_id',$jadwal->atasan)->where('singkat',$jadwal->$hit)->first();
+            $shift = ref_shift::leftJoin('referensi_jadwal_users', function($join) {
+                        $join->on('referensi_jadwal_users.pegawai_id', '=', 'referensi_jadwal_shift.pegawai_id')
+                            ->whereNull('referensi_jadwal_users.deleted_at');
+                    })
+                    ->select('referensi_jadwal_shift.*')
+                    ->whereRaw("
+                        FIND_IN_SET(?,
+                            REPLACE(REPLACE(REPLACE(referensi_jadwal_users.staf, '\"', ''), '[', ''), ']', '')
+                        )
+                    ", [$jadwal->atasan])
+                    ->where('referensi_jadwal_shift.singkat',$jadwal->$hit)
+                    ->where('referensi_jadwal_shift.deleted_at',null)
+                    ->first();
         } else {
             $shift = null;
         }

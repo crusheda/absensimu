@@ -14,7 +14,7 @@ use App\Models\ref_users;
 use App\Models\ref_jabatan;
 use Jenssegers\Agent\Agent;
 use Carbon\Carbon;
-use Auth,Validator,Redirect,Response,File,Storage;
+use DB,Auth,Validator,Redirect,Response,File,Storage;
 
 class JadwalController extends Controller
 {
@@ -37,18 +37,20 @@ class JadwalController extends Controller
 
     function show($user,$bln,$thn)
     {
-        $staf = ref_users::whereJsonContains('staf', $user)->select('pegawai_id')->first();
-
+        $staf = ref_users::whereJsonContains('staf', $user)->value('pegawai_id');
+        // $pegawaiIndukIds = $ref->pegawai_id;
         $show = jadwal::join('users', 'users.id', '=', 'kepegawaian_jadwal.pegawai_id')
-            ->join('referensi_jadwal_users', 'referensi_jadwal_users.pegawai_id', '=', 'kepegawaian_jadwal.pegawai_id')
-            ->select('kepegawaian_jadwal.*', 'referensi_jadwal_users.unit', 'users.nama as nama_pegawai')
-            ->where('kepegawaian_jadwal.bulan',$bln)
-            ->where('kepegawaian_jadwal.tahun',$thn)
-            ->where('kepegawaian_jadwal.pegawai_id', $staf->pegawai_id)
+            ->select('kepegawaian_jadwal.*', 'users.nama as nama_pegawai')
+            ->where('kepegawaian_jadwal.bulan', $bln)
+            ->where('kepegawaian_jadwal.tahun', $thn)
+            ->whereJsonContains('kepegawaian_jadwal.staf', $user)
             ->whereNull('kepegawaian_jadwal.deleted_at')
-            ->orderBy('kepegawaian_jadwal.updated_at','DESC')
-            // ->whereNotNull('referensi_jadwal_users.unit')
+            ->orderByDesc('kepegawaian_jadwal.updated_at')
             ->first();
+
+        if ($show) {
+            $show->unit = ref_users::whereJsonContains('staf', $user)->value('unit');
+        }
 
         if ($show) {
             $detail = jadwal_detail::leftJoin('referensi_jadwal_users_jabatan','referensi_jadwal_users_jabatan.id_staf','=','kepegawaian_jadwal_detail.pegawai_id')
@@ -57,24 +59,21 @@ class JadwalController extends Controller
                     ->where('referensi_jadwal_users_jabatan.deleted_at',null)
                     ->orderBy('referensi_jadwal_users_jabatan.urutan','ASC')
                     ->get();
-            $jadwal = jadwal::join('users','users.id','=','kepegawaian_jadwal.pegawai_id')
-                    ->select('kepegawaian_jadwal.*','users.nama as nama_pegawai')
-                    ->where('kepegawaian_jadwal.id',$show->id)
-                    ->first();
-            $shift  = ref_shift::join('kepegawaian_jadwal','kepegawaian_jadwal.pegawai_id','=','referensi_jadwal_shift.pegawai_id')
+            $shift  = ref_shift::leftJoin('referensi_jadwal_users', function($join) {
+                        $join->on('referensi_jadwal_users.pegawai_id', '=', 'referensi_jadwal_shift.pegawai_id')
+                            ->whereNull('referensi_jadwal_users.deleted_at');
+                    })
                     ->select('referensi_jadwal_shift.*')
-                    ->where('kepegawaian_jadwal.id',$show->id)
+                    ->whereJsonContains('referensi_jadwal_users.staf', $user)
                     ->where('referensi_jadwal_shift.deleted_at',null)
                     ->get();
-            $staf   = ref_users::join('kepegawaian_jadwal','kepegawaian_jadwal.pegawai_id','=','referensi_jadwal_users.pegawai_id')
-                    ->select('referensi_jadwal_users.*')
-                    ->where('kepegawaian_jadwal.id',$show->id)
-                    ->where('referensi_jadwal_users.deleted_at',null)
-                    ->first();
-            $jabatan = ref_jabatan::join('kepegawaian_jadwal','kepegawaian_jadwal.pegawai_id','=','referensi_jadwal_users_jabatan.pegawai_id')
+            $jabatan = ref_jabatan::leftJoin('referensi_jadwal_users', function($join) {
+                        $join->on('referensi_jadwal_users.pegawai_id', '=', 'referensi_jadwal_users_jabatan.pegawai_id')
+                            ->whereNull('referensi_jadwal_users.deleted_at');
+                    })
                     ->select('referensi_jadwal_users_jabatan.*')
-                    ->where('referensi_jadwal_users_jabatan.deleted_at',null)
-                    ->where('kepegawaian_jadwal.id',$show->id)
+                    ->whereJsonContains('referensi_jadwal_users.staf', $user)
+                    ->whereNull('referensi_jadwal_users_jabatan.deleted_at')
                     ->get();
                     // print_r($shift);
                     // die();
@@ -85,19 +84,18 @@ class JadwalController extends Controller
             }
             $getBulan = ['','Januari', 'Februari', 'Maret', 'April', 'Mei', 'Juni', 'Juli', 'Agustus', 'September', 'Oktober', 'November', 'Desember'];
             foreach ($getBulan as $key => $value) {
-                if ($key == $jadwal->bulan) {
+                if ($key == $show->bulan) {
                     $bulan = $value;
                 }
             }
 
             $data = [
                 'code' => 200,
+                'show' => $show,
                 'bulan' => $bulan,
                 'detail' => $detail,
                 'shift' => $shift,
-                'staf' => $staf,
                 'jabatan' => $jabatan,
-                'jadwal' => $jadwal,
                 'totalDay' => $totalDay,
                 'dataArray' => $dataArray,
                 'message' => "Jadwal Berhasil Ditemukan",

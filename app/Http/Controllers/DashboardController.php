@@ -69,26 +69,41 @@ class DashboardController extends Controller
                         ->whereYear('tgl_in',$year)
                         ->whereNull('deleted_at')
                         ->count();
-        $getJadwal = jadwal_detail::join('kepegawaian_jadwal','kepegawaian_jadwal_detail.id_jadwal','=','kepegawaian_jadwal.id')
-                        ->select('kepegawaian_jadwal_detail.'.$hit,'kepegawaian_jadwal.pegawai_id as atasan')
+        $getJadwal = jadwal_detail::leftJoin('kepegawaian_jadwal', function($join) {
+                            $join->on('kepegawaian_jadwal.id', '=', 'kepegawaian_jadwal_detail.id_jadwal')
+                                ->whereNull('kepegawaian_jadwal.deleted_at');
+                        })
+                        ->select('kepegawaian_jadwal_detail.'.$hit,'kepegawaian_jadwal.pegawai_id as atasan','kepegawaian_jadwal.progress')
                         ->where('kepegawaian_jadwal_detail.pegawai_id',Auth::user()->id)
-                        ->where('kepegawaian_jadwal.deleted_at',null)
                         ->whereIn('kepegawaian_jadwal.progress',[2,3])
                         ->where('kepegawaian_jadwal.bulan',$month)
                         ->where('kepegawaian_jadwal.tahun',$year)
+                        ->whereNull('kepegawaian_jadwal_detail.deleted_at')
                         ->orderBy('kepegawaian_jadwal_detail.updated_at','DESC')
                         ->first();
 
         $shift = null;
         $nama_shift = null;
-        // print_r($absenOne);
+        // print_r($getJadwal->atasan);
         // die();
         if ($getJadwal) {
             if ($getJadwal->progress == 2) {
                 $nama_shift = null;
                 $shift = 'Dalam Proses Validasi';
             } else {
-                $xshift = ref_shift::where('pegawai_id',$getJadwal->atasan)->where('singkat',$getJadwal->$hit)->first();
+                $xshift = ref_shift::leftJoin('referensi_jadwal_users', function($join) {
+                                $join->on('referensi_jadwal_users.pegawai_id', '=', 'referensi_jadwal_shift.pegawai_id')
+                                    ->whereNull('referensi_jadwal_users.deleted_at');
+                            })
+                            ->whereRaw("
+                                FIND_IN_SET(?,
+                                    REPLACE(REPLACE(REPLACE(referensi_jadwal_users.staf, '\"', ''), '[', ''), ']', '')
+                                )
+                            ", [$getJadwal->atasan])
+                            ->where('referensi_jadwal_shift.singkat', $getJadwal->$hit)
+                            ->whereNull('referensi_jadwal_shift.deleted_at')
+                            ->first();
+
                 if ($xshift) {
                     $nama_shift = $xshift->shift;
                     if ($xshift->berangkat == '00:00:00' && $xshift->pulang == '00:00:00') {

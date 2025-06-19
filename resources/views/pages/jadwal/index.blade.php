@@ -87,7 +87,7 @@
                         var n = 1;
                         // PROCESS
                         content = ``;
-                        content += `<h4 class="text-center mb-2">Jadwal Dinas Unit <b class="text-primary">${res.staf.unit?res.staf.unit:'<s>Tidak Valid</s>'}</b></h4><h5 class="text-center mb-2">Bulan <b class="text-primary">${res.bulan}</b> Tahun <b class="text-primary">${res.jadwal.tahun}</b></h5>`;
+                        content += `<h4 class="text-center mb-2">Jadwal Dinas Unit <b class="text-primary">${res.show.unit?res.show.unit:'<s>Tidak Valid</s>'}</b></h4><h5 class="text-center mb-2">Bulan <b class="text-primary">${res.bulan}</b> Tahun <b class="text-primary">${res.show.tahun}</b></h5>`;
                         content += `<div class="row mt-3"><div class="col-md-12"><div class="table-responsive p-10 pb-0">
                                     <table id="dttable" class="table table-bordered" style="width: 100%;table-layout: auto">
                                         <thead>
