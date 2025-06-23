@@ -342,18 +342,18 @@ class AbsenController extends Controller
         // Deteksi user-agent mencurigakan
         $userAgent = $request->header('User-Agent');
 
-        // if (!preg_match('/Mobile|Android|iPhone|iPad|iPod/i', $userAgent)) {
-        //     return Response::json(array(
-        //         'message' => 'Absensi hanya diperbolehkan menggunakan perangkat mobile (Android/IOS) !!',
-        //         'code' => 403,
-        //     ));
-        // }
-        // if (preg_match('/Genymotion|Xposed|Magisk/i', $userAgent)) {
-        //     return Response::json(array(
-        //         'message' => 'Perangkat tidak valid untuk absensi',
-        //         'code' => 403,
-        //     ));
-        // }
+        if (!preg_match('/Mobile|Android|iPhone|iPad|iPod/i', $userAgent)) {
+            return Response::json(array(
+                'message' => 'Absensi hanya diperbolehkan menggunakan perangkat mobile (Android/IOS) !!',
+                'code' => 403,
+            ));
+        }
+        if (preg_match('/Genymotion|Xposed|Magisk/i', $userAgent)) {
+            return Response::json(array(
+                'message' => 'Perangkat tidak valid untuk absensi',
+                'code' => 403,
+            ));
+        }
 
         $img = $request->image;
         if ($img) {
