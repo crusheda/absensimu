@@ -904,6 +904,7 @@
 
     function prosesMasuk() {
         $('#btn-masuk').prop('disabled',true);
+        $('#btn-masuk').find('i').removeClass('fa-angle-right').addClass('fa-sync fa-spin');
         if ("{{ Auth::user()->getPermission('absensi_oncall') }}" == true) {
             oncall = true;
         } else {
@@ -916,14 +917,14 @@
             dataType: 'json',
             success: function(res) {
                 if (res.code == 200) { // JIKA SYARAT ABSEN TERPENUHI
-                    console.log(res);
-                    console.log(res.pulang);
+                    // console.log(res);
+                    // console.log(res.pulang);
                     // INIT
                     Webcam.snap( function(data_uri) {
                         $("#image-capture").val(data_uri);
-                        console.log(data_uri);
+                        // console.log(data_uri);
                     } );
-                    console.log($("#image-capture").val());
+                    // console.log($("#image-capture").val());
                     var save = new FormData();
                     save.append('image',$("#image-capture").val());
                     save.append('lokasi',$("#lokasi").val());
@@ -947,7 +948,6 @@
                         dataType: 'json',
                         success: function(ex) {
                             if (ex.code == 200) {
-                                refreshMap();
                                 Swal.fire({
                                     title: `Yeaayyy!!`,
                                     text: ex.message,
@@ -974,7 +974,6 @@
                                     backdrop: `rgba(26,27,41,0.8)`,
                                 });
                             }
-                            $('#btn-masuk').prop('disabled',false);
                         }
                     })
                 } else { // JIKA SYARAT ABSEN TIDAK TERPENUHI
@@ -990,9 +989,9 @@
                         timerProgressBar: true,
                         backdrop: `rgba(26,27,41,0.8)`,
                     });
-                    refreshMap();
                 }
-                $('#btn-masuk').prop('disabled',false);
+                refreshMap();
+                $('#btn-masuk').find('i').removeClass('fa-sync fa-spin').addClass('fa-angle-right');
             },
             error: function (res) {
                 Swal.fire({
@@ -1008,25 +1007,28 @@
                     backdrop: `rgba(26,27,41,0.8)`,
                 });
                 $('#btn-masuk').prop('disabled',false);
+                $('#btn-masuk').find('i').removeClass('fa-sync fa-spin').addClass('fa-angle-right');
             }
         })
     }
 
     function prosesPulang() {
+        $('#btn-pulang').prop('disabled',true);
+        $('#btn-pulang').find('i').removeClass('fa-angle-left').addClass('fa-sync fa-spin');
         // VALIDATION
         $.ajax({
             url: "/api/kepegawaian/absensi/validate/jadwal/{{ Auth::user()->id }}/pulang",
             type: 'GET',
             dataType: 'json',
             success: function(res) {
-                console.log(res);
+                // console.log(res);
                 if (res.code == 200) { // JIKA SYARAT ABSEN TERPENUHI
                     // INIT
                     Webcam.snap( function(data_uri) {
                         $("#image-capture").val(data_uri);
-                        console.log(data_uri);
+                        // console.log(data_uri);
                     } );
-                    console.log($("#image-capture").val());
+                    // console.log($("#image-capture").val());
                     var save = new FormData();
                     save.append('image',$("#image-capture").val());
                     save.append('lokasi',$("#lokasi").val());
@@ -1057,7 +1059,6 @@
                                     timerProgressBar: true,
                                     backdrop: `rgba(26,27,41,0.8)`,
                                 });
-                                refreshMap();
                             } else {
                                 Swal.fire({
                                     title: `Pesan Error!`,
@@ -1072,6 +1073,8 @@
                                     backdrop: `rgba(26,27,41,0.8)`,
                                 });
                             }
+                            refreshMap();
+                            $('#btn-pulang').find('i').removeClass('fa-sync fa-spin').addClass('fa-angle-left');
                         }
                     })
                 } else { // JIKA SYARAT ABSEN TIDAK TERPENUHI
@@ -1087,7 +1090,9 @@
                         timerProgressBar: true,
                         backdrop: `rgba(26,27,41,0.8)`,
                     });
-                    refreshMap();
+                    // refreshMap();
+                    $('#btn-pulang').prop('disabled',false);
+                    $('#btn-pulang').find('i').removeClass('fa-sync fa-spin').addClass('fa-angle-left');
                 }
             }
         })

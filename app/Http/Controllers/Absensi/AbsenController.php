@@ -182,17 +182,17 @@ class AbsenController extends Controller
             // print_r($shift);
             // die();
             if ($shift) {
-                $jam_masuk = Carbon::parse($shift->berangkat)->isoFormat('HH:mm:ss');
-                $jam_pulang = Carbon::parse($shift->pulang)->isoFormat('HH:mm:ss');
+                $jam_masuk = Carbon::parse($shift->berangkat);
+                $jam_pulang = Carbon::parse($shift->pulang);
 
-                if ($jam_pulang > $jam_masuk) {
+                if ($jam_pulang->greaterThan($jam_masuk)) {
                     $lewat_hari = 0; // TIDAK LEWAT HARI
                 } else {
-                    $lewat_hari = 1; // LEWAT HARI / KHUSUS (MALAM)
+                    $lewat_hari = 1; // LEWAT HARI / MALAM
                 }
 
                 // VALIDATING JAM MASUK
-                if ($shift->pulang > $shift->berangkat) { // KECUALI MALAM ATAU LEWAT HARI
+                if ($jam_pulang->greaterThan($jam_masuk)) { // KECUALI MALAM ATAU LEWAT HARI
                     if ($time >= Carbon::parse($shift->berangkat)->subHour()->isoFormat('HH:mm:ss') && $time <= Carbon::parse($shift->pulang)->isoFormat('HH:mm:ss')) { // DALAM JAM KERJA (MIN 1 JAM SEBELUM JAM MASUK)
                         return Response::json(array(
                             'message' => 'Anda berada di Waktu Masuk Kerja!',
@@ -342,12 +342,12 @@ class AbsenController extends Controller
         // Deteksi user-agent mencurigakan
         $userAgent = $request->header('User-Agent');
 
-        if (!preg_match('/Mobile|Android|iPhone|iPad|iPod/i', $userAgent)) {
-            return Response::json(array(
-                'message' => 'Absensi hanya diperbolehkan menggunakan perangkat mobile (Android/IOS) !!',
-                'code' => 403,
-            ));
-        }
+        // if (!preg_match('/Mobile|Android|iPhone|iPad|iPod/i', $userAgent)) {
+        //     return Response::json(array(
+        //         'message' => 'Absensi hanya diperbolehkan menggunakan perangkat mobile (Android/IOS) !!',
+        //         'code' => 403,
+        //     ));
+        // }
         // if (preg_match('/Genymotion|Xposed|Magisk/i', $userAgent)) {
         //     return Response::json(array(
         //         'message' => 'Perangkat tidak valid untuk absensi',
@@ -379,36 +379,138 @@ class AbsenController extends Controller
                 $terlambat = 0; // DISIPLIN
             }
 
-            $jamMasuk = Carbon::parse($request->berangkat)->format('Y-m-d H:i:s');
-            $jamPulang = Carbon::parse($request->pulang)->format('Y-m-d H:i:s');
-            $validasi = absensi::where('pegawai_id',$request->pegawai)
+            $ValJamMasuk = Carbon::createFromFormat('Y-m-d H:i:s', $request->berangkat, 'Asia/Jakarta');
+            $ValJamPulang = Carbon::createFromFormat('Y-m-d H:i:s', $request->pulang, 'Asia/Jakarta');
+            $jamMasuk = $ValJamMasuk->format('Y-m-d H:i:s');
+            $jamPulang = $ValJamPulang->format('Y-m-d H:i:s');
+            // $DateJamMasuk = $ValJamMasuk->format('Y-m-d');
+            // $DateNow = Carbon::now()->format('Y-m-d');
+
+            if ($ValJamMasuk->isToday()) {
+                $validasi = absensi::where('pegawai_id',$request->pegawai)
                                 ->where('jenis',1)
                                 ->where('kd_shift',$request->kd_shift)
                                 ->where('ref_jam_masuk',$jamMasuk)
                                 ->where('ref_jam_pulang',$jamPulang)
                                 ->delete();
 
-            $data = new absensi;
-            $data->jenis = 1;
-            $data->ip_in = $this->getClientIp();
-            $data->user_agent = $userAgent;
-            $data->pegawai_id = $request->pegawai;
-            $data->kd_shift = $request->kd_shift;
-            $data->nm_shift = $request->nm_shift;
-            $data->ref_jam_masuk = $jamMasuk;
-            $data->ref_jam_pulang = $jamPulang;
-            $data->keterlambatan = $diff;
-            $data->tgl_in = Carbon::now();
-            $data->foto_in = $title;
-            // $data->title_in = $path;
-            $data->path_in = $path;
-            $data->lokasi_in = $request->lokasi;
-            $data->terlambat = $terlambat;
-            $data->lewat_hari = $request->lewat_hari;
+                $data = new absensi;
+                $data->jenis = 1;
+                $data->ip_in = $this->getClientIp();
+                $data->user_agent = $userAgent;
+                $data->pegawai_id = $request->pegawai;
+                $data->kd_shift = $request->kd_shift;
+                $data->nm_shift = $request->nm_shift;
+                $data->ref_jam_masuk = $jamMasuk;
+                $data->ref_jam_pulang = $jamPulang;
+                $data->keterlambatan = $diff;
+                $data->tgl_in = Carbon::now('Asia/Jakarta');
+                $data->foto_in = $title;
+                // $data->title_in = $path;
+                $data->path_in = $path;
+                $data->lokasi_in = $request->lokasi;
+                $data->terlambat = $terlambat;
+                $data->lewat_hari = $request->lewat_hari;
+                $data->save();
+
+                return Response::json(array(
+                    'message' => 'Absen masuk berhasil, selamat beraktifitas',
+                    'code' => 200,
+                ));
+            } else {
+                return Response::json(array(
+                    'message' => 'Jam Berangkat yang terkirim ke Sistem TIDAK VALID, bisa jadi dikarenakan banyaknya Cache yang menumpuk pada Device Anda. Silakan Refresh halaman Absensi ini dan lakukan sekali lagi. Terima Kasih.',
+                    'code' => 400,
+                ));
+            }
+        } else {
+            return Response::json(array(
+                'message' => 'Hasil selfi kamera tidak ditemukan, pastikan kamera Anda dalam kondisi Normal. Apabila masih belum dapat melakukan Absensi, silakan menghubungi Admin. Terima Kasih.',
+                'code' => 400,
+            ));
+        }
+    }
+
+    function executePulang(Request $request)
+    {
+        // Deteksi user-agent mencurigakan
+        $userAgent = $request->header('User-Agent');
+
+        if (!preg_match('/Mobile|Android|iPhone|iPad|iPod/i', $userAgent)) {
+            return Response::json(array(
+                'message' => 'Absensi hanya diperbolehkan menggunakan perangkat mobile (Android/IOS) !!',
+                'code' => 403,
+            ));
+        }
+        // if (preg_match('/Genymotion|Xposed|Magisk/i', $userAgent)) {
+        //     return Response::json(array(
+        //         'message' => 'Perangkat tidak valid untuk absensi',
+        //         'code' => 403,
+        //     ));
+        // }
+
+        $now = Carbon::now('Asia/Jakarta');
+        // $datenow = $now->isoFormat('YYYY-MM-DD');
+        $datenow = $now->toDateString(); // '2025-06-23'
+
+        $img = $request->image;
+        if ($img) {
+            $title = uniqid() . '.png';
+            $folderPath = "public/files/kepegawaian/absensi/pulang/";
+            // IMAGE CONVERSION
+            $image_parts = explode(";base64,", $img);
+            $image_type_aux = explode("image/", $image_parts[0]);
+            $image_type = $image_type_aux[1] ?? 'png';
+            $image_base64 = base64_decode($image_parts[1]);
+            $path = $folderPath . $title;
+            Storage::put($path, $image_base64);
+
+            // VALIDASI DUPLIKASI DATA
+            $validate = absensi::where('pegawai_id',$request->pegawai)
+                        ->whereDate("ref_jam_pulang","=",$datenow)
+                        ->whereNull('deleted_at')
+                        ->orderBy('updated_at','DESC')
+                        ->get();
+
+            if ($validate->count() > 1) {
+                // Ambil data pertama dan buang sisanya
+                $validate->skip(1)->each->delete();
+                // $validate->slice(1)->each->delete(); // Lebih Berat dari skip()
+            }
+
+            // GET DATA TO UPDATE
+            // Ambil data pertama dari hasil yang sudah diambil
+            $data = $validate->first();
+            if (!$data) {
+                return Response::json([
+                    'message' => 'Data absensi tidak ditemukan.',
+                    'code' => 404,
+                ]);
+            }
+
+            // PERHITUNGAN LEMBUR JAM PULANG
+            $jam_pulang_seharusnya = new Carbon($data->ref_jam_pulang); // ->isoFormat('YYYY-MM-DD H:mm:ss')
+            $jam_pulang_sekarang = $now;
+            $diffLembur = $jam_pulang_seharusnya->diff($jam_pulang_sekarang)->format('%H:%I:%S');
+
+            // PERHITUNGAN SELISIH JAM SAAT MASUK SAMPAI PULANG
+            $jam_berangkat = new Carbon($data->tgl_in); // ->isoFormat('YYYY-MM-DD H:mm:ss')
+            $jam_pulang = $now;
+            $diffKerja = $jam_berangkat->lessThan($jam_pulang)
+                        ? $jam_berangkat->diff($jam_pulang)->format('%H:%I:%S')
+                        : '00:00:00';
+
+            $data->ip_out = $this->getClientIp();
+            $data->tgl_out = $now;
+            $data->lembur = $diffLembur;
+            $data->selisih_jam = $diffKerja;
+            $data->foto_out = $title;
+            $data->path_out = $path;
+            $data->lokasi_out = $request->lokasi;
             $data->save();
 
             return Response::json(array(
-                'message' => 'Absen masuk berhasil, selamat beraktifitas',
+                'message' => 'Absen pulang berhasil, hati-hati di jalan',
                 'code' => 200,
             ));
         } else {
@@ -483,87 +585,6 @@ class AbsenController extends Controller
             'message' => 'Surat Ijin berhasil dikirimkan',
             'code' => 200,
         ));
-    }
-
-    function executePulang(Request $request)
-    {
-        // Deteksi user-agent mencurigakan
-        $userAgent = $request->header('User-Agent');
-
-        if (!preg_match('/Mobile|Android|iPhone|iPad|iPod/i', $userAgent)) {
-            return Response::json(array(
-                'message' => 'Absensi hanya diperbolehkan menggunakan perangkat mobile (Android/IOS) !!',
-                'code' => 403,
-            ));
-        }
-        // if (preg_match('/Genymotion|Xposed|Magisk/i', $userAgent)) {
-        //     return Response::json(array(
-        //         'message' => 'Perangkat tidak valid untuk absensi',
-        //         'code' => 403,
-        //     ));
-        // }
-
-        $now = Carbon::now();
-        $datenow = $now->isoFormat('YYYY-MM-DD');
-
-        $img = $request->image;
-        if ($img) {
-            $title = uniqid() . '.png';
-            $folderPath = "public/files/kepegawaian/absensi/pulang/";
-            // IMAGE CONVERSION
-            $image_parts = explode(";base64,", $img);
-            $image_type_aux = explode("image/", $image_parts[0]);
-            $image_type = $image_type_aux[1];
-            $image_base64 = base64_decode($image_parts[1]);
-            $path = $folderPath . $title;
-            Storage::put($path, $image_base64);
-
-            // VALIDASI DUPLIKASI DATA
-            $validate = absensi::where('pegawai_id',$request->pegawai)->whereDate("ref_jam_pulang","=",$datenow)->whereNull('deleted_at')->orderBy('updated_at','DESC')->get();
-            if ($validate->count() > 1) {
-                // Ambil data pertama dan buang sisanya
-                $validate->slice(1)->each->delete();
-            }
-
-            // GET DATA TO UPDATE
-            // Ambil data pertama dari hasil yang sudah diambil
-            $data = $validate->first();
-            if (!$data) {
-                return Response::json([
-                    'message' => 'Data absensi tidak ditemukan.',
-                    'code' => 404,
-                ]);
-            }
-
-            // PERHITUNGAN LEMBUR JAM PULANG
-            $jam_pulang_seharusnya = new Carbon($data->ref_jam_pulang); // ->isoFormat('YYYY-MM-DD H:mm:ss')
-            $jam_pulang_sekarang = new Carbon();
-            $diffLembur = $jam_pulang_seharusnya->diff($jam_pulang_sekarang)->format('%H:%I:%S');
-
-            // PERHITUNGAN SELISIH JAM SAAT MASUK SAMPAI PULANG
-            $jam_berangkat = new Carbon($data->tgl_in); // ->isoFormat('YYYY-MM-DD H:mm:ss')
-            $jam_pulang = new Carbon();
-            $diffKerja = $jam_berangkat->diff($jam_pulang)->format('%H:%I:%S');
-
-            $data->ip_out = $this->getClientIp();
-            $data->tgl_out = Carbon::now();
-            $data->lembur = $diffLembur;
-            $data->selisih_jam = $diffKerja;
-            $data->foto_out = $title;
-            $data->path_out = $path;
-            $data->lokasi_out = $request->lokasi;
-            $data->save();
-
-            return Response::json(array(
-                'message' => 'Absen pulang berhasil, hati-hati di jalan',
-                'code' => 200,
-            ));
-        } else {
-            return Response::json(array(
-                'message' => 'Hasil selfi kamera tidak ditemukan, pastikan kamera Anda dalam kondisi Normal. Apabila masih belum dapat melakukan Absensi, silakan menghubungi Admin. Terima Kasih.',
-                'code' => 400,
-            ));
-        }
     }
 
     function getDistance(Request $request)
