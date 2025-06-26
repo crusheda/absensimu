@@ -35,7 +35,7 @@ class LoginController extends Controller
             'message' => 'Login berhasil',
             'token' => $token, // ← Kirim token ke Flutter
             'user' => [
-                'id' => $user->id,
+                'id_user' => $user->id,
                 'nip' => $user->nip,
                 'name' => $user->name,
                 'nama' => $user->nama,
