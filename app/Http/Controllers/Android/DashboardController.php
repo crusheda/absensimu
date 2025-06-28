@@ -112,16 +112,30 @@ class DashboardController extends Controller
                         $shift = Carbon::parse($xshift->berangkat)->isoFormat('HH.mm').' - '.Carbon::parse($xshift->pulang)->isoFormat('HH.mm').' WIB';
                     }
                 } else {
-                    $shift = null;
+                    if ($getJadwal->$hit == "C") {
+                        $nama_shift = 'Cuti Tahunan';
+                    } else {
+                        if ($getJadwal->$hit == "CM") {
+                            $nama_shift = 'Cuti Melahirkan';
+                        } else {
+                            if ($getJadwal->$hit == "CU") {
+                                $nama_shift = 'Cuti Umroh';
+                            } else {
+                                if ($getJadwal->$hit == "CH") {
+                                    $nama_shift = 'Cuti Haji';
+                                } else {
+                                    if ($getJadwal->$hit == "CD") {
+                                        $nama_shift = 'Cuti Diluar Tanggungan';
+                                    } else {
+                                        $nama_shift = 'Libur / Tidak Masuk';
+                                    }
+                                }
+                            }
+                        }
+                    }
+                    $shift = ' ';
                 }
 
-                if ($getJadwal->$hit == 'L') {
-                    $shift = 'Libur/Tidak Masuk';
-                } else {
-                    if ($getJadwal->$hit == 'C') {
-                        $shift = 'Cuti/Tidak Masuk';
-                    }
-                }
             }
         } else {
             $nama_shift = null;
@@ -154,8 +168,9 @@ class DashboardController extends Controller
                         ->orderBy('kepegawaian_jadwal.updated_at', 'DESC')
                         ->first();
 
-        // print_r($show);
+        // print_r($getJadwal->$hit);
         // die();
+
         $data = [
             'foto_profil' => $foto_profil,
             'statuspgw' => $statuspgw,
