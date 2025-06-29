@@ -111,7 +111,7 @@ class AbsensiController extends Controller
                         $jam = Carbon::parse($shift->berangkat)->isoFormat('HH:mm').' - '.Carbon::parse($shift->pulang)->isoFormat('HH:mm').' WIB';
                         $keterangan = 'Shift '.$shift->shift;
                     } else {
-                        $nama = $cutiMap[$jadwal->$hit] ?? 'Libur / Tidak Masuk';
+                        $nama = 'Hari ini ' . $cutiMap[$jadwal->$hit] ?? 'Libur / Tidak Masuk';
                         $jam = '-';
                         $keterangan = '';
                     }
@@ -148,16 +148,16 @@ class AbsensiController extends Controller
                             $jamPulangUntil = Carbon::parse($datenow . ' ' . $shift->pulang)->addHour(2);
                             if (!$show) {
                                 if (!$showMalam) {
-                                    // JIKA MASIH ADA JAGA SHIFT YANG BELUM TERSELESAIKAN (KHUSUS LEWAT HARI)
                                     if ($now->between($jamMasuk, $jamPulang)) {
                                         $btn_berangkat = true;
                                         $message = 'Silakan melakukan Absensi Masuk hari ini (Maksimal sebelum melewati Waktu Jam Pulang). Terima Kasih.';
                                     } elseif ($now->lessThan($jamMasuk)) {
-                                        $message = 'aJam Absen Masuk saat ini TIDAK pada/antara jam masuk yang ditetapkan (yaitu -1 jam sebelum Referensi Jam Masuk) dan wajib tidak lebih dari jam pulang yang seharusnya.';
+                                        $message = 'Jam Absen Masuk saat ini TIDAK pada/antara jam masuk yang ditetapkan (yaitu -1 jam sebelum Referensi Jam Masuk) dan wajib tidak lebih dari jam pulang yang seharusnya.';
                                     } else {
                                         $message = 'Jam Absen Masuk sudah terlewati. Absen Masuk TIDAK BOLEH melebihi Jam Pulang.';
                                     }
                                 } else {
+                                    // JIKA MASIH ADA JAGA SHIFT YANG BELUM TERSELESAIKAN (KHUSUS LEWAT HARI)
                                     $jamPulangMalam = Carbon::parse($showMalam->ref_jam_pulang);
                                     $jamPulangMalamUntil = Carbon::parse($showMalam->ref_jam_pulang)->addHour(2);
                                     if ($now->greaterThan($jamPulangMalamUntil)) {
@@ -177,6 +177,7 @@ class AbsensiController extends Controller
                                         } else { // $now->lessThan($jamPulangMalam)
                                             $message = 'Absen Pulang Shift Malam Anda Hari ini (Pukul '.$jamPulangMalam->isoFormat('HH:mm').' WIB) masih terkunci, Silakan menunggu.';
                                         }
+                                        $nama = 'Jadwal Shift Lewat Hari';
                                         $jam = Carbon::parse($showMalam->ref_jam_masuk)->isoFormat('HH:mm').' - '.Carbon::parse($showMalam->ref_jam_pulang)->isoFormat('HH:mm').' WIB';
                                         $keterangan = 'Shift '.$showMalam->nm_shift;
                                     }
@@ -201,7 +202,7 @@ class AbsensiController extends Controller
                         }
                     } else { // JIKA HARI INI TIDAK ADA MASUK SHIFT
                         if (!$showMalam) {
-                            $message = $cutiMap[$jadwal->$hit] ?? 'Selamat berlibur hari ini dan beraktivitas kembali di kemudian hari.';
+                            $message = 'Hari ini Anda sedang '.$cutiMap[$jadwal->$hit].', Absensi tidak diizinkan.' ?? 'Selamat berlibur hari ini dan beraktivitas kembali di kemudian hari.';
                         } else {
                             $jamPulangMalam = Carbon::parse($showMalam->ref_jam_pulang);
                             $jamPulangMalamUntil = Carbon::parse($showMalam->ref_jam_pulang)->addHour(2);
@@ -214,6 +215,7 @@ class AbsensiController extends Controller
                                 } else { // $now->lessThan($jamPulangMalam)
                                     $message = 'Absen Pulang Shift Malam Anda Hari ini (Pukul '.$jamPulangMalam->isoFormat('HH:mm').' WIB) masih terkunci, Silakan menunggu.';
                                 }
+                                $nama = 'Jadwal Shift Lewat Hari';
                                 $jam = Carbon::parse($showMalam->ref_jam_masuk)->isoFormat('HH:mm').' - '.Carbon::parse($showMalam->ref_jam_pulang)->isoFormat('HH:mm').' WIB';
                                 $keterangan = 'Shift '.$showMalam->nm_shift;
                             }
@@ -253,166 +255,340 @@ class AbsensiController extends Controller
 
     function absensi(Request $request)
     {
-        $now = Carbon::now();
-        $waktuSekarang = new Carbon();;
-        $time = Carbon::now()->isoFormat('HH:mm:ss'); // 24 hour
-        $today = Carbon::now()->isoFormat('YYYY-MM-DD');
-        $tommorow = Carbon::now()->addDays(1)->isoFormat('YYYY-MM-DD');
-        $tahun = Carbon::now()->isoFormat('YYYY');
-        $bulan = Carbon::now()->isoFormat('MM');
-        $tgl = Carbon::now()->isoFormat('D');
+        $now = Carbon::now('Asia/Jakarta');
+        $time = $now->isoFormat('HH:mm:ss'); // Format jam 24-jam
+        $datenow = $now->toDateString();
+        $today = $now->isoFormat('YYYY-MM-DD');
+        $yesterday = $now->copy()->subDay()->toDateString();
+        $tommorow = $now->copy()->addDay()->toDateString();
+        $tahun = $now->isoFormat('YYYY');
+        $bulan = $now->isoFormat('MM');
+        $tgl = $now->isoFormat('D');
         $hit = "tgl".$tgl;
         $user = $request->id_user;
+        $jenis = $request->jenis;
+        // JENIS = 1 = BERANGKAT
+        // JENIS = 2 = PULANG
+        // JENIS = 3 = IJIN
 
-        $jadwal = jadwal_detail::leftJoin('kepegawaian_jadwal', function($join) {
-                            $join->on('kepegawaian_jadwal.id', '=', 'kepegawaian_jadwal_detail.id_jadwal')
-                                ->whereNull('kepegawaian_jadwal.deleted_at');
+        if ($jenis == 1) { // ABSENSI MASUK/BERANGKAT
+            $jadwal = jadwal_detail::leftJoin('kepegawaian_jadwal', function($join) {
+                                $join->on('kepegawaian_jadwal.id', '=', 'kepegawaian_jadwal_detail.id_jadwal')
+                                    ->whereNull('kepegawaian_jadwal.deleted_at');
+                            })
+                            ->select('kepegawaian_jadwal.pegawai_id as id_atasan','kepegawaian_jadwal.staf','kepegawaian_jadwal.bulan','kepegawaian_jadwal.tahun','kepegawaian_jadwal_detail.*')
+                            // ->whereJsonContains('kepegawaian_jadwal.staf', $user)
+                            ->where('kepegawaian_jadwal_detail.pegawai_id',$user)
+                            ->where('kepegawaian_jadwal.bulan',$bulan)
+                            ->where('kepegawaian_jadwal.tahun',$tahun)
+                            ->whereNull('kepegawaian_jadwal_detail.deleted_at')
+                            ->orderBy('kepegawaian_jadwal_detail.id','DESC')
+                            ->first();
+
+            // EXECUTE
+            $callShift = $jadwal->$hit;
+
+            if ($callShift) {
+                // FIND SHIFT
+                $shift = ref_shift::leftJoin('referensi_jadwal_users', function($join) {
+                            $join->on('referensi_jadwal_users.pegawai_id', '=', 'referensi_jadwal_shift.pegawai_id')
+                                ->whereNull('referensi_jadwal_users.deleted_at');
                         })
-                        ->select('kepegawaian_jadwal.pegawai_id as id_atasan','kepegawaian_jadwal.staf','kepegawaian_jadwal.bulan','kepegawaian_jadwal.tahun','kepegawaian_jadwal_detail.*')
-                        // ->whereJsonContains('kepegawaian_jadwal.staf', $user)
-                        ->where('kepegawaian_jadwal_detail.pegawai_id',$user)
-                        ->where('kepegawaian_jadwal.bulan',$bulan)
-                        ->where('kepegawaian_jadwal.tahun',$tahun)
-                        ->whereNull('kepegawaian_jadwal_detail.deleted_at')
-                        ->orderBy('kepegawaian_jadwal_detail.id','DESC')
+                        ->select('referensi_jadwal_shift.*')
+                        ->whereRaw("
+                            FIND_IN_SET(?,
+                                REPLACE(REPLACE(REPLACE(referensi_jadwal_users.staf, '\"', ''), '[', ''), ']', '')
+                            )
+                        ", [$jadwal->id_atasan])
+                        ->where('referensi_jadwal_shift.singkat',$callShift)
+                        ->where('referensi_jadwal_shift.deleted_at',null)
                         ->first();
 
-        // EXECUTE
-        $callShift = $jadwal->$hit;
+                if ($shift) {
+                    $berangkat = null;
+                    $pulang = null;
+                    $jam_masuk = Carbon::parse($shift->berangkat);
+                    $jam_pulang = Carbon::parse($shift->pulang);
 
-        if ($callShift) {
-            // FIND SHIFT
-            $shift = ref_shift::leftJoin('referensi_jadwal_users', function($join) {
-                        $join->on('referensi_jadwal_users.pegawai_id', '=', 'referensi_jadwal_shift.pegawai_id')
-                            ->whereNull('referensi_jadwal_users.deleted_at');
-                    })
-                    ->select('referensi_jadwal_shift.*')
-                    ->whereRaw("
-                        FIND_IN_SET(?,
-                            REPLACE(REPLACE(REPLACE(referensi_jadwal_users.staf, '\"', ''), '[', ''), ']', '')
-                        )
-                    ", [$jadwal->id_atasan])
-                    ->where('referensi_jadwal_shift.singkat',$callShift)
-                    ->where('referensi_jadwal_shift.deleted_at',null)
-                    ->first();
-
-            if ($shift) {
-                $berangkat = null;
-                $pulang = null;
-                $jam_masuk = Carbon::parse($shift->berangkat);
-                $jam_pulang = Carbon::parse($shift->pulang);
-
-                if ($jam_pulang->greaterThan($jam_masuk)) {
-                    $lewat_hari = 0; // TIDAK LEWAT HARI
-                } else {
-                    $lewat_hari = 1; // LEWAT HARI / MALAM
-                }
-
-                // VALIDATING JAM MASUK
-                if ($jam_pulang->greaterThan($jam_masuk)) { // KECUALI MALAM ATAU LEWAT HARI
-                    if ($time >= Carbon::parse($shift->berangkat)->subHour()->isoFormat('HH:mm:ss') && $time <= Carbon::parse($shift->pulang)->isoFormat('HH:mm:ss')) { // DALAM JAM KERJA (MIN 1 JAM SEBELUM JAM MASUK)
-                        $berangkat = Carbon::createFromFormat('Y-m-d H:i:s', $today . ' ' . $shift->berangkat, 'Asia/Jakarta')->format('Y-m-d H:i:s');
-                        $pulang = Carbon::createFromFormat('Y-m-d H:i:s', $today . ' ' . $shift->pulang, 'Asia/Jakarta')->format('Y-m-d H:i:s');
+                    if ($jam_pulang->greaterThan($jam_masuk)) {
+                        $lewat_hari = 0; // TIDAK LEWAT HARI
                     } else {
-                        return Response::json(array(
-                            'message' => 'Absen Masuk belum tersedia!',
-                            'code' => 401,
-                        ));
-                    }
-                } else { // KHUSUS JAGA LEWAT HARI (SHIFT MALAM)
-                    $convBerangkat = Carbon::parse($today.' '.$shift->berangkat)->subHour(); // MULAI ABSENSI MINIMAL 1 JAM SEBELUM JAM MASUK
-                    $convPulang = Carbon::parse($tommorow.' '.$shift->pulang);
-                    if ($now >= $convBerangkat && $now <= $convPulang) { // DALAM JAM KERJA
-                        $berangkat = Carbon::createFromFormat('Y-m-d H:i:s', $today . ' ' . $shift->berangkat, 'Asia/Jakarta')->format('Y-m-d H:i:s');
-                        $pulang = Carbon::createFromFormat('Y-m-d H:i:s', $tommorow . ' ' . $shift->pulang, 'Asia/Jakarta')->format('Y-m-d H:i:s');
-                    } else {
-                        return Response::json(array(
-                            'message' => 'Absen Masuk belum tersedia!',
-                            'code' => 401,
-                        ));
-                    }
-                }
-
-                // INITIALIZE PROCESS = ABSENSI
-                if ($request->hasFile('foto')) {
-                    // PERHITUNGAN SELISIH JAM SAAT MASUK SAMPAI KETERLAMBATAN
-                    $initBerangkat = Carbon::parse($berangkat)->addMinutes(10);
-                    $harusnyaBerangkat = new Carbon($initBerangkat); // ->isoFormat('YYYY-MM-DD H:mm:ss')
-                    if ($waktuSekarang > $harusnyaBerangkat) {
-                        $diff = $waktuSekarang->diff($harusnyaBerangkat)->format('%H:%I:%S');
-                        $terlambat = 1; // TERLAMBAT
-                        $nm_terlambat = 'Terlambat';
-                    } else {
-                        $diff = Carbon::parse('00:00:00')->isoFormat('HH:mm:ss');
-                        $terlambat = 0; // DISIPLIN
-                        $nm_terlambat = 'Disiplin';
+                        $lewat_hari = 1; // LEWAT HARI / MALAM
                     }
 
-                    if (Carbon::createFromFormat('Y-m-d H:i:s', $berangkat, 'Asia/Jakarta')->isToday()) {
-                        $validasi = absensi::where('pegawai_id',$user)
-                                        ->where('jenis',1)
-                                        ->where('kd_shift',$shift->singkat)
-                                        ->where('ref_jam_masuk',$berangkat)
-                                        ->where('ref_jam_pulang',$pulang)
-                                        ->get();
-
-                        if ($validasi->isNotEmpty()) {
+                    // VALIDATING JAM MASUK
+                    if ($jam_pulang->greaterThan($jam_masuk)) { // KECUALI MALAM ATAU LEWAT HARI
+                        if ($time >= Carbon::parse($shift->berangkat)->subHour()->isoFormat('HH:mm:ss') && $time <= Carbon::parse($shift->pulang)->isoFormat('HH:mm:ss')) { // DALAM JAM KERJA (MIN 1 JAM SEBELUM JAM MASUK)
+                            $berangkat = Carbon::createFromFormat('Y-m-d H:i:s', $today . ' ' . $shift->berangkat, 'Asia/Jakarta')->format('Y-m-d H:i:s');
+                            $pulang = Carbon::createFromFormat('Y-m-d H:i:s', $today . ' ' . $shift->pulang, 'Asia/Jakarta')->format('Y-m-d H:i:s');
+                        } else {
                             return Response::json(array(
-                                'message' => 'Absen Masuk sudah tercatat! Silakan melanjutkan Aktifitas Bekerja Anda!',
+                                'message' => 'Absen Masuk belum tersedia!',
                                 'code' => 401,
                             ));
                         }
+                    } else { // KHUSUS JAGA LEWAT HARI (SHIFT MALAM)
+                        $convBerangkat = Carbon::parse($today.' '.$shift->berangkat)->subHour(); // MULAI ABSENSI MINIMAL 1 JAM SEBELUM JAM MASUK
+                        $convPulang = Carbon::parse($tommorow.' '.$shift->pulang);
+                        if ($now >= $convBerangkat && $now <= $convPulang) { // DALAM JAM KERJA
+                            $berangkat = Carbon::createFromFormat('Y-m-d H:i:s', $today . ' ' . $shift->berangkat, 'Asia/Jakarta')->format('Y-m-d H:i:s');
+                            $pulang = Carbon::createFromFormat('Y-m-d H:i:s', $tommorow . ' ' . $shift->pulang, 'Asia/Jakarta')->format('Y-m-d H:i:s');
+                        } else {
+                            return Response::json(array(
+                                'message' => 'Absen Masuk belum tersedia!',
+                                'code' => 401,
+                            ));
+                        }
+                    }
 
-                        // SAVE FOTO
-                        $file = $request->file('foto');
-                        $title = uniqid() . '.' . $file->getClientOriginalExtension();
-                        $path = $file->storeAs('public/files/kepegawaian/absensi/masuk', $title);
+                    // INITIALIZE PROCESS = ABSENSI
+                    if ($request->hasFile('foto')) {
+                        // PERHITUNGAN SELISIH JAM SAAT MASUK SAMPAI KETERLAMBATAN
+                        $initBerangkat = Carbon::parse($berangkat)->addMinutes(10);
+                        $harusnyaBerangkat = new Carbon($initBerangkat); // ->isoFormat('YYYY-MM-DD H:mm:ss')
+                        if ($now->gt($harusnyaBerangkat)) {
+                            $diff = $now->diff($harusnyaBerangkat)->format('%H:%I:%S');
+                            $terlambat = 1; // TERLAMBAT
+                            $nm_terlambat = 'Terlambat';
+                        } else {
+                            $diff = Carbon::parse('00:00:00')->isoFormat('HH:mm:ss');
+                            $terlambat = 0; // DISIPLIN
+                            $nm_terlambat = 'Disiplin';
+                        }
 
-                        // SAVE DB
-                        $data = new absensi;
-                        $data->jenis = 1;
-                        $data->pegawai_id = $user;
-                        $data->kd_shift = $shift->singkat;
-                        $data->nm_shift = $shift->shift;
-                        $data->ref_jam_masuk = $berangkat;
-                        $data->ref_jam_pulang = $pulang;
-                        $data->keterlambatan = $diff;
-                        $data->tgl_in = Carbon::now('Asia/Jakarta');
-                        $data->foto_in = $title;
-                        // $data->title_in = $path;
-                        $data->path_in = $path;
-                        $data->lokasi_in = $request->latitude.', '.$request->longitude;
-                        $data->terlambat = $terlambat;
-                        $data->lewat_hari = $lewat_hari;
-                        $data->save();
+                        if (Carbon::createFromFormat('Y-m-d H:i:s', $berangkat, 'Asia/Jakarta')->isToday()) {
+                            $validasi = absensi::where('pegawai_id',$user)
+                                            ->where('jenis',1)
+                                            ->where('kd_shift',$shift->singkat)
+                                            ->where('ref_jam_masuk',$berangkat)
+                                            ->where('ref_jam_pulang',$pulang)
+                                            ->get();
 
-                        return Response::json(array(
-                            'message' => 'Absen Masuk Jaga '.$shift->shift.' berhasil pada '.Carbon::now('Asia/Jakarta')->translatedFormat('l, d F Y \P\u\k\u\l H.i').' WIB dan tercatat '.$nm_terlambat.', selamat beraktifitas. Semangat!! :)',
-                            'code' => 200,
-                        ));
+                            if ($validasi->isNotEmpty()) {
+                                return Response::json(array(
+                                    'message' => 'Absen Masuk sudah tercatat! Silakan melanjutkan Aktifitas Bekerja Anda!',
+                                    'code' => 401,
+                                ));
+                            }
+
+                            // SAVE FOTO
+                            $file = $request->file('foto');
+                            $title = uniqid() . '.' . $file->getClientOriginalExtension();
+                            $path = $file->storeAs('public/files/kepegawaian/absensi/masuk', $title);
+
+                            // SAVE DB
+                            $data = new absensi;
+                            $data->jenis = 1;
+                            $data->pegawai_id = $user;
+                            $data->kd_shift = $shift->singkat;
+                            $data->nm_shift = $shift->shift;
+                            $data->ref_jam_masuk = $berangkat;
+                            $data->ref_jam_pulang = $pulang;
+                            $data->keterlambatan = $diff;
+                            $data->tgl_in = Carbon::now('Asia/Jakarta');
+                            $data->foto_in = $title;
+                            // $data->title_in = $path;
+                            $data->path_in = $path;
+                            $data->lokasi_in = $request->latitude.', '.$request->longitude;
+                            $data->terlambat = $terlambat;
+                            $data->lewat_hari = $lewat_hari;
+                            $data->save();
+
+                            return Response::json(array(
+                                'message' => 'Absen Masuk Jaga '.$shift->shift.' berhasil pada '.Carbon::now('Asia/Jakarta')->translatedFormat('l, d F Y \P\u\k\u\l H.i').' WIB dan tercatat '.$nm_terlambat.', selamat beraktifitas. Semangat!! :)',
+                                'code' => 200,
+                            ));
+                        } else {
+                            return Response::json(array(
+                                'message' => 'Jam Berangkat yang terkirim ke Sistem TIDAK VALID, bisa jadi dikarenakan banyaknya Cache yang menumpuk pada Device Anda. Silakan Refresh halaman Absensi ini dan lakukan sekali lagi. Terima Kasih.',
+                                'code' => 401,
+                            ));
+                        }
                     } else {
                         return Response::json(array(
-                            'message' => 'Jam Berangkat yang terkirim ke Sistem TIDAK VALID, bisa jadi dikarenakan banyaknya Cache yang menumpuk pada Device Anda. Silakan Refresh halaman Absensi ini dan lakukan sekali lagi. Terima Kasih.',
+                            'message' => 'Hasil selfi kamera tidak ditemukan, pastikan kamera Anda dalam kondisi Normal. Apabila masih belum dapat melakukan Absensi, silakan menghubungi Admin. Terima Kasih.',
                             'code' => 401,
                         ));
                     }
                 } else {
                     return Response::json(array(
-                        'message' => 'Hasil selfi kamera tidak ditemukan, pastikan kamera Anda dalam kondisi Normal. Apabila masih belum dapat melakukan Absensi, silakan menghubungi Admin. Terima Kasih.',
+                        'message' => 'Shift tidak valid. Pastikan Hari ini Anda masuk jaga Shift atau Libur. Silakan konfirmasi kepada Admin Jadwal bulan ini untuk memastikan Nama Referensi Shift sudah benar dan Valid!',
                         'code' => 401,
                     ));
                 }
             } else {
                 return Response::json(array(
-                    'message' => 'Shift tidak valid. Pastikan Hari ini Anda masuk jaga Shift atau Libur. Silakan konfirmasi kepada Admin Jadwal bulan ini untuk memastikan Nama Referensi Shift sudah benar dan Valid!',
+                    'message' => 'Jadwal tidak valid. Konfirmasi dengan Admin Jadwal Dinas Anda!',
                     'code' => 401,
                 ));
             }
         } else {
-            return Response::json(array(
-                'message' => 'Jadwal tidak valid. Konfirmasi dengan Administrator!',
-                'code' => 401,
-            ));
+            if ($jenis == 2) { // ABSENSI PULANG
+                if ($request->hasFile('foto')) {
+                    $file = $request->file('foto');
+                    $title = uniqid() . '.' . $file->getClientOriginalExtension();
+                    $path = $file->storeAs('public/files/kepegawaian/absensi/masuk', $title);
+
+                    // VALIDASI DUPLIKASI DATA
+                    $validate = absensi::where('pegawai_id',$user)
+                                ->whereDate("ref_jam_pulang","=",$datenow)
+                                ->whereNull('deleted_at')
+                                ->orderBy('updated_at','DESC')
+                                ->get();
+
+                    if ($validate->count() > 1) {
+                        // Ambil data pertama dan buang sisanya
+                        $validate->skip(1)->each->delete();
+                        // $validate->slice(1)->each->delete(); // Lebih Berat dari skip()
+                    }
+
+                    // GET DATA TO UPDATE
+                    // Ambil data pertama dari hasil yang sudah diambil
+                    $data = $validate->first();
+                    if (!$data) {
+                        return Response::json([
+                            'message' => 'Data absensi tidak ditemukan. Segera hubungi Developer!',
+                            'code' => 404,
+                        ]);
+                    }
+
+                    // PERHITUNGAN LEMBUR JAM PULANG
+                    $jam_pulang_seharusnya = new Carbon($data->ref_jam_pulang); // ->isoFormat('YYYY-MM-DD H:mm:ss')
+                    $jam_pulang_sekarang = $now;
+                    $diffLembur = $jam_pulang_seharusnya->diff($jam_pulang_sekarang)->format('%H:%I:%S');
+
+                    // PERHITUNGAN SELISIH JAM SAAT MASUK SAMPAI PULANG
+                    $jam_berangkat = new Carbon($data->tgl_in); // ->isoFormat('YYYY-MM-DD H:mm:ss')
+                    $jam_pulang = $now;
+                    $diffKerja = $jam_berangkat->lessThan($jam_pulang)
+                                ? $jam_berangkat->diff($jam_pulang)->format('%H:%I:%S')
+                                : '00:00:00';
+
+                    // $data->ip_out = $this->getClientIp();
+                    $data->tgl_out = $now;
+                    $data->lembur = $diffLembur;
+                    $data->selisih_jam = $diffKerja;
+                    $data->foto_out = $title;
+                    $data->path_out = $path;
+                    $data->lokasi_out = $request->latitude.', '.$request->longitude;
+                    $data->save();
+
+                    return Response::json(array(
+                        'message' => 'Absen Pulang Jaga '.$data->nm_shift.' telah berhasil, hati-hati di jalan.',
+                        'code' => 200,
+                    ));
+                } else {
+                    return Response::json(array(
+                        'message' => 'Hasil selfi kamera tidak ditemukan, pastikan kamera Anda dalam kondisi Normal. Apabila masih belum dapat melakukan Absensi, silakan menghubungi Admin. Terima Kasih.',
+                        'code' => 400,
+                    ));
+                }
+            } else {
+                if ($jenis == 3) { // ABSENSI IJIN
+                    if (!$request->keterangan) {
+                        return Response::json(array(
+                            'message' => 'Keterangan Wajib Diisi. Silakan mengulangi Pengajuan Ijin kembali dengan mengisi Keterangan Ijin. Terima Kasih.',
+                            'code' => 401,
+                        ));
+                    }
+
+                    $jadwal = jadwal_detail::leftJoin('kepegawaian_jadwal', function($join) {
+                                        $join->on('kepegawaian_jadwal.id', '=', 'kepegawaian_jadwal_detail.id_jadwal')
+                                            ->whereNull('kepegawaian_jadwal.deleted_at');
+                                    })
+                                    ->select('kepegawaian_jadwal.pegawai_id as id_atasan','kepegawaian_jadwal.staf','kepegawaian_jadwal.bulan','kepegawaian_jadwal.tahun','kepegawaian_jadwal_detail.*')
+                                    // ->whereJsonContains('kepegawaian_jadwal.staf', $user)
+                                    ->where('kepegawaian_jadwal_detail.pegawai_id',$user)
+                                    ->where('kepegawaian_jadwal.bulan',$bulan)
+                                    ->where('kepegawaian_jadwal.tahun',$tahun)
+                                    ->whereNull('kepegawaian_jadwal_detail.deleted_at')
+                                    ->orderBy('kepegawaian_jadwal_detail.id','DESC')
+                                    ->first();
+
+                    // EXECUTE
+                    $callShift = $jadwal->$hit;
+
+                    if ($callShift) {
+                        // FIND SHIFT
+                        $shift = ref_shift::leftJoin('referensi_jadwal_users', function($join) {
+                                    $join->on('referensi_jadwal_users.pegawai_id', '=', 'referensi_jadwal_shift.pegawai_id')
+                                        ->whereNull('referensi_jadwal_users.deleted_at');
+                                })
+                                ->select('referensi_jadwal_shift.*')
+                                ->whereRaw("
+                                    FIND_IN_SET(?,
+                                        REPLACE(REPLACE(REPLACE(referensi_jadwal_users.staf, '\"', ''), '[', ''), ']', '')
+                                    )
+                                ", [$jadwal->id_atasan])
+                                ->where('referensi_jadwal_shift.singkat',$callShift)
+                                ->where('referensi_jadwal_shift.deleted_at',null)
+                                ->first();
+
+                        if ($shift) {
+                            if ($request->hasFile('foto')) {
+                                $file = $request->file('foto');
+                                $title = uniqid() . '.' . $file->getClientOriginalExtension();
+                                $path = $file->storeAs('public/files/kepegawaian/absensi/masuk', $title);
+
+                                $jamMasuk = Carbon::parse($shift->berangkat)->format('Y-m-d H:i:s');
+                                $jamPulang = Carbon::parse($shift->pulang)->format('Y-m-d H:i:s');
+
+                                $data = new absensi;
+                                $data->jenis = 3;
+                                // $data->ip_in = $this->getClientIp();
+                                // $data->user_agent = $userAgent;
+                                $data->pegawai_id = $user;
+                                $data->kd_shift = $shift->singkat;
+                                $data->nm_shift = $shift->shift;
+                                $data->ref_jam_masuk = $jamMasuk;
+                                $data->ref_jam_pulang = $jamPulang;
+                                $data->keterlambatan = null;
+                                $data->lembur = null;
+                                $data->tgl_in = Carbon::now('Asia/Jakarta');
+                                $data->tgl_out = null;
+                                $data->selisih_jam = null;
+                                $data->foto_in = $title;
+                                $data->path_in = $path;
+                                $data->foto_out = null;
+                                $data->path_out = null;
+                                $data->lokasi_in = $request->latitude.', '.$request->longitude;
+                                $data->lokasi_out = null;
+                                $data->terlambat = null;
+                                $data->keterangan = $request->keterangan ? $request->keterangan : '';
+                                $data->lewat_hari = 0;
+                                $data->save();
+
+                                return Response::json(array(
+                                    'message' => 'Surat Ijin berhasil dikirimkan. Silakan melanjutkan aktivitas Anda.',
+                                    'code' => 200,
+                                ));
+                            } else {
+                                return Response::json(array(
+                                    'message' => 'Hasil selfi kamera tidak ditemukan, pastikan kamera Anda dalam kondisi Normal. Apabila masih belum dapat melakukan Absensi, silakan menghubungi Admin. Terima Kasih.',
+                                    'code' => 401,
+                                ));
+                            }
+                        } else {
+                            return Response::json(array(
+                                'message' => 'Shift tidak valid. Pastikan Hari ini Anda masuk jaga Shift atau Libur. Silakan konfirmasi kepada Admin Jadwal bulan ini untuk memastikan Nama Referensi Shift sudah benar dan Valid!',
+                                'code' => 401,
+                            ));
+                        }
+                    } else {
+                        return Response::json(array(
+                            'message' => 'Jadwal tidak valid. Konfirmasi dengan Admin Jadwal Dinas Anda!',
+                            'code' => 401,
+                        ));
+                    }
+                } else {
+                    return Response::json(array(
+                        'message' => 'Absensi Tidak Valid. Mohon segera menghubungi Tim Developer!',
+                        'code' => 401,
+                    ));
+                }
+
+            }
+
         }
     }
 
