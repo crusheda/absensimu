@@ -33,6 +33,7 @@ class AbsensiController extends Controller
         $user = $request->id_user;
         $latitude = $request->latitude;
         $longitude = $request->longitude;
+        $jarak = (int) $request->jarak;
 
         // DESCRIBE POST OUTPUT
         $message = 'Tidak ada.';
@@ -69,49 +70,56 @@ class AbsensiController extends Controller
                         ->orderBy('kepegawaian_jadwal_detail.id','DESC')
                         ->first();
 
-        if ($jadwal) {
-            if ($jadwal->progress == 3) {
-                $cutiMap = [
-                    'C'  => 'Cuti Tahunan',
-                    'CM' => 'Cuti Melahirkan',
-                    'CU' => 'Cuti Umroh',
-                    'CH' => 'Cuti Haji',
-                    'CD' => 'Cuti Diluar Tanggungan',
-                ];
-                $shift = ref_shift::leftJoin('referensi_jadwal_users', function($join) {
-                            $join->on('referensi_jadwal_users.pegawai_id', '=', 'referensi_jadwal_shift.pegawai_id')
-                                ->whereNull('referensi_jadwal_users.deleted_at');
-                        })
-                        ->select('referensi_jadwal_shift.*')
-                        ->whereRaw("
-                            FIND_IN_SET(?,
-                                REPLACE(REPLACE(REPLACE(referensi_jadwal_users.staf, '\"', ''), '[', ''), ']', '')
-                            )
-                        ", [$jadwal->atasan])
-                        ->where('referensi_jadwal_shift.singkat',$jadwal->$hit)
-                        ->where('referensi_jadwal_shift.deleted_at',null)
-                        ->first();
+        $callDistance = $this->distance($profil_rs->coord_lat, $profil_rs->coord_long, $latitude, $longitude);
+        $distance = round($callDistance["meters"]);
 
-                if ($shift) {
-                    if ($shift->berangkat < $shift->pulang) {
-                        $nama = 'Jadwal Shift Lewat Hari';
+        if ($jarak > 30) {
+            $btn_ijin = true;
+            $keterangan = 'Anda berada '.$distance.' m di Luar Radius Rumah Sakit';
+            $message = 'Anda hanya dapat mengajukan Ijin karena berada di luar radius.';
+        } else {
+            if ($jadwal) {
+                if ($jadwal->progress == 3) {
+                    $cutiMap = [
+                        'L'  => 'Libur',
+                        'C'  => 'Cuti Tahunan',
+                        'CM' => 'Cuti Melahirkan',
+                        'CU' => 'Cuti Umroh',
+                        'CH' => 'Cuti Haji',
+                        'CD' => 'Cuti Diluar Tanggungan',
+                    ];
+                    $shift = ref_shift::leftJoin('referensi_jadwal_users', function($join) {
+                                $join->on('referensi_jadwal_users.pegawai_id', '=', 'referensi_jadwal_shift.pegawai_id')
+                                    ->whereNull('referensi_jadwal_users.deleted_at');
+                            })
+                            ->select('referensi_jadwal_shift.*')
+                            ->whereRaw("
+                                FIND_IN_SET(?,
+                                    REPLACE(REPLACE(REPLACE(referensi_jadwal_users.staf, '\"', ''), '[', ''), ']', '')
+                                )
+                            ", [$jadwal->atasan])
+                            ->where('referensi_jadwal_shift.singkat',$jadwal->$hit)
+                            ->where('referensi_jadwal_shift.deleted_at',null)
+                            ->first();
+
+                    if ($shift) {
+                        if ($shift->berangkat > $shift->pulang) {
+                            $nama = 'Jadwal Shift Lewat Hari';
+                        } else {
+                            $nama = 'Jadwal Shift Reguler';
+                        }
+                        $jam = Carbon::parse($shift->berangkat)->isoFormat('HH:mm').' - '.Carbon::parse($shift->pulang)->isoFormat('HH:mm').' WIB';
+                        $keterangan = 'Shift '.$shift->shift;
                     } else {
-                        $nama = 'Jadwal Shift Reguler';
+                        $nama = $cutiMap[$jadwal->$hit] ?? 'Libur / Tidak Masuk';
+                        $jam = '-';
+                        $keterangan = '';
                     }
-                    $jam = Carbon::parse($shift->berangkat)->isoFormat('HH:mm').' - '.Carbon::parse($shift->pulang)->isoFormat('HH:mm').' WIB';
-                    $keterangan = 'Shift '.$shift->shift;
-                } else {
-                    $nama = $cutiMap[$jadwal->$hit] ?? 'Libur / Tidak Masuk';
-                    $jam = '-';
-                    $keterangan = '';
-                }
 
-                // PENETUAN TOMBOL ABSENSI
-                if ($shift) {
-                    $callDistance = $this->distance($profil_rs->coord_lat, $profil_rs->coord_long, $latitude, $longitude);
-                    $distance = round($callDistance["meters"]);
+                    // PENENTUAN TOMBOL ABSENSI
                     $show = absensi::where('pegawai_id',$user)
-                                    ->whereDate("tgl_in","=",$datenow)
+                                    // ->whereDate("tgl_in","=",$datenow)
+                                    ->whereDate("ref_jam_masuk","=",$datenow)
                                     ->where("jenis",'1') // SHIFT
                                     ->orderBy("tgl_in","DESC")
                                     ->first();
@@ -128,70 +136,108 @@ class AbsensiController extends Controller
                                     ->orderBy("tgl_in","DESC")
                                     ->first();
 
-                    if (!$ijin) {
-                        if (!$show) {
+                    if ($shift) {
+                        if (!$ijin) {
+                            $btn_ijin = true;
                             $jamMasuk = Carbon::parse($datenow . ' ' . $shift->berangkat)->subHour();
-                            $jamPulang = Carbon::parse($datenow . ' ' . $shift->pulang);
-                            $jamPulangUntil = Carbon::parse($datenow . ' ' . $shift->pulang)->addHour(2);
-                            if (!$showMalam) {
-                                // JIKA MASIH ADA JAGA SHIFT YANG BELUM TERSELESAIKAN (KHUSUS LEWAT HARI)
-                                if ($now->between($jamMasuk, $jamPulang)) {
-                                    $btn_berangkat = true;
-                                    $message = 'Silakan melakukan Absensi Masuk hari ini (Maksimal sebelum melewat Waktu Jam Pulang). Terima Kasih.';
-                                } elseif ($now->lessThan($jamMasuk)) {
-                                    $message = 'Jam Absen Masuk saat ini TIDAK pada/antara jam masuk yang ditetapkan (yaitu -1 jam sebelum Referensi Jam Masuk) dan wajib tidak lebih dari jam pulang yang seharusnya.';
-                                } else {
-                                    $message = 'Jam Absen Masuk sudah terlewati. Absen Masuk TIDAK BOLEH melebihi Jam Pulang.';
-                                }
+                            if ($shift->berangkat > $shift->pulang) {
+                                $jamPulang = Carbon::parse($datetommorow . ' ' . $shift->pulang);
                             } else {
-                                $jamPulangMalam = Carbon::parse($showMalam->ref_jam_pulang);
-                                $jamPulangMalamUntil = Carbon::parse($showMalam->ref_jam_pulang)->addHour(2);
-                                if ($now->greaterThan($jamPulangMalamUntil)) {
+                                $jamPulang = Carbon::parse($datenow . ' ' . $shift->pulang);
+                            }
+                            $jamPulangUntil = Carbon::parse($datenow . ' ' . $shift->pulang)->addHour(2);
+                            if (!$show) {
+                                if (!$showMalam) {
+                                    // JIKA MASIH ADA JAGA SHIFT YANG BELUM TERSELESAIKAN (KHUSUS LEWAT HARI)
                                     if ($now->between($jamMasuk, $jamPulang)) {
                                         $btn_berangkat = true;
-                                        $message = 'Silakan melakukan Absensi Masuk Shift '.$shift->shift.' hari ini (Maksimal sebelum melewat Waktu Jam Pulang). Terima Kasih.';
+                                        $message = 'Silakan melakukan Absensi Masuk hari ini (Maksimal sebelum melewati Waktu Jam Pulang). Terima Kasih.';
                                     } elseif ($now->lessThan($jamMasuk)) {
-                                        $message = 'Absen Masuk Shift '.$shift->shift.' Hari ini (Pukul '.$jamMasuk->isoFormat('HH:mm').' WIB) masih terkunci, Silakan menunggu.';
+                                        $message = 'aJam Absen Masuk saat ini TIDAK pada/antara jam masuk yang ditetapkan (yaitu -1 jam sebelum Referensi Jam Masuk) dan wajib tidak lebih dari jam pulang yang seharusnya.';
                                     } else {
-                                        $message = 'Jam Absen Masuk Shift '.$shift->shift.' sudah terlewati. Absen Masuk TIDAK BOLEH melebihi Jam Pulang.';
+                                        $message = 'Jam Absen Masuk sudah terlewati. Absen Masuk TIDAK BOLEH melebihi Jam Pulang.';
                                     }
                                 } else {
-                                    if ($now->greaterThanOrEqualTo($jamPulangMalam) && $now->lessThan($jamPulangMalamUntil)) {
-                                        $btn_pulang = true;
-                                        $message = 'Silakan melakukan Absensi Pulang Shift Malam (Maksimal 2 Jam setelah Waktu Jam Pulang). Terima Kasih.';
-                                    } else { // $now->lessThan($jamPulangMalam)
-                                        $message = 'Absen Pulang Shift Malam Anda Hari ini (Pukul '.$jamPulangMalam->isoFormat('HH:mm').' WIB) masih terkunci, Silakan menunggu.';
+                                    $jamPulangMalam = Carbon::parse($showMalam->ref_jam_pulang);
+                                    $jamPulangMalamUntil = Carbon::parse($showMalam->ref_jam_pulang)->addHour(2);
+                                    if ($now->greaterThan($jamPulangMalamUntil)) {
+                                        if ($now->between($jamMasuk, $jamPulang)) {
+                                            $btn_berangkat = true;
+                                            $message = 'Silakan melakukan Absensi Masuk Shift '.$shift->shift.' hari ini (Maksimal sebelum melewati Waktu Jam Pulang Pukul '.Carbon::parse($jamPulang)->isoFormat('HH:mm').' WIB). Terima Kasih.';
+                                        } elseif ($now->lessThan($jamMasuk)) {
+                                            $message = 'Absen Masuk Shift '.$shift->shift.' Hari ini (Pukul '.$jamMasuk->isoFormat('HH:mm').' WIB) masih terkunci, Silakan menunggu.';
+                                        } else {
+                                            $message = 'Jam Absen Masuk Shift '.$shift->shift.' sudah terlewati. Absen Masuk TIDAK BOLEH melebihi Jam Pulang.';
+                                        }
+                                    } else {
+                                        $btn_ijin = false;
+                                        if ($now->greaterThanOrEqualTo($jamPulangMalam) && $now->lessThan($jamPulangMalamUntil)) {
+                                            $btn_pulang = true;
+                                            $message = 'Silakan melakukan Absensi Pulang Shift Malam (Maksimal 2 Jam setelah Waktu Jam Pulang atau sampai dengan Pukul '.Carbon::parse($jamPulangMalamUntil)->isoFormat('HH:mm').' WIB). Terima Kasih.';
+                                        } else { // $now->lessThan($jamPulangMalam)
+                                            $message = 'Absen Pulang Shift Malam Anda Hari ini (Pukul '.$jamPulangMalam->isoFormat('HH:mm').' WIB) masih terkunci, Silakan menunggu.';
+                                        }
+                                        $jam = Carbon::parse($showMalam->ref_jam_masuk)->isoFormat('HH:mm').' - '.Carbon::parse($showMalam->ref_jam_pulang)->isoFormat('HH:mm').' WIB';
+                                        $keterangan = 'Shift '.$showMalam->nm_shift;
                                     }
-                                    $jam = Carbon::parse($showMalam->ref_jam_masuk)->isoFormat('HH:mm').' - '.Carbon::parse($showMalam->ref_jam_pulang)->isoFormat('HH:mm').' WIB';
-                                    $keterangan = 'Shift '.$showMalam->nm_shift;
                                 }
-
+                            } else {
+                                $btn_ijin = false;
+                                if ($show->tgl_in && !$show->tgl_out) { // BELUM PULANG
+                                    if ($now->between($jamMasuk, $jamPulang)) {
+                                        $message = 'Absen Pulang hari ini akan tersedia mulai pada Pukul '.Carbon::parse($jamPulang)->isoFormat('HH:mm').' WIB.';
+                                    } elseif ($now->greaterThanOrEqualTo($jamPulang) && $now->lessThan($jamPulangUntil)) {
+                                        $btn_pulang = true;
+                                        $message = 'Silakan melakukan Absen Pulang dari Pukul '.Carbon::parse($jamPulang)->isoFormat('HH:mm').' - '.Carbon::parse($jamPulangUntil)->isoFormat('HH:mm').' WIB (Durasi Waktu Absen Pulang HANYA 2 Jam).';
+                                    } else {
+                                        $message = 'Absen Pulang telah terlewati (Hanya dari Pukul '.Carbon::parse($jamPulang)->isoFormat('HH:mm').' - '.Carbon::parse($jamPulangUntil)->isoFormat('HH:mm').' WIB)';
+                                    }
+                                } else { // SUDAH PULANG
+                                    $message = 'Absensi Masuk dan Pulang Hari ini telah selesai dilakukan. Silakan Absensi kembali pada hari selanjutnya. Terima Kasih.';
+                                }
+                            }
+                        } else {
+                            $message = 'Absensi Hari ini telah terisi dengan Ijin. Silakan melakukan Absensi kembali pada hari selanjutnya. Terima Kasih.';
+                        }
+                    } else { // JIKA HARI INI TIDAK ADA MASUK SHIFT
+                        if (!$showMalam) {
+                            $message = $cutiMap[$jadwal->$hit] ?? 'Selamat berlibur hari ini dan beraktivitas kembali di kemudian hari.';
+                        } else {
+                            $jamPulangMalam = Carbon::parse($showMalam->ref_jam_pulang);
+                            $jamPulangMalamUntil = Carbon::parse($showMalam->ref_jam_pulang)->addHour(2);
+                            if ($now->greaterThan($jamPulangMalamUntil)) {
+                                $message = 'Hari ini Anda sedang '.$cutiMap[$jadwal->$hit].', Absensi tidak diizinkan.' ?? 'Selamat berlibur hari ini dan beraktivitas kembali di kemudian hari.';
+                            } else {
+                                if ($now->greaterThanOrEqualTo($jamPulangMalam) && $now->lessThan($jamPulangMalamUntil)) {
+                                    $btn_pulang = true;
+                                    $message = 'Silakan melakukan Absensi Pulang Shift Malam (Maksimal 2 Jam setelah Waktu Jam Pulang atau sampai dengan Pukul '.Carbon::parse($jamPulangMalamUntil)->isoFormat('HH:mm').' WIB). Terima Kasih.';
+                                } else { // $now->lessThan($jamPulangMalam)
+                                    $message = 'Absen Pulang Shift Malam Anda Hari ini (Pukul '.$jamPulangMalam->isoFormat('HH:mm').' WIB) masih terkunci, Silakan menunggu.';
+                                }
+                                $jam = Carbon::parse($showMalam->ref_jam_masuk)->isoFormat('HH:mm').' - '.Carbon::parse($showMalam->ref_jam_pulang)->isoFormat('HH:mm').' WIB';
+                                $keterangan = 'Shift '.$showMalam->nm_shift;
                             }
                         }
-                    } else {
-                        # code...
                     }
                 } else {
-                    $message = $cutiMap[$jadwal->$hit] ?? 'Selamat berlibur hari ini dan beraktivitas kembali di kemudian hari.';
+                    if ($jadwal->progress == 2) {
+                        $nama = 'Jadwal Belum Divalidasi';
+                        $jam = '';
+                        $keterangan = '';
+                        $message = 'Jadwal Dinas sudah diverifikasi oleh Atasan namun belum dilakukan validasi oleh Bagian Kepegawaian. Silakan Menunggu Proses Validasi. Terima Kasih.';
+                    } else {
+                        $nama = 'Jadwal Belum Diverifikasi';
+                        $jam = '';
+                        $keterangan = '';
+                        $message = 'Jadwal Dinas belum diverifikasi oleh Atasan, silakan konfirmasi kepada Admin Jadwal Anda bulan ini. Terima Kasih.';
+                    }
                 }
             } else {
-                if ($jadwal->progress == 2) {
-                    $nama = 'Jadwal Belum Divalidasi';
-                    $jam = '';
-                    $keterangan = '';
-                    $message = 'Jadwal Dinas sudah diverifikasi oleh Atasan namun belum dilakukan validasi oleh Bagian Kepegawaian. Silakan Menunggu Proses Validasi. Terima Kasih.';
-                } else {
-                    $nama = 'Jadwal Belum Diverifikasi';
-                    $jam = '';
-                    $keterangan = '';
-                    $message = 'Jadwal Dinas belum diverifikasi oleh Atasan, silakan konfirmasi kepada Admin Jadwal Anda bulan ini. Terima Kasih.';
-                }
+                $nama = 'Tidak Ada Jadwal';
+                $jam = '';
+                $keterangan = '';
+                $message = 'Silakan menghubungi Admin Jadwal untuk melakukan Penambahan Jadwal Dinas Bulan ini bersama Bagian Kepegawaian. Terima Kasih.';
             }
-
-        } else {
-            $nama = 'Tidak Ada Jadwal';
-            $jam = '';
-            $keterangan = '';
         }
 
         return response()->json([
@@ -295,9 +341,11 @@ class AbsensiController extends Controller
                     if ($waktuSekarang > $harusnyaBerangkat) {
                         $diff = $waktuSekarang->diff($harusnyaBerangkat)->format('%H:%I:%S');
                         $terlambat = 1; // TERLAMBAT
+                        $nm_terlambat = 'Terlambat';
                     } else {
                         $diff = Carbon::parse('00:00:00')->isoFormat('HH:mm:ss');
                         $terlambat = 0; // DISIPLIN
+                        $nm_terlambat = 'Disiplin';
                     }
 
                     if (Carbon::createFromFormat('Y-m-d H:i:s', $berangkat, 'Asia/Jakarta')->isToday()) {
@@ -339,7 +387,7 @@ class AbsensiController extends Controller
                         $data->save();
 
                         return Response::json(array(
-                            'message' => 'Absen masuk berhasil, selamat beraktifitas. Semangat!!',
+                            'message' => 'Absen Masuk Jaga '.$shift->shift.' berhasil pada '.Carbon::now('Asia/Jakarta')->translatedFormat('l, d F Y \P\u\k\u\l H.i').' WIB dan tercatat '.$nm_terlambat.', selamat beraktifitas. Semangat!! :)',
                             'code' => 200,
                         ));
                     } else {
