@@ -20,9 +20,11 @@ use App\Http\Controllers\Android\Auth\LoginController;
 // START ROUTE REST API FLUTTER
 Route::post('/login', [LoginController::class, 'login']);
 Route::get('/dashboard/{user}', [\App\Http\Controllers\Android\DashboardController::class, 'index']);
+Route::get('/reminder/shift', [\App\Http\Controllers\Android\ReminderController::class, 'reminderShift']);
 Route::get('/lokasi-kantor', [\App\Http\Controllers\Android\AbsensiController::class, 'lokasiKantor']);
 Route::post('/validasi', [\App\Http\Controllers\Android\AbsensiController::class, 'init']);
 Route::post('/absensi', [\App\Http\Controllers\Android\AbsensiController::class, 'absensi']);
+Route::get('/absensi/detail/{id}', [\App\Http\Controllers\Android\AbsensiController::class, 'detailAbsensi']);
 Route::middleware('auth:sanctum')->post('/logout', [LoginController::class, 'logout']);
 
 // END ROUTE REST API FLUTTER

@@ -592,6 +592,26 @@ class AbsensiController extends Controller
         }
     }
 
+    function detailAbsensi($id)
+    {
+        return Response::json(array(
+            "id" => 4981,
+            "shift" => "SHIFT PAGI 7",
+            "status" => "Tepat Waktu",
+            "tgl_in" => "2025-06-26",
+            "jam_in" => "06:47:47",
+            "map_in_url" => "https://maps.googleapis.com/maps/api/staticmap?center=-7.6778,110.8397&zoom=17&size=600x300&markers=color:blue%7C-7.6778,110.8397&key=YOUR_API_KEY",
+            "terlambat" => "00:00:00",
+            "tgl_out" => "2025-06-26",
+            "jam_out" => "14:18:58",
+            "map_out_url" => "https://maps.googleapis.com/maps/api/staticmap?center=-7.6780,110.8396&zoom=17&size=600x300&markers=color:red%7C-7.6780,110.8396&key=YOUR_API_KEY",
+            "durasi_kerja" => "07:31:11",
+            "lembur" => "00:18:58",
+            "keterangan" => "Tidak ada.",
+            "code" => 200
+        ));
+    }
+
     public function distance($lat1, $lon1, $lat2, $lon2) // Menghitung Jarak
     {
         // lat1 = latitude kantor
