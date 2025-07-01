@@ -75,7 +75,9 @@ class AbsensiController extends Controller
 
         if ($jarak > 30) {
             $btn_ijin = true;
-            $keterangan = 'Anda berada '.$distance.' m di Luar Radius Rumah Sakit';
+            $nama = 'Diluar Radius';
+            $jam = 'Tidak Diizinkan';
+            $keterangan = 'Absensi Jaga Shift';
             $message = 'Anda hanya dapat mengajukan Ijin karena berada di luar radius.';
         } else {
             if ($jadwal) {
@@ -593,22 +595,57 @@ class AbsensiController extends Controller
 
     function detailAbsensi($id)
     {
+        $show = absensi::where('id',$id)
+                        // ->where('pegawai_id',$user)
+                        ->first();
+
+        // if ($show->jenis == 1) {
+        //     $jenis = 'Masuk Shift';
+        // } else {
+        //     $jenis = 'Cuti/Tidak Masuk';
+        // }
+
+        if ($show->terlambat == 1) {
+            $status_terlambat = "Terlambat";
+        } else {
+            $status_terlambat = "Tepat Waktu";
+        }
+
+        if ($show->tgl_out) {
+            $tgl_out = Carbon::parse($show->tgl_out)->translatedFormat('l, j F Y');
+            $jam_out = Carbon::parse($show->tgl_out)->format('H.i');
+            if ($show->keterlambatan == '00:00:00') {
+                $terlambat = '-';
+            } else {
+                $terlambat = $this->formatDurasiWaktu($show->keterlambatan);
+            }
+            $total_kerja = $this->formatDurasiWaktu($show->selisih_jam);
+            $lembur = $this->formatDurasiWaktu($show->lembur);
+        } else {
+            $tgl_out = null;
+            $jam_out = null;
+            $terlambat = null;
+            $total_kerja = null;
+            $lembur = null;
+        }
+
         return Response::json(array(
-            "id" => 4981,
-            "shift" => "SHIFT PAGI 7",
-            "status" => "Tepat Waktu",
-            "tgl_in" => "2025-06-26",
-            "jam_in" => "06:47:47",
-            "latlong_in" => "-7.637823555197155, 110.86796229092549",
-            "latlong_out" => "-7.637823555197155, 110.86796229092549",
-            "terlambat" => "00:00:00",
-            "tgl_out" => "2025-06-26",
-            "jam_out" => "14:18:58",
-            "foto_in" => "https://absensi.simrsmu.com/api/kepegawaian/detail/foto/5246/0",
-            "foto_out" => "https://absensi.simrsmu.com/api/kepegawaian/detail/foto/5246/1",
-            "durasi_kerja" => "07:31:11",
-            "lembur" => "00:18:58",
-            "keterangan" => "Tidak ada.",
+            "id" => $show->id,
+            "jenis" => $show->jenis,
+            "shift" => $show->nm_shift.' ('.$show->kd_shift.')',
+            "status" => $status_terlambat,
+            "tgl_in" => Carbon::parse($show->tgl_in)->translatedFormat('l, j F Y'),
+            "jam_in" => Carbon::parse($show->tgl_in)->format('H.i'),
+            "latlong_in" => $show->lokasi_in ?? "-7.637823555197155, 110.86796229092549",
+            "latlong_out" => $show->lokasi_out ?? null,
+            "terlambat" => $terlambat,
+            "tgl_out" => $tgl_out,
+            "jam_out" => $jam_out,
+            "foto_in" => "https://absensi.simrsmu.com/api/kepegawaian/detail/foto/".$show->id."/1",
+            "foto_out" => "https://absensi.simrsmu.com/api/kepegawaian/detail/foto/".$show->id."/0",
+            "durasi_kerja" => $total_kerja,
+            "lembur" => $lembur,
+            "keterangan" => $show->keterangan ?? "Tidak ada.",
             "code" => 200
         ));
     }
@@ -630,5 +667,11 @@ class AbsensiController extends Controller
         $kilometers = $miles * 1.609344;
         $meters = $kilometers * 1000;
         return compact('meters');
+    }
+
+    function formatDurasiWaktu($time)
+    {
+        $carbon = Carbon::createFromFormat('H:i:s', $time);
+        return "{$carbon->hour} jam {$carbon->minute} menit {$carbon->second} detik";
     }
 }

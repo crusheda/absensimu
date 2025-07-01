@@ -48,7 +48,16 @@ class RekapController extends Controller
         // 0 : pulang; 1 : berangkat
         $push = absensi::where('id', $id)->firstOrFail();
 
-        $path = storage_path('app/' . ($status == 0 ? $push->path_out : $push->path_in));
+        if ($status == 0) {
+            if ($push->path_out == null) {
+                $path = public_path('images/noimg.jpg');
+            } else {
+                $path = storage_path('app/' . $push->path_out);
+            }
+        } else {
+            $path = storage_path('app/' . $push->path_in);
+        }
+
 
         if (!file_exists($path)) abort(404);
 
