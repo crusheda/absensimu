@@ -48,7 +48,7 @@ class AbsensiController extends Controller
         $datetommorow = $now->copy()->addDay()->format('Y-m-d'); // hasil: "2025-06-29"
         $tahun = $now->format('Y'); // 2025
         $bulan = $now->format('m'); // 06
-        $tgl   = $now->format('d'); // 28
+        $tgl   = $now->format('j'); // 3
         $th = $now->hour;           // Jam (0–23)
         $tm = $now->minute;         // Menit (0–59)
         $ts = $now->second;         // Detik (0–59)
@@ -261,9 +261,9 @@ class AbsensiController extends Controller
         $today = $now->isoFormat('YYYY-MM-DD');
         $yesterday = $now->copy()->subDay()->toDateString();
         $tommorow = $now->copy()->addDay()->toDateString();
-        $tahun = $now->isoFormat('YYYY');
-        $bulan = $now->isoFormat('MM');
-        $tgl = $now->isoFormat('D');
+        $tahun = $now->format('Y');
+        $bulan = $now->format('m');
+        $tgl = $now->format('j');
         $hit = "tgl".$tgl;
         $user = $request->id_user;
         $jenis = $request->jenis;
@@ -287,7 +287,6 @@ class AbsensiController extends Controller
 
             // EXECUTE
             $callShift = $jadwal->$hit;
-
             if ($callShift) {
                 // FIND SHIFT
                 $shift = ref_shift::leftJoin('referensi_jadwal_users', function($join) {
@@ -600,11 +599,13 @@ class AbsensiController extends Controller
             "status" => "Tepat Waktu",
             "tgl_in" => "2025-06-26",
             "jam_in" => "06:47:47",
-            "map_in_url" => "https://maps.googleapis.com/maps/api/staticmap?center=-7.6778,110.8397&zoom=17&size=600x300&markers=color:blue%7C-7.6778,110.8397&key=YOUR_API_KEY",
+            "latlong_in" => "-7.637823555197155, 110.86796229092549",
+            "latlong_out" => "-7.637823555197155, 110.86796229092549",
             "terlambat" => "00:00:00",
             "tgl_out" => "2025-06-26",
             "jam_out" => "14:18:58",
-            "map_out_url" => "https://maps.googleapis.com/maps/api/staticmap?center=-7.6780,110.8396&zoom=17&size=600x300&markers=color:red%7C-7.6780,110.8396&key=YOUR_API_KEY",
+            "foto_in" => "https://absensi.simrsmu.com/api/kepegawaian/detail/foto/5246/0",
+            "foto_out" => "https://absensi.simrsmu.com/api/kepegawaian/detail/foto/5246/1",
             "durasi_kerja" => "07:31:11",
             "lembur" => "00:18:58",
             "keterangan" => "Tidak ada.",
