@@ -20,6 +20,7 @@ use App\Http\Controllers\Android\Auth\LoginController;
 // START ROUTE REST API FLUTTER
 Route::post('/login', [LoginController::class, 'login']);
 Route::get('/dashboard/{user}', [\App\Http\Controllers\Android\DashboardController::class, 'index']);
+Route::get('/jadwal/{user}/{bulan}/{tahun}', [\App\Http\Controllers\Android\JadwalDinasController::class, 'index']);
 Route::get('/reminder/shift', [\App\Http\Controllers\Android\ReminderController::class, 'reminderShift']);
 Route::get('/lokasi-kantor', [\App\Http\Controllers\Android\AbsensiController::class, 'lokasiKantor']);
 Route::post('/validasi', [\App\Http\Controllers\Android\AbsensiController::class, 'init']);
