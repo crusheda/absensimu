@@ -73,8 +73,38 @@ class AbsensiController extends Controller
         $callDistance = $this->distance($profil_rs->coord_lat, $profil_rs->coord_long, $latitude, $longitude);
         $distance = round($callDistance["meters"]);
 
+        // PENENTUAN TOMBOL ABSENSI
+        $show = absensi::where('pegawai_id',$user)
+                        // ->whereDate("tgl_in","=",$datenow)
+                        ->whereDate("ref_jam_masuk","=",$datenow)
+                        ->where("jenis",'1') // SHIFT
+                        ->orderBy("tgl_in","DESC")
+                        ->first();
+        $showMalam = absensi::where('pegawai_id',$user)
+                        ->whereDate("ref_jam_pulang","=",$datenow)
+                        ->where("tgl_out",null)
+                        ->where("lewat_hari",'1')
+                        ->where("jenis",'1')
+                        ->orderBy("ref_jam_pulang","DESC")
+                        ->first();
+        $ijin = absensi::where('pegawai_id',$user)
+                        ->whereDate("tgl_in","=",$datenow)
+                        ->where("jenis",'3') // IJIN SAKIT
+                        ->orderBy("tgl_in","DESC")
+                        ->first();
+
         if ($jarak > 30) {
-            $btn_ijin = true;
+            if (!$ijin) {
+                $btn_ijin = true;
+            } else {
+                if (!$show && !$showMalam) {
+                    $btn_ijin = true;
+                } else {
+                    if ($show || $showMalam) {
+
+                    }
+                }
+            }
             $nama = 'Diluar Radius';
             $jam = 'Tidak Diizinkan';
             $keterangan = 'Absensi Jaga Shift';
@@ -117,26 +147,6 @@ class AbsensiController extends Controller
                         $jam = '-';
                         $keterangan = '';
                     }
-
-                    // PENENTUAN TOMBOL ABSENSI
-                    $show = absensi::where('pegawai_id',$user)
-                                    // ->whereDate("tgl_in","=",$datenow)
-                                    ->whereDate("ref_jam_masuk","=",$datenow)
-                                    ->where("jenis",'1') // SHIFT
-                                    ->orderBy("tgl_in","DESC")
-                                    ->first();
-                    $showMalam = absensi::where('pegawai_id',$user)
-                                    ->whereDate("ref_jam_pulang","=",$datenow)
-                                    ->where("tgl_out",null)
-                                    ->where("lewat_hari",'1')
-                                    ->where("jenis",'1')
-                                    ->orderBy("ref_jam_pulang","DESC")
-                                    ->first();
-                    $ijin = absensi::where('pegawai_id',$user)
-                                    ->whereDate("tgl_in","=",$datenow)
-                                    ->where("jenis",'3') // IJIN SAKIT
-                                    ->orderBy("tgl_in","DESC")
-                                    ->first();
 
                     if ($shift) {
                         if (!$ijin) {
