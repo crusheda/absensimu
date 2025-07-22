@@ -22,9 +22,16 @@ class LoginController extends Controller
                     ->where('users.name', $request->username)
                     ->first();
 
+        // JIKA LOGIN USER SALAH
         if (!$user || !Hash::check($request->password, $user->password)) {
             return response()->json([
-                'message' => 'Login gagal: username atau password salah',
+                'message' => 'Login gagal: Username atau Password salah',
+            ], 401);
+        }
+        // JIKA USER NONAKTIF
+        if ($user->deleted_at || $user->status) {
+            return response()->json([
+                'message' => 'Login gagal: Akun Anda sudah Nonaktif',
             ], 401);
         }
 
