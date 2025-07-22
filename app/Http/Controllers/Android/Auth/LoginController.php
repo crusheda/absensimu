@@ -28,6 +28,12 @@ class LoginController extends Controller
             ], 401);
         }
 
+        if (!$user->nip) {
+            return response()->json([
+                'message' => 'Login gagal: NIP Anda belum terinput di Database Kepegawaian',
+            ], 401);
+        }
+
         if (!Hash::check($request->password, $user->password)) {
             return response()->json([
                 'message' => 'Login gagal: Username atau Password salah',
@@ -48,10 +54,10 @@ class LoginController extends Controller
             'token' => $token, // ← Kirim token ke Flutter
             'user' => [
                 'id_user' => $user->id,
-                'nip' => $user->nip ?? null,
+                'nip' => $user->nip,
                 'name' => $user->name,
                 'nama' => $user->nama ?? $user->name,
-                'foto_profil' => $user->foto_profil ?? 'public/files/noimg.png',
+                'foto_profil' => $user->foto_profil ?? '',
             ],
         ]);
     }
