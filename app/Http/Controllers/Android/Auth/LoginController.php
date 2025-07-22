@@ -36,9 +36,9 @@ class LoginController extends Controller
             'token' => $token, // ← Kirim token ke Flutter
             'user' => [
                 'id_user' => $user->id,
-                'nip' => $user->nip,
+                'nip' => $user->nip ?? null,
                 'name' => $user->name,
-                'nama' => $user->nama,
+                'nama' => $user->nama ?? $user->name,
                 'foto_profil' => $user->foto_profil ?? null,
             ],
         ]);
