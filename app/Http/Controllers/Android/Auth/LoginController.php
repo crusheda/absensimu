@@ -51,7 +51,7 @@ class LoginController extends Controller
                 'nip' => $user->nip ?? null,
                 'name' => $user->name,
                 'nama' => $user->nama ?? $user->name,
-                'foto_profil' => $user->foto_profil ?? null,
+                'foto_profil' => $user->foto_profil ?? 'public/files/noimg.png',
             ],
         ]);
     }
