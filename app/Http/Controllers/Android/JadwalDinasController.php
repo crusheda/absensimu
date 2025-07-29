@@ -4,13 +4,11 @@ namespace App\Http\Controllers\Android;
 
 use App\Http\Controllers\Controller;
 use Illuminate\Http\Request;
-use App\Models\profil_rs;
 use App\Models\users;
-use App\Models\absensi;
 use App\Models\jadwal;
 use App\Models\jadwal_detail;
 use App\Models\ref_shift;
-use App\Models\ref_users;
+use App\Models\ref_jabatan;
 use Jenssegers\Agent\Agent;
 use Carbon\Carbon;
 use Auth,Validator,Redirect,Response,File,Storage;
@@ -52,6 +50,20 @@ class JadwalDinasController extends Controller
                 ->where('referensi_jadwal_shift.deleted_at',null)
                 ->get();
 
+        $jabatan = ref_jabatan::leftJoin('referensi_jadwal_users', function($join) {
+                    $join->on('referensi_jadwal_users.pegawai_id', '=', 'referensi_jadwal_users_jabatan.pegawai_id')
+                        ->whereNull('referensi_jadwal_users.deleted_at');
+                })
+                ->select('referensi_jadwal_users_jabatan.*')
+                ->whereJsonContains('referensi_jadwal_users.staf', $user)
+                ->whereNull('referensi_jadwal_users_jabatan.deleted_at')
+                ->get();
+
+        $users = users::select('id', 'nama', 'name')
+            ->whereNull('deleted_at')
+            ->where('status', null)
+            ->get();
+
         if ($jadwal) {
             $attributes = $jadwal->getAttributes();
             for ($i = 1; $i <= 31; $i++) {
@@ -69,7 +81,7 @@ class JadwalDinasController extends Controller
                 if (Carbon::parse($value->pulang) > Carbon::parse($value->berangkat)) {
                     $colorArray[$value->singkat] = "activeGreen";
                 } else { // LEWAT HARI
-                    $colorArray[$value->singkat] = "systemBlue";
+                    $colorArray[$value->singkat] = "activeBlue";
                 }
             }
             $shiftArray["L"] = "Libur";
@@ -82,28 +94,40 @@ class JadwalDinasController extends Controller
             $iconArray["L"] = "check_mark_circled";
             $iconArray["C"] = "minus_circle_fill";
             $iconArray["CM"] = "minus_circle_fill";
-            $iconArray["CD"] = "minus_circle_fill";
+            $iconArray["CD"] = "clear_circled";
             $iconArray["CU"] = "minus_circle_fill";
             $iconArray["CH"] = "minus_circle_fill";
 
             $colorArray["L"] = "systemGrey2";
-            $colorArray["C"] = "systemRed";
-            $colorArray["CM"] = "systemRed";
+            $colorArray["C"] = "systemOrange";
+            $colorArray["CM"] = "systemPink";
             $colorArray["CD"] = "systemRed";
-            $colorArray["CU"] = "systemRed";
-            $colorArray["CH"] = "systemRed";
+            $colorArray["CU"] = "systemTeal";
+            $colorArray["CH"] = "systemIndigo";
         }
 
-        $staf = [];
-        $users = users::select('id', 'nama', 'name')
-            ->whereNull('deleted_at')
-            ->where('status', null)
-            ->get();
+        // 1. Buat map user by ID
+        $usersMap = [];
+        foreach ($users as $user) {
+            $usersMap[$user->id] = $user;
+        }
 
+        // 2. Buat map jabatan by id_staf
+        $jabatanMap = [];
+        foreach ($jabatan as $jab) {
+            $jabatanMap[$jab->id_staf] = $jab;
+        }
+
+        // 3. Loop bawahan + build staf
+        $staf = [];
         foreach (json_decode($jadwal->bawahan) as $id) {
-            foreach ($users as $user) {
-                if ($user->id == $id) {
-                    $staf[] = $user->nama ?? $user->name; // tambahkan nama ke array
+            if (isset($usersMap[$id])) {
+                $user = $usersMap[$id];
+                if (isset($jabatanMap[$id])) {
+                    $jab = $jabatanMap[$id];
+                    $staf[] = $user->nama . ' (' . $jab->jabatan . ')';
+                } else {
+                    $staf[] = $user->nama ?? $user->name;
                 }
             }
         }
