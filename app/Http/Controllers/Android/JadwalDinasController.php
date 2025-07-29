@@ -69,7 +69,7 @@ class JadwalDinasController extends Controller
                 if (Carbon::parse($value->pulang) > Carbon::parse($value->berangkat)) {
                     $colorArray[$value->singkat] = "activeGreen";
                 } else { // LEWAT HARI
-                    $colorArray[$value->singkat] = "activeBlue";
+                    $colorArray[$value->singkat] = "systemBlue";
                 }
             }
             $shiftArray["L"] = "Libur";
@@ -82,16 +82,30 @@ class JadwalDinasController extends Controller
             $iconArray["L"] = "check_mark_circled";
             $iconArray["C"] = "minus_circle_fill";
             $iconArray["CM"] = "minus_circle_fill";
-            $iconArray["CD"] = "clear_circled_solid";
+            $iconArray["CD"] = "minus_circle_fill";
             $iconArray["CU"] = "minus_circle_fill";
             $iconArray["CH"] = "minus_circle_fill";
 
             $colorArray["L"] = "systemGrey2";
-            $colorArray["C"] = "systemOrange";
-            $colorArray["CM"] = "systemPink";
+            $colorArray["C"] = "systemRed";
+            $colorArray["CM"] = "systemRed";
             $colorArray["CD"] = "systemRed";
-            $colorArray["CU"] = "systemTeal";
-            $colorArray["CH"] = "systemIndigo";
+            $colorArray["CU"] = "systemRed";
+            $colorArray["CH"] = "systemRed";
+        }
+
+        $staf = [];
+        $users = users::select('id', 'nama', 'name')
+            ->whereNull('deleted_at')
+            ->where('status', null)
+            ->get();
+
+        foreach (json_decode($jadwal->bawahan) as $id) {
+            foreach ($users as $user) {
+                if ($user->id == $id) {
+                    $staf[] = $user->nama ?? $user->name; // tambahkan nama ke array
+                }
+            }
         }
 
         return response()->json([
@@ -100,13 +114,13 @@ class JadwalDinasController extends Controller
             "icon" => $iconArray,
             "color" => $colorArray,
             "flow" => [
-                "admin" => $jadwal->nama_admin ?? "",
-                "tgl_dibuat" => $jadwal->tgl_dibuat ? $this->convertTgl($jadwal->tgl_dibuat) : "",
-                "verif" => $jadwal->nama_verif ?? "",
-                "tgl_verif" => $jadwal->tgl_verif ? $this->convertTgl($jadwal->tgl_verif) : "",
-                "valid" => $jadwal->nama_valid ?? "",
-                "tgl_valid" => $jadwal->tgl_valid ? $this->convertTgl($jadwal->tgl_valid) : "",
-                "staf" => $jadwal->bawahan ? json_decode($jadwal->bawahan) : "",
+                "Admin Jadwal" => $jadwal->nama_admin ?? "",
+                "Tgl Dibuat" => $jadwal->tgl_dibuat ? $this->convertTgl($jadwal->tgl_dibuat) : "",
+                "Verifikator" => $jadwal->nama_verif ?? "",
+                "Tgl Diverifikasi" => $jadwal->tgl_verif ? $this->convertTgl($jadwal->tgl_verif) : "",
+                "Validator" => $jadwal->nama_valid ?? "",
+                "Tgl Validasi" => $jadwal->tgl_valid ? $this->convertTgl($jadwal->tgl_valid) : "",
+                "Daftar Staf" => $staf,
             ],
         ]);
     }
