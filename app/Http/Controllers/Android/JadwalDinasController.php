@@ -4,84 +4,124 @@ namespace App\Http\Controllers\Android;
 
 use App\Http\Controllers\Controller;
 use Illuminate\Http\Request;
+use App\Models\profil_rs;
+use App\Models\users;
+use App\Models\absensi;
+use App\Models\jadwal;
+use App\Models\jadwal_detail;
+use App\Models\ref_shift;
+use App\Models\ref_users;
+use Jenssegers\Agent\Agent;
+use Carbon\Carbon;
+use Auth,Validator,Redirect,Response,File,Storage;
 
 class JadwalDinasController extends Controller
 {
     function index($user, $bulan, $tahun)
     {
+        $jadwalArray = [];
+        $shiftArray = [];
+        $iconArray = [];
+        $colorArray = [];
+        $flowArray = [];
+
+        $jadwal = jadwal_detail::leftJoin('kepegawaian_jadwal', function($join) {
+                            $join->on('kepegawaian_jadwal.id', '=', 'kepegawaian_jadwal_detail.id_jadwal')
+                                ->whereNull('kepegawaian_jadwal.deleted_at');
+                        })
+                        ->leftJoin('users as uad','uad.id','=','kepegawaian_jadwal.pegawai_id')
+                        ->leftJoin('users as uve','uve.id','=','kepegawaian_jadwal.verif')
+                        ->leftJoin('users as uva','uva.id','=','kepegawaian_jadwal.valid')
+                        ->select(
+                            'kepegawaian_jadwal_detail.*','uad.nama as nama_admin','kepegawaian_jadwal.staf as bawahan','kepegawaian_jadwal.progress',
+                            'uve.nama as nama_verif','kepegawaian_jadwal.tgl_verif','uva.nama as nama_valid','kepegawaian_jadwal.tgl_valid','kepegawaian_jadwal.created_at as tgl_dibuat'
+                        )
+                        ->where('kepegawaian_jadwal_detail.pegawai_id',$user)
+                        ->where('kepegawaian_jadwal.bulan',$bulan)
+                        ->where('kepegawaian_jadwal.tahun',$tahun)
+                        ->whereNull('kepegawaian_jadwal_detail.deleted_at')
+                        ->orderBy('kepegawaian_jadwal_detail.id','DESC')
+                        ->first();
+
+        $shift  = ref_shift::leftJoin('referensi_jadwal_users', function($join) {
+                    $join->on('referensi_jadwal_users.pegawai_id', '=', 'referensi_jadwal_shift.pegawai_id')
+                        ->whereNull('referensi_jadwal_users.deleted_at');
+                })
+                ->select('referensi_jadwal_shift.*')
+                ->whereJsonContains('referensi_jadwal_users.staf', $user)
+                ->where('referensi_jadwal_shift.deleted_at',null)
+                ->get();
+
+        if ($jadwal) {
+            $attributes = $jadwal->getAttributes();
+            for ($i = 1; $i <= 31; $i++) {
+                $key = str_pad($i, 2, '0', STR_PAD_LEFT);
+                $field = 'tgl' . $i;
+                $jadwalArray[$key] = $attributes[$field] ?? "";
+            }
+        }
+
+        if (!empty($shift)) {
+            // PUSH SHIFT & COLOR
+            foreach ($shift as $key => $value) {
+                $shiftArray[$value->singkat] = $value->shift ?? "";
+                $iconArray[$value->singkat] = "check_mark_circled_solid";
+                if (Carbon::parse($value->pulang) > Carbon::parse($value->berangkat)) {
+                    $colorArray[$value->singkat] = "activeGreen";
+                } else { // LEWAT HARI
+                    $colorArray[$value->singkat] = "activeBlue";
+                }
+            }
+            $shiftArray["L"] = "Libur";
+            $shiftArray["C"] = "Cuti Tahunan";
+            $shiftArray["CM"] = "Cuti Melahirkan";
+            $shiftArray["CD"] = "Cuti Diluar Tanggungan";
+            $shiftArray["CU"] = "Cuti Umroh";
+            $shiftArray["CH"] = "Cuti Haji";
+
+            $iconArray["L"] = "check_mark_circled";
+            $iconArray["C"] = "minus_circle_fill";
+            $iconArray["CM"] = "minus_circle_fill";
+            $iconArray["CD"] = "clear_circled_solid";
+            $iconArray["CU"] = "minus_circle_fill";
+            $iconArray["CH"] = "minus_circle_fill";
+
+            $colorArray["L"] = "systemGrey2";
+            $colorArray["C"] = "systemOrange";
+            $colorArray["CM"] = "systemPink";
+            $colorArray["CD"] = "systemRed";
+            $colorArray["CU"] = "systemTeal";
+            $colorArray["CH"] = "systemIndigo";
+        }
+
         return response()->json([
-            "jadwal" => [
-                "01" => "P",
-                "02" => "P",
-                "03" => "P",
-                "04" => "P",
-                "05" => "P",
-                "06" => "P",
-                "07" => "P",
-                "08" => "P",
-                "09" => "P",
-                "10" => "P",
-                "11" => "L",
-                "12" => "CM",
-                "13" => "CU",
-                "14" => "C",
-                "15" => "CD",
-                "16" => "L",
-                "17" => "P",
-                "18" => "S",
-                "19" => "P",
-                "20" => "P",
-                "21" => "P",
-                "22" => "L",
-                "23" => "S",
-                "24" => "P",
-                "25" => "P",
-                "26" => "L",
-                "27" => "P",
-                "28" => "P",
-                "29" => "P",
-                "30" => "P",
-                "31" => "P",
-            ],
-            "ref_shift" => [
-                "P" => "Pagi",
-                "S" => "Siang",
-                "L" => "Libur",
-                "C" => "Cuti Tahunan",
-                "CM" => "Cuti Melahirkan",
-                "CD" => "Cuti Diluar Tanggungan",
-                "CU" => "Cuti Umroh",
-                "CH" => "Cuti Haji",
-            ],
-            "icon" => [
-                "P" => "check_mark_circled_solid",
-                "S" => "check_mark_circled_solid",
-                "L" => "check_mark_circled",
-                "C" => "minus_circle_fill",
-                "CM" => "minus_circle_fill",
-                "CD" => "minus_circle_fill",
-                "CU" => "minus_circle_fill",
-                "CH" => "minus_circle_fill",
-            ],
-            "color" => [
-                "P" => "activeGreen",
-                "S" => "activeGreen",
-                "L" => "systemGrey2",
-                "C" => "systemRed",
-                "CM" => "systemRed",
-                "CD" => "systemRed",
-                "CU" => "systemRed",
-                "CH" => "systemRed",
-            ],
+            "jadwal" => $jadwalArray,
+            "ref_shift" => $shiftArray,
+            "icon" => $iconArray,
+            "color" => $colorArray,
             "flow" => [
-                "admin" => "CONTOH",
-                "tgl_dibuat" => "21 Juli 2025 21.09 WIB",
-                "verif" => "CONTOH 2",
-                "tgl_verif" => "25 Juli 2025 06.19 WIB",
-                "valid" => "CONTOH 3",
-                "tgl_valid" => "28 Juli 2025 14.01 WIB",
-                "staf" => ["C1","C2","C3"],
+                "admin" => $jadwal->nama_admin ?? "",
+                "tgl_dibuat" => $jadwal->tgl_dibuat ? $this->convertTgl($jadwal->tgl_dibuat) : "",
+                "verif" => $jadwal->nama_verif ?? "",
+                "tgl_verif" => $jadwal->tgl_verif ? $this->convertTgl($jadwal->tgl_verif) : "",
+                "valid" => $jadwal->nama_valid ?? "",
+                "tgl_valid" => $jadwal->tgl_valid ? $this->convertTgl($jadwal->tgl_valid) : "",
+                "staf" => $jadwal->bawahan ? json_decode($jadwal->bawahan) : "",
             ],
         ]);
+    }
+
+    public static function convertTgl($datetime)
+    {
+        // Buat instance Carbon
+        $carbon = Carbon::parse($datetime);
+
+        // Ubah ke timezone kalau mau
+        $carbon->setTimezone('Asia/Jakarta');
+
+        // Format
+        $formatted = $carbon->translatedFormat('j F Y H.i') . ' WIB';
+
+        return $formatted;
     }
 }

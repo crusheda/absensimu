@@ -64,7 +64,24 @@ class LoginController extends Controller
 
     public function logout(Request $request)
     {
-        $request->user()->tokens()->delete(); // jika pakai sanctum
-        return response()->json(['message' => 'Berhasil logout']);
+        try {
+            if ($request->user()) {
+                // Hapus semua token milik user ini
+                $request->user()->tokens()->delete();
+                return response()->json(['message' => 'Berhasil logout'], 200);
+            } else {
+                // Kalau user() null (token invalid/expired)
+                return response()->json(['message' => 'Token tidak valid atau sudah logout'], 401);
+            }
+        } catch (\Throwable $e) {
+            return response()->json([
+                'message' => 'Terjadi kesalahan logout',
+                'error' => $e->getMessage(),
+            ], 500);
+        }
+
+        // code lama
+        // $request->user()->tokens()->delete(); // jika pakai sanctum
+        // return response()->json(['message' => 'Berhasil logout']);
     }
 }
