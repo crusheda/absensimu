@@ -16,6 +16,8 @@ use Illuminate\Support\Facades\Route;
 
 // INITIALIZE
 use App\Http\Controllers\Android\Auth\LoginController;
+use App\Http\Controllers\Android\FcmTokenController;
+use App\Http\Controllers\Android\NotificationController;
 
 // START ROUTE REST API FLUTTER
 Route::post('/login', [LoginController::class, 'login']);
@@ -27,6 +29,10 @@ Route::post('/validasi', [\App\Http\Controllers\Android\AbsensiController::class
 Route::post('/absensi', [\App\Http\Controllers\Android\AbsensiController::class, 'absensi']);
 Route::get('/absensi/detail/{id}', [\App\Http\Controllers\Android\AbsensiController::class, 'detailAbsensi']);
 Route::middleware('auth:sanctum')->post('/logout', [LoginController::class, 'logout']);
+// Route::middleware('auth:sanctum')->group(function () { });
+Route::post('/save-fcm-token', [FcmTokenController::class, 'store']);
+Route::post('/remove-token', [FcmTokenController::class, 'removeToken']);
+Route::post('/broadcast', [NotificationController::class, 'broadcast']);
 
 // END ROUTE REST API FLUTTER
 
