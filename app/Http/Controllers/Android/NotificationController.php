@@ -12,29 +12,41 @@ class NotificationController extends Controller
 {
     public function broadcast(Request $request, FirebaseService $firebase)
     {
-        $request->validate([
-            'title' => 'required|string',
-            'body' => 'required|string',
+        $validated = $request->validate([
+            'title' => 'required|string', // |max:255
+            'body'  => 'required|string',
         ]);
 
         // Ambil semua token unik dari tabel fcm_tokens
-        $tokens = FcmToken::pluck('token')->unique()->toArray();
+        $tokens = FcmToken::distinct()->pluck('token')->toArray();
 
         if (empty($tokens)) {
             return response()->json([
                 'success' => false,
-                'message' => 'Tidak ada device untuk dikirimi notifikasi'
-            ]);
+                'message' => 'Tidak ada device untuk dikirimi notifikasi',
+            ], 404);
         }
 
-        // Kirim notifikasi per token
-        $result = $firebase->sendNotification($tokens, $request->title, $request->body, [
-            'type' => 'broadcast'
-        ]);
+        // Kirim notifikasi
+        $result = $firebase->sendNotification(
+            $tokens,
+            $validated['title'],
+            $validated['body'],
+            ['type' => 'broadcast']
+        );
+
+        if (!$result['success']) {
+            return response()->json([
+                'success' => false,
+                'message' => 'Gagal mengirim notifikasi',
+                'errors'  => $result['errors'] ?? [],
+            ], 500);
+        }
 
         return response()->json([
             'success' => true,
-            'result' => $result
+            'message' => 'Notifikasi berhasil dikirim',
+            'result'  => $result,
         ]);
     }
 }

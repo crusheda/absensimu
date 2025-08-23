@@ -20,7 +20,8 @@ class FirebaseService
 
         $this->projectId = $firebaseCredentials['project_id'];
         $this->clientEmail = $firebaseCredentials['client_email'];
-        $this->privateKey = $firebaseCredentials['private_key'];
+        // $this->privateKey = $firebaseCredentials['private_key'];
+        $this->privateKey = str_replace("\\n", "\n", $firebaseCredentials['private_key']);
     }
 
     /**
@@ -28,13 +29,13 @@ class FirebaseService
      */
     private function getAccessToken(): ?string
     {
-        $jwtHeader = base64_encode(json_encode([
+        $jwtHeader = $this->base64UrlEncode(json_encode([
             'alg' => 'RS256',
             'typ' => 'JWT'
         ]));
 
         $now = time();
-        $jwtClaim = base64_encode(json_encode([
+        $jwtClaim = $this->base64UrlEncode(json_encode([
             'iss' => $this->clientEmail,
             'scope' => 'https://www.googleapis.com/auth/firebase.messaging',
             'aud' => 'https://oauth2.googleapis.com/token',
@@ -44,8 +45,11 @@ class FirebaseService
 
         $dataToSign = $jwtHeader . '.' . $jwtClaim;
         $signature = '';
+        if (!openssl_sign($dataToSign, $signature, $this->privateKey, 'SHA256')) {
+            throw new \Exception("Failed to sign JWT. Check private key format.");
+        }
         openssl_sign($dataToSign, $signature, $this->privateKey, 'SHA256');
-        $jwtSignature = base64_encode($signature);
+        $jwtSignature = $this->base64UrlEncode($signature);
 
         $jwt = $jwtHeader . '.' . $jwtClaim . '.' . $jwtSignature;
 
@@ -81,18 +85,30 @@ class FirebaseService
             $payload = [
                 'message' => [
                     'token' => $token,
-                    'data' => array_merge($data, [
+                    'notification' => [
                         'title' => $title,
-                        'body' => $body,
-                    ]),
+                        'body'  => $body,
+                    ],
+                    'data' => $data,
                 ]
             ];
 
-            $responses[] = Http::withToken($accessToken)
-                ->post($url, $payload)
-                ->json();
+            $res = Http::withToken($accessToken)->post($url, $payload);
+            $responses[] = [
+                'token'  => $token,
+                'status' => $res->status(),
+                'body'   => $res->json(),
+            ];
         }
 
-        return $responses;
+        return [
+            'success' => true,
+            'results' => $responses,
+        ];
+    }
+
+    private function base64UrlEncode($data): string
+    {
+        return rtrim(strtr(base64_encode($data), '+/', '-_'), '=');
     }
 }

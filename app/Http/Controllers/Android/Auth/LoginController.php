@@ -7,6 +7,7 @@ use Illuminate\Http\Request;
 use App\Models\User;
 use App\Models\users_foto;
 use Illuminate\Support\Facades\Hash;
+use DB,Auth,Validator,Redirect,Response,File,Storage;
 
 class LoginController extends Controller
 {
@@ -15,6 +16,12 @@ class LoginController extends Controller
         $request->validate([
             'username' => 'required',
             'password' => 'required',
+            'device_id'  => 'required',
+            'token' => 'required|string',
+            'platform' => 'required|string',      // 'android' / 'ios'
+            'os_version' => 'nullable|string',    // versi OS
+            'model' => 'nullable|string',       // model device
+            'is_rooted' => 'nullable|string',       // model device
         ]);
 
         $user = User::leftJoin('users_foto','users_foto.user_id','=','users.id')
@@ -46,12 +53,92 @@ class LoginController extends Controller
             ], 401);
         }
 
+        // 🔒 cek device aktif
+        $existingDevice = DB::table('fcm_tokens')
+            ->where('user_id', $user->id)
+            ->where('is_active', 1)
+            ->first();
+
+        if ($existingDevice) {
+            // jika device_id beda -> tolak login
+            if ($existingDevice->device_id !== $request->device_id) {
+                return response()->json([
+                    'message' => 'Login gagal: Akun ini sudah digunakan di perangkat lain',
+                ], 403);
+            }
+
+            // cek apakah device disetujui (accepted = 1)
+            if (!$existingDevice->accepted) {
+                return response()->json([
+                    'message' => 'Login gagal: Perangkat ini belum disetujui oleh admin',
+                ], 403);
+            }
+
+            // update token dan informasi device
+            DB::table('fcm_tokens')->where('id', $existingDevice->id)->update([
+                'token'        => $request->token,
+                'platform'     => $request->platform,
+                'os_version'   => $request->os_version,
+                'model'        => $request->model,
+                'last_login_at'=> now(),
+                'updated_at'   => now(),
+                'is_active'    => 1,
+            ]);
+        } else {
+            // kalau belum ada device aktif → cek apakah device ini sudah pernah terdaftar
+            $deviceRow = DB::table('fcm_tokens')
+                ->where('user_id', $user->id)
+                ->where('device_id', $request->device_id)
+                ->first();
+
+            if ($deviceRow) {
+                // cek apakah disetujui
+                if (!$deviceRow->accepted) {
+                    return response()->json([
+                        'message' => 'Login gagal: Perangkat ini belum disetujui oleh admin',
+                    ], 403);
+                }
+
+                // update ulang device lama
+                DB::table('fcm_tokens')->where('id', $deviceRow->id)->update([
+                    'token'        => $request->token,
+                    'platform'     => $request->platform,
+                    'os_version'   => $request->os_version,
+                    'model'        => $request->model,
+                    'last_login_at'=> now(),
+                    'updated_at'   => now(),
+                    'is_active'    => 1,
+                ]);
+            } else {
+                // device baru → insert dulu dengan accepted = 0 (butuh approval admin)
+                DB::table('fcm_tokens')->insert([
+                    'user_id'      => $user->id,
+                    'device_id'    => $request->device_id,
+                    'token'        => $request->token,
+                    'platform'     => $request->platform,
+                    'os_version'   => $request->os_version,
+                    'model'        => $request->model,
+                    'is_active'    => 0,
+                    'is_rooted'    => $request->is_rooted,
+                    'ip_address'   => $request->ip_address ?? $request->ip(),
+                    'accepted'     => 0, // default 0 → harus di-approve
+                    'last_login_at'=> now(),
+                    'created_at'   => now(),
+                    'updated_at'   => now(),
+                ]);
+
+                return response()->json([
+                    'message' => 'Login gagal: Perangkat baru terdeteksi, menunggu persetujuan admin',
+                ], 403);
+            }
+        }
+
         // Buat token
         $token = $user->createToken('api_token')->plainTextToken;
 
         return response()->json([
             'message' => 'Login berhasil',
-            'token' => $token, // ← Kirim token ke Flutter
+            'token' => $token,
             'user' => [
                 'id_user' => $user->id,
                 'nip' => $user->nip,
@@ -66,6 +153,12 @@ class LoginController extends Controller
     {
         try {
             if ($request->user()) {
+                // tandai device nonaktif
+                DB::table('fcm_tokens')
+                    ->where('user_id', $request->user()->id)
+                    ->where('device_id', $request->device_id) // device yang sedang dipakai
+                    ->update(['is_active' => 0]);
+
                 // Hapus semua token milik user ini
                 $request->user()->tokens()->delete();
                 return response()->json(['message' => 'Berhasil logout'], 200);
@@ -79,9 +172,5 @@ class LoginController extends Controller
                 'error' => $e->getMessage(),
             ], 500);
         }
-
-        // code lama
-        // $request->user()->tokens()->delete(); // jika pakai sanctum
-        // return response()->json(['message' => 'Berhasil logout']);
     }
 }
