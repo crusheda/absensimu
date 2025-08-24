@@ -18,12 +18,18 @@ class NotificationController extends Controller
         ]);
 
         // Ambil semua token unik dari tabel fcm_tokens
-        $tokens = FcmToken::distinct()->pluck('token')->toArray();
+        // $tokens = FcmToken::distinct()->pluck('token')->toArray();
+        $tokens = FcmToken::where('status', 1)
+            ->where('accepted', 1)
+            ->withoutTrashed()
+            ->distinct()
+            ->pluck('token')
+            ->toArray();
 
         if (empty($tokens)) {
             return response()->json([
                 'success' => false,
-                'message' => 'Tidak ada device untuk dikirimi notifikasi',
+                'message' => 'Tidak ada device aktif untuk menerima notifikasi',
             ], 404);
         }
 
@@ -45,7 +51,7 @@ class NotificationController extends Controller
 
         return response()->json([
             'success' => true,
-            'message' => 'Notifikasi berhasil dikirim',
+            'message' => 'Notifikasi berhasil dikirim ke semua Device Aktif',
             'result'  => $result,
         ]);
     }

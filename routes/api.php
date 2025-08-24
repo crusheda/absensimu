@@ -16,6 +16,7 @@ use Illuminate\Support\Facades\Route;
 
 // INITIALIZE
 use App\Http\Controllers\Android\Auth\LoginController;
+use App\Http\Controllers\Android\IntegrityController;
 use App\Http\Controllers\Android\FcmTokenController;
 use App\Http\Controllers\Android\NotificationController;
 
@@ -33,6 +34,7 @@ Route::middleware('auth:sanctum')->post('/logout', [LoginController::class, 'log
 Route::post('/save-fcm-token', [FcmTokenController::class, 'store']);
 Route::post('/remove-token', [FcmTokenController::class, 'removeToken']);
 Route::post('/broadcast', [NotificationController::class, 'broadcast']);
+Route::post('/verify_integrity', [IntegrityController::class, 'verify_integrity']);
 
 // END ROUTE REST API FLUTTER
 

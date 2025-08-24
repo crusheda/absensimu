@@ -29,24 +29,39 @@ class FcmTokenController extends Controller
             ->first();
 
         if ($existingDevice) {
-            if ($existingDevice->device_id !== $request->device_id) {
-                // device berbeda → tolak binding
-                return response()->json([
-                    'success' => false,
-                    'message' => 'Akun ini sudah terhubung dengan perangkat lain',
-                ], 403);
+            if ($existingDevice->device_id) {
+                if ($existingDevice->device_id !== $request->device_id) {
+                    // device berbeda → tolak binding
+                    return response()->json([
+                        'success' => false,
+                        'message' => 'Akun ini sudah terhubung dengan perangkat lain',
+                    ], 403);
+                }
+
+                // kalau device_id sama → update token dan info device
+                $existingDevice->update([
+                    'token'        => $request->token,
+                    'platform'     => $request->platform,
+                    'os_version'   => $request->os_version,
+                    'model'        => $request->model,
+                    'is_rooted'    => $request->is_rooted,
+                    'last_login_at'=> now(),
+                    'is_active'    => 1,
+                ]);
+            } else {
+                // return response()->json(['message' => $request->device_id]);
+                $existingDevice->update([
+                    'device_id'    => $request->device_id,
+                    'token'        => $request->token,
+                    'platform'     => $request->platform,
+                    'os_version'   => $request->os_version,
+                    'model'        => $request->model,
+                    'is_rooted'    => $request->is_rooted,
+                    'last_login_at'=> now(),
+                    'is_active'    => 1,
+                ]);
             }
 
-            // kalau device_id sama → update token dan info device
-            $existingDevice->update([
-                'token'        => $request->token,
-                'platform'     => $request->platform,
-                'os_version'   => $request->os_version,
-                'model'        => $request->model,
-                'is_rooted'    => $request->is_rooted,
-                'last_login_at'=> now(),
-                'is_active'    => 1,
-            ]);
         } else {
             // kalau belum ada → daftarkan device baru
             FcmToken::updateOrCreate(
