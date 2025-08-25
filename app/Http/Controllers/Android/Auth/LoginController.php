@@ -113,9 +113,11 @@ class LoginController extends Controller
                 'platform'     => $request->platform,
                 'os_version'   => $request->os_version,
                 'model'        => $request->model,
+                'is_active'    => 1,
+                'is_rooted'    => $request->is_rooted,
+                'ip_address'   => $request->ip_address ?? $request->ip(),
                 'last_login_at'=> now(),
                 'updated_at'   => now(),
-                'is_active'    => 1,
             ]);
         } else {
             // device baru → insert dulu dengan accepted = 0 (butuh approval admin)
