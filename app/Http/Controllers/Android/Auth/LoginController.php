@@ -76,16 +76,13 @@ class LoginController extends Controller
             ->orderBy('id','DESC')
             ->first();
 
-        // return response()->json([
-        //     'message' => $existingDevice,
-        // ], 200);
-        if (!$existingDevice->status) {
-            return response()->json([
-                'message' => 'Perangkat Anda telah DIBLOKIR dari Sistem Absensi RS PKU Muhammadiyah Sukoharjo. Silakan konfirmasi kepada bagian terkait.',
-            ], 403);
-        }
-
         if ($existingDevice) {
+            if (!$existingDevice->status) {
+                return response()->json([
+                    'message' => 'Perangkat Anda telah DIBLOKIR dari Sistem Absensi RS PKU Muhammadiyah Sukoharjo. Silakan konfirmasi kepada bagian terkait.',
+                ], 403);
+            }
+
             // jika device_id beda -> tolak login
             if ($existingDevice->device_id !== $request->device_id) {
                 if (!$existingDevice->accepted) {
