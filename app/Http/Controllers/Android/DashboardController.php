@@ -127,7 +127,11 @@ class DashboardController extends Controller
                                     if ($getJadwal->$hit == "CD") {
                                         $nama_shift = 'Cuti Diluar Tanggungan';
                                     } else {
-                                        $nama_shift = 'Libur / Tidak Masuk';
+                                        if ($getJadwal->$hit == "DL") {
+                                            $nama_shift = 'Dinas Luar';
+                                        } else {
+                                            $nama_shift = 'Libur / Tidak Masuk';
+                                        }
                                     }
                                 }
                             }
