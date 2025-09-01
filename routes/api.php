@@ -24,6 +24,7 @@ use App\Http\Controllers\Android\NotificationController;
 Route::post('/login', [LoginController::class, 'login']);
 Route::get('/dashboard/{user}', [\App\Http\Controllers\Android\DashboardController::class, 'index']);
 Route::get('/jadwal/{user}/{bulan}/{tahun}', [\App\Http\Controllers\Android\JadwalDinasController::class, 'index']);
+Route::get('/setting/profil/{user}', [\App\Http\Controllers\Android\SettingController::class, 'profilUser']);
 Route::get('/reminder/shift', [\App\Http\Controllers\Android\ReminderController::class, 'reminderShift']);
 Route::get('/lokasi-kantor', [\App\Http\Controllers\Android\AbsensiController::class, 'lokasiKantor']);
 Route::post('/validasi', [\App\Http\Controllers\Android\AbsensiController::class, 'init']);
@@ -63,6 +64,8 @@ Route::get('kepegawaian/rekap/{user}/4', [\App\Http\Controllers\Rekap\RekapContr
 Route::get('kepegawaian/rekap/{user}/5', [\App\Http\Controllers\Rekap\RekapController::class, 'listMonth3'])->name('kepegawaian.rekap.month3');
 Route::get('kepegawaian/rekap/{user}/6', [\App\Http\Controllers\Rekap\RekapController::class, 'listThreeMonths'])->name('kepegawaian.rekap.3month');
 Route::get('kepegawaian/rekap/{user}/7', [\App\Http\Controllers\Rekap\RekapController::class, 'listThisYear'])->name('kepegawaian.rekap.1year');
+Route::get('kepegawaian/rekap/{user}/8', [\App\Http\Controllers\Rekap\RekapController::class, 'listDinasLuar'])->name('kepegawaian.rekap.dinasLuar');
+Route::get('kepegawaian/rekap/{user}/9', [\App\Http\Controllers\Rekap\RekapController::class, 'listIjin'])->name('kepegawaian.rekap.ijin');
 Route::get('kepegawaian/rekap/{user}/detail/{id}', [\App\Http\Controllers\Rekap\RekapController::class, 'showDetail'])->name('kepegawaian.rekap.detail');
 Route::get('kepegawaian/detail/foto/{id}/{status}', [\App\Http\Controllers\Rekap\RekapController::class, 'showFotoDetail'])->name('kepegawaian.rekap.detailFoto');
 

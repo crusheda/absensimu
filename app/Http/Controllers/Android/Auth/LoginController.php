@@ -204,6 +204,9 @@ class LoginController extends Controller
                 'name' => $user->name,
                 'nama' => $user->nama ?? $user->name,
                 'foto_profil' => $user->foto_profil ?? '',
+                'alamat' => $user->alamat_ktp ?? '',
+                'noHp' => $user->no_hp ?? '',
+                'email' => $user->email ?? '',
             ],
         ]);
     }

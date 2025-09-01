@@ -69,6 +69,13 @@ class DashboardController extends Controller
                         ->whereYear('tgl_in',$year)
                         ->whereNull('deleted_at')
                         ->count();
+        $dinasLuar = DB::table('kepegawaian_absensi')
+                        ->where('pegawai_id',$user)
+                        ->where('jenis',4)
+                        ->whereMonth('tgl_in',$month)
+                        ->whereYear('tgl_in',$year)
+                        ->whereNull('deleted_at')
+                        ->count();
         $getJadwal = jadwal_detail::leftJoin('kepegawaian_jadwal', function($join) {
                             $join->on('kepegawaian_jadwal.id', '=', 'kepegawaian_jadwal_detail.id_jadwal')
                                 ->whereNull('kepegawaian_jadwal.deleted_at');
@@ -182,6 +189,7 @@ class DashboardController extends Controller
             'absenOne' => $absenOne,
             'terlambat' => $terlambat,
             'ijin' => $ijin,
+            'dinasluar' => $dinasLuar,
             'nama_shift' => $nama_shift,
             'shift' => $shift,
             'jadwal' => $jadwal,

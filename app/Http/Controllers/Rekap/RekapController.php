@@ -161,6 +161,7 @@ class RekapController extends Controller
     {
         $show = Absensi::where('pegawai_id', $user)
                         ->whereBetween('tgl_in', [Carbon::now()->subWeek(), Carbon::now()])
+                        ->whereNull('deleted_at')
                         // ->where('jenis',1)
                         ->orderBy('tgl_in', 'DESC')
                         ->get();
@@ -199,6 +200,7 @@ class RekapController extends Controller
     {
         $show = Absensi::where('pegawai_id', $user)
                         ->whereBetween('tgl_in', [Carbon::now()->subDays(14), Carbon::now()])
+                        ->whereNull('deleted_at')
                         // ->where('jenis',1)
                         ->orderBy('tgl_in', 'DESC')
                         ->get();
@@ -266,6 +268,7 @@ class RekapController extends Controller
 
         $show = Absensi::where('pegawai_id', $user)
             ->whereBetween('tgl_in', [$startDate, $endDate])
+            ->whereNull('deleted_at')
             ->orderBy('tgl_in', 'DESC')
             ->get();
 
@@ -310,6 +313,7 @@ class RekapController extends Controller
             ->count();
         $show = Absensi::where('pegawai_id', $user)
                         ->whereBetween('tgl_in', [$startDate, $endDate])
+                        ->whereNull('deleted_at')
                         ->orderBy('tgl_in', 'DESC')
                         ->get();
 
@@ -351,6 +355,7 @@ class RekapController extends Controller
             ->count();
         $show = Absensi::where('pegawai_id', $user)
                         ->whereBetween('tgl_in', [$startDate, $endDate])
+                        ->whereNull('deleted_at')
                         ->orderBy('tgl_in', 'DESC')
                         ->get();
 
@@ -382,6 +387,7 @@ class RekapController extends Controller
         // Query seperti biasa:
         $show = Absensi::where('pegawai_id', $user)
             ->whereBetween('tgl_in', [$startDate, $endDate])
+            ->whereNull('deleted_at')
             ->orderBy('tgl_in', 'DESC')
             ->get();
 
@@ -467,6 +473,7 @@ class RekapController extends Controller
 
         $show = Absensi::where('pegawai_id', $user)
                         ->whereBetween('tgl_in', [$startDate, $endDate])
+                        ->whereNull('deleted_at')
                         ->orderBy('tgl_in', 'DESC')
                         ->get();
 
@@ -492,6 +499,58 @@ class RekapController extends Controller
             ->whereNull('tgl_out')
             ->orderBy('tgl_in', 'DESC')
             ->count();
+
+        $data = [
+            'show' => $show,
+            'tepatWaktu' => $tepatWaktu,
+            'terlambat' => $terlambat,
+            'absenOne' => $absenOne,
+        ];
+
+        return response()->json($data, 200);
+    }
+
+    function listDinasLuar($user)
+    {
+        $startDate = Carbon::now()->startOfYear(); // 1 Januari tahun ini
+        $endDate = Carbon::now()->endOfYear();     // 31 Desember tahun ini
+
+        $show = Absensi::where('pegawai_id', $user)
+                        ->whereBetween('tgl_in', [$startDate, $endDate])
+                        ->where('jenis', 4)
+                        ->orderBy('tgl_in', 'DESC')
+                        ->whereNull('deleted_at')
+                        ->get();
+
+        $tepatWaktu = 0;
+        $terlambat = 0;
+        $absenOne = 0;
+
+        $data = [
+            'show' => $show,
+            'tepatWaktu' => $tepatWaktu,
+            'terlambat' => $terlambat,
+            'absenOne' => $absenOne,
+        ];
+
+        return response()->json($data, 200);
+    }
+
+    function listIjin($user)
+    {
+        $startDate = Carbon::now()->startOfYear(); // 1 Januari tahun ini
+        $endDate = Carbon::now()->endOfYear();     // 31 Desember tahun ini
+
+        $show = Absensi::where('pegawai_id', $user)
+                        ->whereBetween('tgl_in', [$startDate, $endDate])
+                        ->where('jenis', 3)
+                        ->whereNull('deleted_at')
+                        ->orderBy('tgl_in', 'DESC')
+                        ->get();
+
+        $tepatWaktu = 0;
+        $terlambat = 0;
+        $absenOne = 0;
 
         $data = [
             'show' => $show,
