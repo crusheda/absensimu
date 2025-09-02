@@ -524,7 +524,7 @@ class AbsensiController extends Controller
                 if ($request->hasFile('foto')) {
                     $file = $request->file('foto');
                     $title = uniqid() . '.' . $file->getClientOriginalExtension();
-                    $path = $file->storeAs('public/files/kepegawaian/absensi/masuk', $title);
+                    $path = $file->storeAs('public/files/kepegawaian/absensi/pulang', $title);
 
                     // VALIDASI DUPLIKASI DATA
                     $validate = absensi::where('pegawai_id',$user)
@@ -625,7 +625,7 @@ class AbsensiController extends Controller
                             if ($request->hasFile('foto')) {
                                 $file = $request->file('foto');
                                 $title = uniqid() . '.' . $file->getClientOriginalExtension();
-                                $path = $file->storeAs('public/files/kepegawaian/absensi/masuk', $title);
+                                $path = $file->storeAs('public/files/kepegawaian/absensi/ijin', $title);
 
                                 $jamMasuk = Carbon::parse($shift->berangkat)->format('Y-m-d H:i:s');
                                 $jamPulang = Carbon::parse($shift->pulang)->format('Y-m-d H:i:s');
@@ -722,7 +722,7 @@ class AbsensiController extends Controller
                                 if ($request->hasFile('foto')) {
                                     $file = $request->file('foto');
                                     $title = uniqid() . '.' . $file->getClientOriginalExtension();
-                                    $path = $file->storeAs('public/files/kepegawaian/absensi/masuk', $title);
+                                    $path = $file->storeAs('public/files/kepegawaian/absensi/dinasluar', $title);
 
                                     $jamMasuk = Carbon::parse($shift->berangkat)->format('Y-m-d H:i:s');
                                     $jamPulang = Carbon::parse($shift->pulang)->format('Y-m-d H:i:s');
