@@ -193,7 +193,7 @@ class AbsenController extends Controller
 
                 // VALIDATING JAM MASUK
                 if ($jam_pulang->greaterThan($jam_masuk)) { // KECUALI MALAM ATAU LEWAT HARI
-                    if ($time >= Carbon::parse($shift->berangkat)->subHour()->isoFormat('HH:mm:ss') && $time <= Carbon::parse($shift->pulang)->isoFormat('HH:mm:ss')) { // DALAM JAM KERJA (MIN 1 JAM SEBELUM JAM MASUK)
+                    if ($time >= Carbon::parse($shift->berangkat)->subHour(2)->isoFormat('HH:mm:ss') && $time <= Carbon::parse($shift->pulang)->isoFormat('HH:mm:ss')) { // DALAM JAM KERJA (MIN 2 JAM SEBELUM JAM MASUK)
                         return Response::json(array(
                             'message' => 'Anda berada di Waktu Masuk Kerja!',
                             'lewat_hari' => $lewat_hari,
@@ -215,7 +215,7 @@ class AbsenController extends Controller
                     $now = Carbon::now();
                     $today = Carbon::now()->isoFormat('YYYY-MM-DD');
                     $tomorow = Carbon::now()->addDay(1)->isoFormat('YYYY-MM-DD');
-                    $convBerangkat = Carbon::parse($today.' '.$shift->berangkat)->subHour(); // MULAI ABSENSI MINIMAL 1 JAM SEBELUM JAM MASUK
+                    $convBerangkat = Carbon::parse($today.' '.$shift->berangkat)->subHour(2); // MULAI ABSENSI MINIMAL 2 JAM SEBELUM JAM MASUK
                     $convPulang = Carbon::parse($tomorow.' '.$shift->pulang);
                     if ($now >= $convBerangkat && $now <= $convPulang) { // DALAM JAM KERJA
                         return Response::json(array(
