@@ -153,7 +153,7 @@ class DashboardController extends Controller
         $thn = $now->isoFormat('YYYY');
         $nama_bulan = $now->isoFormat('MMMM');
         // $staf = ref_users::whereJsonContains('staf', $user)->value('pegawai_id');
-$now = Carbon::now();
+        $now = Carbon::now();
         $month = $now->isoFormat('MM');
         $year = $now->isoFormat('YYYY');
         $tgl = $now->isoFormat('D');

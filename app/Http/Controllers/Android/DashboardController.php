@@ -8,6 +8,7 @@ use App\Models\profil_rs;
 use App\Models\users;
 use App\Models\users_foto;
 use App\Models\users_status;
+use App\Models\faq;
 use App\Models\absensi;
 use App\Models\jadwal;
 use App\Models\jadwal_detail;
@@ -193,6 +194,21 @@ class DashboardController extends Controller
             'nama_shift' => $nama_shift,
             'shift' => $shift,
             'jadwal' => $jadwal,
+        ];
+
+        return response()->json($data, 200);
+    }
+
+    function faq()
+    {
+        $show = faq::join('users','users.id','=','faq.user')
+                    ->select('faq.*','users.nama as nama_user')
+                    ->where('faq.kategori',1)
+                    ->whereNull('faq.deleted_at')
+                    ->get();
+
+        $data = [
+            'show' => $show,
         ];
 
         return response()->json($data, 200);

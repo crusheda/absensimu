@@ -16,22 +16,28 @@ use Illuminate\Support\Facades\Route;
 
 // INITIALIZE
 use App\Http\Controllers\Android\Auth\LoginController;
+use App\Http\Controllers\Android\DashboardController AS Dashboard;
+use App\Http\Controllers\Android\JadwalDinasController AS JadwalDinas;
+use App\Http\Controllers\Android\SettingController AS Setting;
+use App\Http\Controllers\Android\ReminderController AS Reminder;
+use App\Http\Controllers\Android\AbsensiController AS Absensi;
 use App\Http\Controllers\Android\IntegrityController;
 use App\Http\Controllers\Android\FcmTokenController;
 use App\Http\Controllers\Android\NotificationController;
 
 // START ROUTE REST API FLUTTER
 Route::post('/login', [LoginController::class, 'login']);
-Route::get('/dashboard/{user}', [\App\Http\Controllers\Android\DashboardController::class, 'index']);
-Route::get('/jadwal/{user}/{bulan}/{tahun}', [\App\Http\Controllers\Android\JadwalDinasController::class, 'index']);
-Route::get('/setting/profil/{user}', [\App\Http\Controllers\Android\SettingController::class, 'profilUser']);
-Route::get('/reminder/shift', [\App\Http\Controllers\Android\ReminderController::class, 'reminderShift']);
-Route::get('/lokasi-kantor', [\App\Http\Controllers\Android\AbsensiController::class, 'lokasiKantor']);
-Route::post('/validasi', [\App\Http\Controllers\Android\AbsensiController::class, 'init']);
-Route::post('/absensi', [\App\Http\Controllers\Android\AbsensiController::class, 'absensi']);
-Route::get('/absensi/detail/{id}', [\App\Http\Controllers\Android\AbsensiController::class, 'detailAbsensi']);
+Route::get('/dashboard/{user}', [Dashboard::class, 'index']);
+Route::get('/jadwal/{user}/{bulan}/{tahun}', [JadwalDinas::class, 'index']);
+Route::get('/setting/profil/{user}', [Setting::class, 'profilUser']);
+Route::get('/reminder/shift', [Reminder::class, 'reminderShift']);
+Route::get('/lokasi-kantor', [Absensi::class, 'lokasiKantor']);
+Route::post('/validasi', [Absensi::class, 'init']);
+Route::post('/absensi', [Absensi::class, 'absensi']);
+Route::get('/absensi/detail/{id}', [Absensi::class, 'detailAbsensi']);
 Route::middleware('auth:sanctum')->post('/logout', [LoginController::class, 'logout']);
 // Route::middleware('auth:sanctum')->group(function () { });
+Route::get('/faq', [Dashboard::class, 'faq']);
 Route::post('/save-fcm-token', [FcmTokenController::class, 'store']);
 Route::post('/remove-token', [FcmTokenController::class, 'removeToken']);
 Route::post('/broadcast', [NotificationController::class, 'broadcast']);
