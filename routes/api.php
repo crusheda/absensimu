@@ -75,6 +75,9 @@ Route::get('kepegawaian/rekap/{user}/9', [\App\Http\Controllers\Rekap\RekapContr
 Route::get('kepegawaian/rekap/{user}/detail/{id}', [\App\Http\Controllers\Rekap\RekapController::class, 'showDetail'])->name('kepegawaian.rekap.detail');
 Route::get('kepegawaian/detail/foto/{id}/{status}', [\App\Http\Controllers\Rekap\RekapController::class, 'showFotoDetail'])->name('kepegawaian.rekap.detailFoto');
 
+// ENDPOINT REMOVE FOTO
+Route::get('kepegawaian/absensi/dari/{tgl_dari}/sampai/{tgl_sampai}', [\App\Http\Controllers\Absensi\AbsenController::class, 'removePhoto'])->name('kepegawaian.absensi.removePhoto');
+
 // ENDPOINT BUKTI FOTO
 Route::get('/kepegawaian/detail/foto/{filename}', function ($filename) {
     $path = storage_path('app/' . $filename);

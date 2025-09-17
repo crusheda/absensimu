@@ -13,7 +13,7 @@ use App\Models\ref_shift;
 use App\Models\ref_users;
 use Jenssegers\Agent\Agent;
 use Carbon\Carbon;
-use Auth,Validator,Redirect,Response,File,Storage;
+use DB,Auth,Validator,Redirect,Response,File,Storage;
 
 class AbsenController extends Controller
 {
@@ -646,6 +646,43 @@ class AbsenController extends Controller
             }
         }
         return request()->ip(); // fallback
-}
+    }
+
+    function removePhoto($tgl_dari, $tgl_sampai)
+    {
+        // 1. Ambil data absensi berdasarkan rentang tgl_in
+        $rows = DB::table('kepegawaian_absensi')
+            ->whereBetween('tgl_in', [$tgl_dari . ' 00:00:00', $tgl_sampai . ' 23:59:59'])
+            ->get(['id', 'foto_in', 'path_in', 'foto_out', 'path_out']);
+
+        $deletedCount = 0; // counter jumlah foto berhasil dihapus
+
+        foreach ($rows as $row) {
+            // 2. Hapus foto_in kalau ada
+            if (!empty($row->path_in) && Storage::exists($row->path_in)) {
+                Storage::delete($row->path_in);
+                $deletedCount++;
+            }
+
+            // 3. Hapus foto_out kalau ada
+            if (!empty($row->path_out) && Storage::exists($row->path_out)) {
+                Storage::delete($row->path_out);
+                $deletedCount++;
+            }
+
+            // 4. Update status trash
+            DB::table('kepegawaian_absensi')
+                ->where('id', $row->id)
+                ->update([
+                    'trashed_date' => Carbon::now(),
+                    'trashed_status' => 1,
+                ]);
+        }
+
+        return response()->json([
+            'message' => 'Penghapusan foto dari tanggal ' . $tgl_dari . ' sampai ' . $tgl_sampai . ' telah berhasil dilakukan',
+            'total_foto_dihapus' => $deletedCount,
+        ], 200);
+    }
 
 }
