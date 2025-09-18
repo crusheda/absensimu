@@ -410,6 +410,7 @@ class AbsensiController extends Controller
         $hit = "tgl".$tgl;
         $user = $request->id_user;
         $jenis = $request->jenis;
+        $fakegps = $request->is_fake_gps;
         // JENIS = 1 = BERANGKAT
         // JENIS = 2 = PULANG
         // JENIS = 3 = IJIN
@@ -535,6 +536,7 @@ class AbsensiController extends Controller
                             $data->lokasi_in = $request->latitude.', '.$request->longitude;
                             $data->terlambat = $terlambat;
                             $data->lewat_hari = $lewat_hari;
+                            $data->is_fake_gps = $fakegps;
                             $data->save();
 
                             return Response::json(array(
@@ -614,6 +616,9 @@ class AbsensiController extends Controller
                     $data->foto_out = $title;
                     $data->path_out = $path;
                     $data->lokasi_out = $request->latitude.', '.$request->longitude;
+                    if ($data->is_fake_gps == 0) {
+                        $data->is_fake_gps = $fakegps;
+                    }
                     $data->save();
 
                     return Response::json(array(
@@ -699,6 +704,7 @@ class AbsensiController extends Controller
                                 $data->terlambat = null;
                                 $data->keterangan = $request->keterangan ? $request->keterangan : '';
                                 $data->lewat_hari = 0;
+                                $data->is_fake_gps = $fakegps;
                                 $data->save();
 
                                 return Response::json(array(
@@ -796,6 +802,7 @@ class AbsensiController extends Controller
                                     $data->terlambat = null;
                                     $data->keterangan = $request->keterangan ? $request->keterangan : '';
                                     $data->lewat_hari = 0;
+                                    $data->is_fake_gps = $fakegps;
                                     $data->save();
 
                                     return Response::json(array(
