@@ -29,8 +29,10 @@ use App\Http\Controllers\Android\NotificationController;
 Route::post('/login', [LoginController::class, 'login']);
 Route::get('/dashboard/{user}', [Dashboard::class, 'index']);
 Route::get('/jadwal/{user}/{bulan}/{tahun}', [JadwalDinas::class, 'index']);
+Route::get('/jadwal2/{user}/{bulan}/{tahun}', [JadwalDinas::class, 'index2']);
 Route::get('/setting/profil/{user}', [Setting::class, 'profilUser']);
-Route::get('/reminder/shift', [Reminder::class, 'reminderShift']);
+// Route::get('/reminder/shift', [Reminder::class, 'reminderShift']); // TIDAK DIPAKAI
+Route::get('/reminder/shift/{user}', [Reminder::class, 'reminderShift']);
 Route::get('/lokasi-kantor', [Absensi::class, 'lokasiKantor']);
 Route::post('/validasi', [Absensi::class, 'init']);
 Route::post('/absensi', [Absensi::class, 'absensi']);
@@ -41,6 +43,7 @@ Route::get('/faq', [Dashboard::class, 'faq']);
 Route::post('/save-fcm-token', [FcmTokenController::class, 'store']);
 Route::post('/remove-token', [FcmTokenController::class, 'removeToken']);
 Route::post('/broadcast', [NotificationController::class, 'broadcast']);
+Route::post('/sendtopegawai', [NotificationController::class, 'sendToPegawai']);
 Route::post('/verify_integrity', [IntegrityController::class, 'verify_integrity']);
 
 // END ROUTE REST API FLUTTER

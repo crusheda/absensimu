@@ -860,14 +860,14 @@ class AbsensiController extends Controller
 
         if ($show->tgl_out) {
             $tgl_out = Carbon::parse($show->tgl_out)->translatedFormat('l, j F Y');
-            $jam_out = Carbon::parse($show->tgl_out)->format('H.i');
+            $jam_out = Carbon::parse($show->tgl_out)->format('H.i.s');
             if ($show->keterlambatan == '00:00:00') {
                 $terlambat = '-';
             } else {
-                $terlambat = $this->formatDurasiWaktu($show->keterlambatan);
+                $terlambat = $this->formatDurasiWaktuBaru($show->keterlambatan);
             }
-            $total_kerja = $this->formatDurasiWaktu($show->selisih_jam);
-            $lembur = $this->formatDurasiWaktu($show->lembur);
+            $total_kerja = $this->formatDurasiWaktuBaru($show->selisih_jam);
+            $lembur = $this->formatDurasiWaktuBaru($show->lembur);
         } else {
             $tgl_out = null;
             $jam_out = null;
@@ -882,7 +882,7 @@ class AbsensiController extends Controller
             "shift" => $show->nm_shift.' ('.$show->kd_shift.')',
             "status" => $status_terlambat,
             "tgl_in" => Carbon::parse($show->tgl_in)->translatedFormat('l, j F Y'),
-            "jam_in" => Carbon::parse($show->tgl_in)->format('H.i'),
+            "jam_in" => Carbon::parse($show->tgl_in)->format('H.i.s'),
             "latlong_in" => $show->lokasi_in ?? "-7.637823555197155, 110.86796229092549",
             "latlong_out" => $show->lokasi_out ?? null,
             "terlambat" => $terlambat,
@@ -920,5 +920,11 @@ class AbsensiController extends Controller
     {
         $carbon = Carbon::createFromFormat('H:i:s', $time);
         return "{$carbon->hour} jam {$carbon->minute} menit {$carbon->second} detik";
+    }
+
+    function formatDurasiWaktuBaru($time)
+    {
+        $carbon = Carbon::createFromFormat('H:i:s', $time);
+        return "{$carbon->hour}j {$carbon->minute}m {$carbon->second}d";
     }
 }
