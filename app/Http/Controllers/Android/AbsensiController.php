@@ -410,7 +410,7 @@ class AbsensiController extends Controller
         $hit = "tgl".$tgl;
         $user = $request->id_user;
         $jenis = $request->jenis;
-        $fakegps = $request->is_fake_gps;
+        $fakegps = $request->is_fake_gps ?? 0;
         // JENIS = 1 = BERANGKAT
         // JENIS = 2 = PULANG
         // JENIS = 3 = IJIN
