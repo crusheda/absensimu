@@ -133,13 +133,15 @@ class AbsensiController extends Controller
                                     $btn_ijin = true;
                                     if ($shift->berangkat > $shift->pulang) {
                                         $nama = 'Jadwal Shift Lewat Hari';
+                                        $jamMasukUntil = Carbon::parse($datetommorow . ' ' . $shift->pulang);
                                     } else {
                                         $nama = 'Jadwal Shift Reguler';
+                                        $jamMasukUntil = Carbon::parse($datenow . ' ' . $shift->pulang);
                                     }
                                     $keterangan = 'Shift '.$shift->shift;
                                     $jam = Carbon::parse($shift->berangkat)->isoFormat('HH:mm').' - '.Carbon::parse($shift->pulang)->isoFormat('HH:mm').' WIB';
                                     $jamMasuk = Carbon::parse($datenow . ' ' . $shift->berangkat)->subHour(2); // mulai dari 2 jam sebelum jam masuk
-                                    $jamMasukUntil = Carbon::parse($datenow . ' ' . $shift->pulang);
+                                    // $jamMasukUntil = Carbon::parse($datenow . ' ' . $shift->pulang);
                                     if ($now->lessThan($jamMasuk)) {
                                         $message = 'Absen Masuk Shift '.$shift->shift.' ('.$shift->singkat.') hari ini akan tersedia mulai Pukul '.Carbon::parse($jamMasuk)->isoFormat('HH:mm').' - '.Carbon::parse($jamMasukUntil)->isoFormat('HH:mm').' WIB. Segera kembali ke dalam radius Absensi (<30m dari titik lokasi).';
                                     } else if ($now->between($jamMasuk, $jamMasukUntil)) {
