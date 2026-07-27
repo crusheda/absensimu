@@ -15,6 +15,8 @@ class LoginController extends Controller
 {
     public function login(Request $request)
     {
+        $kepegawaian = 'SDI';
+
         if (!$request->username) {
             return response()->json([
                 'message' => 'Anda belum memasukkan Kredensial Login. Periksa Isian Username Anda.',
@@ -44,25 +46,25 @@ class LoginController extends Controller
 
         if (!$user) {
             return response()->json([
-                'message' => 'Akun Anda tidak ditemukan pada Database Kami',
+                'message' => 'Akun Anda tidak ditemukan pada Database Kami. Silakan melakukan konfirmasi pada bagian '.$kepegawaian.'.',
             ], 401);
         }
 
         if (!$user->nip) {
             return response()->json([
-                'message' => 'NIP Anda belum terinput di Database Kepegawaian',
+                'message' => 'NIP Anda belum terinput di Database. Silakan konfirmasi pada bagian '.$kepegawaian.'.',
             ], 401);
         }
 
         if (!Hash::check($request->password, $user->password)) {
             return response()->json([
-                'message' => 'Username atau Password salah',
+                'message' => 'Username atau Password salah!',
             ], 401);
         }
 
         if ($user->deleted_at !== null || $user->status == 1) {
             return response()->json([
-                'message' => 'Akun Anda sudah Nonaktif',
+                'message' => 'Akun Anda sudah Nonaktif! Silakan melakukan pengaktifan Akun kembali melalui bagian '.$kepegawaian.'.',
             ], 401);
         }
 
@@ -79,7 +81,7 @@ class LoginController extends Controller
         if ($existingDevice) {
             if (!$existingDevice->status) {
                 return response()->json([
-                    'message' => 'Perangkat Anda telah DIBLOKIR dari Sistem Absensi RS PKU Muhammadiyah Sukoharjo. Silakan konfirmasi kepada bagian terkait.',
+                    'message' => 'Perangkat Anda telah DIBLOKIR dari Sistem Absensi RS PKU Muhammadiyah Sukoharjo. Silakan konfirmasi kepada bagian '.$kepegawaian.'.',
                 ], 403);
             }
 
@@ -91,11 +93,11 @@ class LoginController extends Controller
                         // 'is_active'    => 0,
                     ]);
                     return response()->json([
-                        'message' => 'Perangkat baru Anda belum disetujui untuk melakukan Absensi. Silakan konfirmasi ulang kepada bagian terkait.',
+                        'message' => 'Perangkat baru Anda belum disetujui untuk melakukan Absensi. Silakan konfirmasi ulang kepada bagian '.$kepegawaian.'.',
                     ], 403);
                 } else {
                     return response()->json([
-                        'message' => 'Maaf, Akun Anda terdeteksi sudah didaftarkan di perangkat lain. Silakan konfirmasi ulang kepada bagian terkait.',
+                        'message' => 'Maaf, Akun Anda terdeteksi sudah didaftarkan di perangkat lain. Silakan konfirmasi ulang kepada bagian '.$kepegawaian.'.',
                     ], 403);
                 }
             }
@@ -103,7 +105,7 @@ class LoginController extends Controller
             // cek apakah device disetujui (accepted = 1)
             if (!$existingDevice->accepted) {
                 return response()->json([
-                    'message' => 'Perangkat ini belum disetujui untuk melakukan Absensi. Silakan konfirmasi terlebih dahulu kepada bagian terkait.',
+                    'message' => 'Perangkat ini belum disetujui untuk melakukan Absensi. Silakan konfirmasi terlebih dahulu kepada bagian '.$kepegawaian.'.',
                 ], 403);
             }
 
@@ -138,7 +140,7 @@ class LoginController extends Controller
             ]);
 
             return response()->json([
-                'message' => 'Perangkat baru terdeteksi, menunggu persetujuan dari bagian SDI.',
+                'message' => 'Perangkat baru terdeteksi, proses ini masih menunggu persetujuan Autentikasi dari bagian '.$kepegawaian.'.',
             ], 403);
 
             // kalau belum ada device aktif → cek apakah device ini sudah pernah terdaftar
