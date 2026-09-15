@@ -9,6 +9,7 @@ use App\Models\jadwal;
 use App\Models\jadwal_detail;
 use App\Models\ref_shift;
 use App\Models\ref_jabatan;
+use App\Models\ref_ln;
 use Jenssegers\Agent\Agent;
 use Carbon\Carbon;
 use Auth,Validator,Redirect,Response,File,Storage;
@@ -199,6 +200,11 @@ class JadwalDinasController extends Controller
                 ->whereNull('referensi_jadwal_users_jabatan.deleted_at')
                 ->get();
 
+        $liburNasional = ref_ln::whereNull('deleted_at')
+                                ->where('tahun', $tahun)
+                                ->where('bulan', $bulan)
+                                ->get();
+
         $users = users::select('id', 'nama', 'name')
             ->whereNull('deleted_at')
             ->where('status', null)
@@ -304,6 +310,7 @@ class JadwalDinasController extends Controller
             "ref_shift" => $shiftArray,
             "ref_jam" => $refJam,
             "color" => $colorArray,
+            "ref_libur_nasional" => $liburNasional,
             "flow" => [
                 "Admin Jadwal" => $jadwal->nama_admin ?? "",
                 "Tgl Dibuat" => $jadwal->tgl_dibuat ? $this->convertTgl($jadwal->tgl_dibuat) : "",
