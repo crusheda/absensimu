@@ -68,130 +68,136 @@ class LoginController extends Controller
             ], 401);
         }
 
-        // 🔒 cek device aktif ada di DB
-        $existingDevice = DB::table('fcm_tokens')
-            ->where('user_id', $user->id)
-            // ->where('device_id', '!=', null)
-            // ->where('is_active', 1)
-            // ->where('accepted', 1)
-            ->whereNull('deleted_at')
-            ->orderBy('id','DESC')
-            ->first();
+        // BYPASS DEVICE FROM ANY USER ID
+        $deviceValidationBypass = [232]; // 232, 245, 301
 
-        if ($existingDevice) {
-            if (!$existingDevice->status) {
-                return response()->json([
-                    'message' => 'Perangkat Anda telah DIBLOKIR dari Sistem Absensi RS PKU Muhammadiyah Sukoharjo. Silakan konfirmasi kepada bagian '.$kepegawaian.'.',
-                ], 403);
-            }
+        if (!in_array((int) $user->id, $deviceValidationBypass, true)) {
 
-            // jika device_id beda -> tolak login
-            if ($existingDevice->device_id !== $request->device_id) {
-                if (!$existingDevice->accepted) {
-                    DB::table('fcm_tokens')->where('id', $existingDevice->id)->update([
-                        'device_id'    => $request->device_id,
-                        // 'is_active'    => 0,
-                    ]);
+            // 🔒 cek device aktif ada di DB
+            $existingDevice = DB::table('fcm_tokens')
+                ->where('user_id', $user->id)
+                // ->where('device_id', '!=', null)
+                // ->where('is_active', 1)
+                // ->where('accepted', 1)
+                ->whereNull('deleted_at')
+                ->orderBy('id','DESC')
+                ->first();
+
+            if ($existingDevice) {
+                if (!$existingDevice->status) {
                     return response()->json([
-                        'message' => 'Perangkat baru Anda belum disetujui untuk melakukan Absensi. Silakan konfirmasi ulang kepada bagian '.$kepegawaian.'.',
-                    ], 403);
-                } else {
-                    return response()->json([
-                        'message' => 'Maaf, Akun Anda terdeteksi sudah didaftarkan di perangkat lain. Silakan konfirmasi ulang kepada bagian '.$kepegawaian.'.',
+                        'message' => 'Perangkat Anda telah DIBLOKIR dari Sistem Absensi RS PKU Muhammadiyah Sukoharjo. Silakan konfirmasi kepada bagian '.$kepegawaian.'.',
                     ], 403);
                 }
-            }
 
-            // cek apakah device disetujui (accepted = 1)
-            if (!$existingDevice->accepted) {
+                // jika device_id beda -> tolak login
+                if ($existingDevice->device_id !== $request->device_id) {
+                    if (!$existingDevice->accepted) {
+                        DB::table('fcm_tokens')->where('id', $existingDevice->id)->update([
+                            'device_id'    => $request->device_id,
+                            // 'is_active'    => 0,
+                        ]);
+                        return response()->json([
+                            'message' => 'Perangkat baru Anda belum disetujui untuk melakukan Absensi. Silakan konfirmasi ulang kepada bagian '.$kepegawaian.'.',
+                        ], 403);
+                    } else {
+                        return response()->json([
+                            'message' => 'Maaf, Akun Anda terdeteksi sudah didaftarkan di perangkat lain. Silakan konfirmasi ulang kepada bagian '.$kepegawaian.'.',
+                        ], 403);
+                    }
+                }
+
+                // cek apakah device disetujui (accepted = 1)
+                if (!$existingDevice->accepted) {
+                    return response()->json([
+                        'message' => 'Perangkat ini belum disetujui untuk melakukan Absensi. Silakan konfirmasi terlebih dahulu kepada bagian '.$kepegawaian.'.',
+                    ], 403);
+                }
+
+                // update token dan informasi device
+                DB::table('fcm_tokens')->where('id', $existingDevice->id)->update([
+                    'token'        => $request->token,
+                    'platform'     => $request->platform,
+                    'os_version'   => $request->os_version,
+                    'model'        => $request->model,
+                    'is_active'    => 1,
+                    'is_rooted'    => $request->is_rooted,
+                    'ip_address'   => $request->ip_address ?? $request->ip(),
+                    'last_login_at'=> now(),
+                    'updated_at'   => now(),
+                ]);
+            } else {
+                // device baru → insert dulu dengan accepted = 0 (butuh approval admin)
+                DB::table('fcm_tokens')->insert([
+                    'user_id'      => $user->id,
+                    'device_id'    => $request->device_id,
+                    'token'        => $request->token,
+                    'platform'     => $request->platform,
+                    'os_version'   => $request->os_version,
+                    'model'        => $request->model,
+                    'is_active'    => 0,
+                    'is_rooted'    => $request->is_rooted,
+                    'ip_address'   => $request->ip_address ?? $request->ip(),
+                    'accepted'     => 0, // default 0 → harus di-approve
+                    'last_login_at'=> now(),
+                    'created_at'   => now(),
+                    'updated_at'   => now(),
+                ]);
+
                 return response()->json([
-                    'message' => 'Perangkat ini belum disetujui untuk melakukan Absensi. Silakan konfirmasi terlebih dahulu kepada bagian '.$kepegawaian.'.',
+                    'message' => 'Perangkat baru terdeteksi, proses ini masih menunggu persetujuan Autentikasi dari bagian '.$kepegawaian.'.',
                 ], 403);
+
+                // kalau belum ada device aktif → cek apakah device ini sudah pernah terdaftar
+                // $deviceRow = DB::table('fcm_tokens')
+                //     ->where('user_id', $user->id)
+                //     ->where('device_id', $request->device_id)
+                //     ->where('status',true)
+                //     ->whereNull('deleted_at')
+                //     ->orderBy('id','DESC')
+                //     ->first();
+
+                // if ($deviceRow) {
+                //     // cek apakah disetujui
+                //     if (!$deviceRow->accepted) {
+                //         return response()->json([
+                //             'message' => 'Login gagal: Perangkat ini belum disetujui oleh bagian SDI',
+                //         ], 403);
+                //     }
+
+                //     // update ulang device lama
+                //     DB::table('fcm_tokens')->where('id', $deviceRow->id)->update([
+                //         'token'        => $request->token,
+                //         'platform'     => $request->platform,
+                //         'os_version'   => $request->os_version,
+                //         'model'        => $request->model,
+                //         'last_login_at'=> now(),
+                //         'updated_at'   => now(),
+                //         'is_active'    => 1,
+                //     ]);
+                // } else {
+                //     // device baru → insert dulu dengan accepted = 0 (butuh approval admin)
+                //     DB::table('fcm_tokens')->insert([
+                //         'user_id'      => $user->id,
+                //         'device_id'    => $request->device_id,
+                //         'token'        => $request->token,
+                //         'platform'     => $request->platform,
+                //         'os_version'   => $request->os_version,
+                //         'model'        => $request->model,
+                //         'is_active'    => 0,
+                //         'is_rooted'    => $request->is_rooted,
+                //         'ip_address'   => $request->ip_address ?? $request->ip(),
+                //         'accepted'     => 0, // default 0 → harus di-approve
+                //         'last_login_at'=> now(),
+                //         'created_at'   => now(),
+                //         'updated_at'   => now(),
+                //     ]);
+
+                //     return response()->json([
+                //         'message' => 'Login gagal: Perangkat baru terdeteksi, menunggu persetujuan bagian SDI',
+                //     ], 403);
+                // }
             }
-
-            // update token dan informasi device
-            DB::table('fcm_tokens')->where('id', $existingDevice->id)->update([
-                'token'        => $request->token,
-                'platform'     => $request->platform,
-                'os_version'   => $request->os_version,
-                'model'        => $request->model,
-                'is_active'    => 1,
-                'is_rooted'    => $request->is_rooted,
-                'ip_address'   => $request->ip_address ?? $request->ip(),
-                'last_login_at'=> now(),
-                'updated_at'   => now(),
-            ]);
-        } else {
-            // device baru → insert dulu dengan accepted = 0 (butuh approval admin)
-            DB::table('fcm_tokens')->insert([
-                'user_id'      => $user->id,
-                'device_id'    => $request->device_id,
-                'token'        => $request->token,
-                'platform'     => $request->platform,
-                'os_version'   => $request->os_version,
-                'model'        => $request->model,
-                'is_active'    => 0,
-                'is_rooted'    => $request->is_rooted,
-                'ip_address'   => $request->ip_address ?? $request->ip(),
-                'accepted'     => 0, // default 0 → harus di-approve
-                'last_login_at'=> now(),
-                'created_at'   => now(),
-                'updated_at'   => now(),
-            ]);
-
-            return response()->json([
-                'message' => 'Perangkat baru terdeteksi, proses ini masih menunggu persetujuan Autentikasi dari bagian '.$kepegawaian.'.',
-            ], 403);
-
-            // kalau belum ada device aktif → cek apakah device ini sudah pernah terdaftar
-            // $deviceRow = DB::table('fcm_tokens')
-            //     ->where('user_id', $user->id)
-            //     ->where('device_id', $request->device_id)
-            //     ->where('status',true)
-            //     ->whereNull('deleted_at')
-            //     ->orderBy('id','DESC')
-            //     ->first();
-
-            // if ($deviceRow) {
-            //     // cek apakah disetujui
-            //     if (!$deviceRow->accepted) {
-            //         return response()->json([
-            //             'message' => 'Login gagal: Perangkat ini belum disetujui oleh bagian SDI',
-            //         ], 403);
-            //     }
-
-            //     // update ulang device lama
-            //     DB::table('fcm_tokens')->where('id', $deviceRow->id)->update([
-            //         'token'        => $request->token,
-            //         'platform'     => $request->platform,
-            //         'os_version'   => $request->os_version,
-            //         'model'        => $request->model,
-            //         'last_login_at'=> now(),
-            //         'updated_at'   => now(),
-            //         'is_active'    => 1,
-            //     ]);
-            // } else {
-            //     // device baru → insert dulu dengan accepted = 0 (butuh approval admin)
-            //     DB::table('fcm_tokens')->insert([
-            //         'user_id'      => $user->id,
-            //         'device_id'    => $request->device_id,
-            //         'token'        => $request->token,
-            //         'platform'     => $request->platform,
-            //         'os_version'   => $request->os_version,
-            //         'model'        => $request->model,
-            //         'is_active'    => 0,
-            //         'is_rooted'    => $request->is_rooted,
-            //         'ip_address'   => $request->ip_address ?? $request->ip(),
-            //         'accepted'     => 0, // default 0 → harus di-approve
-            //         'last_login_at'=> now(),
-            //         'created_at'   => now(),
-            //         'updated_at'   => now(),
-            //     ]);
-
-            //     return response()->json([
-            //         'message' => 'Login gagal: Perangkat baru terdeteksi, menunggu persetujuan bagian SDI',
-            //     ], 403);
-            // }
         }
 
         // Buat token
