@@ -483,6 +483,7 @@ class AbsensiController extends Controller
                             $pulang = Carbon::createFromFormat('Y-m-d H:i:s', $today . ' ' . $shift->pulang, 'Asia/Jakarta')->format('Y-m-d H:i:s');
                         } else {
                             return Response::json(array(
+                                'title' => 'Ahh Maaf!',
                                 'message' => 'Absen Masuk belum tersedia!',
                                 'code' => 401,
                             ));
@@ -495,6 +496,7 @@ class AbsensiController extends Controller
                             $pulang = Carbon::createFromFormat('Y-m-d H:i:s', $tommorow . ' ' . $shift->pulang, 'Asia/Jakarta')->format('Y-m-d H:i:s');
                         } else {
                             return Response::json(array(
+                                'title' => 'Ahh Maaf!',
                                 'message' => 'Absen Masuk belum tersedia!',
                                 'code' => 401,
                             ));
@@ -526,6 +528,7 @@ class AbsensiController extends Controller
 
                             if ($validasi->isNotEmpty()) {
                                 return Response::json(array(
+                                    'title' => 'Semangat!!',
                                     'message' => 'Absen Masuk sudah tercatat! Silakan melanjutkan Aktifitas Bekerja Anda!',
                                     'code' => 401,
                                 ));
@@ -556,29 +559,34 @@ class AbsensiController extends Controller
                             $data->save();
 
                             return Response::json(array(
+                                'title' => 'Yeayy! Kamu Hebat!',
                                 'message' => 'Absen Masuk Jaga '.$shift->shift.' berhasil pada '.Carbon::now('Asia/Jakarta')->translatedFormat('l, d F Y \P\u\k\u\l H.i').' WIB dan tercatat '.$nm_terlambat.', selamat beraktifitas. Semangat!! :)',
                                 'code' => 200,
                             ));
                         } else {
                             return Response::json(array(
+                                'title' => 'Ahh Maaf!',
                                 'message' => 'Jam Berangkat yang terkirim ke Sistem TIDAK VALID, bisa jadi dikarenakan banyaknya Cache yang menumpuk pada Device Anda. Silakan Refresh halaman Absensi ini dan lakukan sekali lagi. Terima Kasih.',
                                 'code' => 401,
                             ));
                         }
                     } else {
                         return Response::json(array(
+                            'title' => 'Ahh Maaf!',
                             'message' => 'Hasil selfi kamera tidak ditemukan, pastikan kamera Anda dalam kondisi Normal. Apabila masih belum dapat melakukan Absensi, silakan menghubungi Admin. Terima Kasih.',
                             'code' => 401,
                         ));
                     }
                 } else {
                     return Response::json(array(
+                        'title' => 'Ahh Maaf!',
                         'message' => 'Shift tidak valid. Pastikan Hari ini Anda masuk jaga Shift atau Libur. Silakan konfirmasi kepada Admin Jadwal bulan ini untuk memastikan Nama Referensi Shift sudah benar dan Valid!',
                         'code' => 401,
                     ));
                 }
             } else {
                 return Response::json(array(
+                    'title' => 'Ahh Maaf!',
                     'message' => 'Jadwal tidak valid. Konfirmasi dengan Admin Jadwal Dinas Anda!',
                     'code' => 401,
                 ));
@@ -608,6 +616,7 @@ class AbsensiController extends Controller
                     $data = $validate->first();
                     if (!$data) {
                         return Response::json([
+                            'title' => 'Ahh Gawat!',
                             'message' => 'Data absensi tidak ditemukan. Segera hubungi Developer!',
                             'code' => 404,
                         ]);
@@ -638,11 +647,13 @@ class AbsensiController extends Controller
                     $data->save();
 
                     return Response::json(array(
+                        'title' => 'Yeayy! Kamu Hebat!!',
                         'message' => 'Absen Pulang Jaga '.$data->nm_shift.' telah berhasil, hati-hati di jalan.',
                         'code' => 200,
                     ));
                 } else {
                     return Response::json(array(
+                        'title' => 'Ahh Maaf!',
                         'message' => 'Hasil selfi kamera tidak ditemukan, pastikan kamera Anda dalam kondisi Normal. Apabila masih belum dapat melakukan Absensi, silakan menghubungi Admin. Terima Kasih.',
                         'code' => 400,
                     ));
@@ -651,6 +662,7 @@ class AbsensiController extends Controller
                 if ($jenis == 3) { // ABSENSI IJIN
                     if (!$request->keterangan) {
                         return Response::json(array(
+                            'title' => 'Ahh Ada Yang Janggal!',
                             'message' => 'Keterangan Wajib Diisi. Silakan mengulangi Pengajuan Ijin kembali dengan mengisi Keterangan Ijin. Terima Kasih.',
                             'code' => 401,
                         ));
@@ -724,23 +736,27 @@ class AbsensiController extends Controller
                                 $data->save();
 
                                 return Response::json(array(
+                                    'title' => 'Yeayy! Kamu Hebat!!',
                                     'message' => 'Surat Ijin berhasil dikirimkan. Silakan melanjutkan aktivitas Anda.',
                                     'code' => 200,
                                 ));
                             } else {
                                 return Response::json(array(
+                                    'title' => 'Ahh Maaf!',
                                     'message' => 'Hasil selfi kamera tidak ditemukan, pastikan kamera Anda dalam kondisi Normal. Apabila masih belum dapat melakukan Absensi, silakan menghubungi Admin. Terima Kasih.',
                                     'code' => 401,
                                 ));
                             }
                         } else {
                             return Response::json(array(
+                                'title' => 'Ahh Maaf!',
                                 'message' => 'Shift tidak valid. Pastikan Hari ini Anda masuk jaga Shift atau Libur. Silakan konfirmasi kepada Admin Jadwal bulan ini untuk memastikan Nama Referensi Shift sudah benar dan Valid!',
                                 'code' => 401,
                             ));
                         }
                     } else {
                         return Response::json(array(
+                            'title' => 'Ahh Maaf!',
                             'message' => 'Jadwal tidak valid. Konfirmasi dengan Admin Jadwal Dinas Anda!',
                             'code' => 401,
                         ));
@@ -749,6 +765,7 @@ class AbsensiController extends Controller
                     if ($jenis == 4) {
                         if (!$request->keterangan) {
                             return Response::json(array(
+                                'title' => 'Ahh Ada Yang Janggal!',
                                 'message' => 'Keterangan Wajib Diisi. Silakan mengulangi Pengajuan Dinas Luar kembali dengan mengisi Keterangan yang tersedia. Terima Kasih.',
                                 'code' => 401,
                             ));
@@ -822,29 +839,34 @@ class AbsensiController extends Controller
                                     $data->save();
 
                                     return Response::json(array(
+                                        'title' => 'Yeayy! Kamu Hebat!!',
                                         'message' => 'Pengajuan Dinas Luar berhasil dikirimkan. Silakan melanjutkan aktivitas Dinas Anda.',
                                         'code' => 200,
                                     ));
                                 } else {
                                     return Response::json(array(
+                                        'title' => 'Ahh Maaf!!',
                                         'message' => 'Hasil selfi kamera tidak ditemukan, pastikan kamera Anda dalam kondisi Normal. Apabila masih belum dapat melakukan Absensi, silakan menghubungi Admin. Terima Kasih.',
                                         'code' => 401,
                                     ));
                                 }
                             } else {
                                 return Response::json(array(
+                                    'title' => 'Ahh Maaf!!',
                                     'message' => 'Shift tidak valid. Pastikan Hari ini Anda masuk jaga Shift atau Libur. Silakan konfirmasi kepada Admin Jadwal bulan ini untuk memastikan Nama Referensi Shift sudah benar dan Valid!',
                                     'code' => 401,
                                 ));
                             }
                         } else {
                             return Response::json(array(
+                                'title' => 'Ahh Maaf!!',
                                 'message' => 'Jadwal tidak valid. Konfirmasi dengan Admin Jadwal Dinas Anda!',
                                 'code' => 401,
                             ));
                         }
                     } else {
                         return Response::json(array(
+                            'title' => 'Ahh Gawat!!',
                             'message' => 'Absensi Tidak Valid. Mohon segera menghubungi Tim Developer!',
                             'code' => 401,
                         ));
